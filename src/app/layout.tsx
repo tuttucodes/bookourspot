@@ -3,18 +3,57 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
+const siteUrl = "https://bookourspot.com";
 
 export const metadata: Metadata = {
-  title: "BookOurSpot — Book Appointments Instantly",
-  description: "Malaysia's booking platform for salons, barbershops, car wash & more. Book appointments in seconds.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "BookOurSpot | Instant Appointment Booking in Malaysia",
+    template: "%s | BookOurSpot",
+  },
+  description:
+    "Discover and book appointments with top salons, barbershops, spas and car washes across Malaysia.",
+  keywords: [
+    "book salon appointment",
+    "barbershop booking malaysia",
+    "spa booking",
+    "car wash booking",
+    "BookOurSpot",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    siteName: "BookOurSpot",
+    title: "BookOurSpot | Instant Appointment Booking in Malaysia",
+    description:
+      "Find trusted local salons, barbershops, spas and car washes. Compare options and book in seconds.",
+    locale: "en_MY",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BookOurSpot | Instant Appointment Booking in Malaysia",
+    description: "Find and book local services with live availability.",
+  },
   manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   themeColor: "#7c3aed",
 };
 

@@ -1,8 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Image from 'next/image';
 import { Playfair_Display, Work_Sans } from 'next/font/google';
-import { Calendar, Clock3, MapPin, Scissors, Star, CheckCircle2, Moon, Sun } from 'lucide-react';
+import { Clock3, MapPin, Scissors, Star, CheckCircle2, Moon, Sun } from 'lucide-react';
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['600', '700'], display: 'swap' });
 const workSans = Work_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], display: 'swap' });
@@ -279,7 +280,14 @@ export default function SKBarberPage() {
       <div className="max-w-4xl mx-auto">
         <header className="p-4 md:p-6">
           <div className="rounded-3xl overflow-hidden border" style={{ borderColor: border, background: cardBg }}>
-            <img src={BUSINESS.coverImage} alt="SK Barbershop cover" className="w-full h-52 md:h-72 object-cover" loading="lazy" />
+            <Image
+              src={BUSINESS.coverImage}
+              alt="SK Barbershop cover"
+              width={1400}
+              height={720}
+              className="w-full h-52 md:h-72 object-cover"
+              priority={false}
+            />
             <div className="p-5 md:p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>

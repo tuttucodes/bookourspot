@@ -224,12 +224,20 @@ export default function HomePageClient() {
             <p className="text-sm text-violet-100 mt-1">
               Accept online bookings, reduce no-shows, and reach more local customers.
             </p>
-            <Link
-              href="/login?role=merchant"
-              className="inline-block mt-4 px-4 py-2 bg-white text-violet-700 text-sm font-semibold rounded-xl active:scale-95"
-            >
-              Get Started Free
-            </Link>
+            <div className="mt-4 flex items-center gap-2">
+              <Link
+                href="/for-business"
+                className="inline-block px-4 py-2 bg-white text-violet-700 text-sm font-semibold rounded-xl active:scale-95"
+              >
+                Explore For Business
+              </Link>
+              <Link
+                href="/login?role=merchant"
+                className="inline-block px-4 py-2 bg-violet-800/60 border border-white/30 text-white text-sm font-medium rounded-xl active:scale-95"
+              >
+                Merchant Login
+              </Link>
+            </div>
           </div>
         </section>
       )}

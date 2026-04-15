@@ -33,14 +33,28 @@ export default function BusinessPage() {
 
   useEffect(() => {
     if (!id) return;
-    setLoading(true);
-    Promise.all([getBusiness(id), getServices(id)])
-      .then(([biz, svcs]) => {
+    let isCancelled = false;
+
+    async function loadBusinessDetails() {
+      setLoading(true);
+      try {
+        const [biz, svcs] = await Promise.all([getBusiness(id), getServices(id)]);
+        if (isCancelled) return;
         setBusiness(biz);
         setServices(svcs);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      } catch {
+        if (isCancelled) return;
+        setBusiness(null);
+        setServices([]);
+      } finally {
+        if (!isCancelled) setLoading(false);
+      }
+    }
+
+    loadBusinessDetails();
+    return () => {
+      isCancelled = true;
+    };
   }, [id]);
 
   if (loading) {
@@ -75,9 +89,24 @@ export default function BusinessPage() {
 
   const catConfig = CATEGORY_CONFIG[business.category] || CATEGORY_CONFIG.other;
   const workingHours = business.working_hours as WorkingHours | null;
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: business.name,
+    description: business.description || undefined,
+    telephone: business.phone || undefined,
+    address: business.address || business.location || undefined,
+    areaServed: business.location || 'Malaysia',
+    url: `https://bookourspot.com/business/${id}`,
+    sameAs: [],
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
       <Header title={business.name} showBack />
 
       <div className="max-w-lg mx-auto px-4 pt-5">

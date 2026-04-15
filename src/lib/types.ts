@@ -34,6 +34,7 @@ export interface Business {
   location: string | null;
   address: string | null;
   phone: string | null;
+  owner_whatsapp: string | null;
   image_url: string | null;
   working_hours: WorkingHours;
   is_active: boolean;

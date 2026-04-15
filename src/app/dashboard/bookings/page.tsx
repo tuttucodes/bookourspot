@@ -170,13 +170,14 @@ export default function MerchantBookingsPage() {
     setSubmitting(true);
     try {
       const newApt = await bookAppointment({
-        user_id: authUser.id,
         business_id: business.id,
         service_id: manualForm.serviceId,
         date: selectedDate,
         start_time: startTime,
         end_time: endTime,
         notes: `Walk-in: ${manualForm.customerName}${manualForm.customerPhone ? ` | ${manualForm.customerPhone}` : ''}`,
+        customer_name: manualForm.customerName,
+        customer_phone: manualForm.customerPhone || undefined,
       });
       setAppointments((prev) => [...prev, newApt]);
       setShowManualBooking(false);

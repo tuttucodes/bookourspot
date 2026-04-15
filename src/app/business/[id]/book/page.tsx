@@ -124,13 +124,15 @@ function BookingFlow() {
     setSubmitting(true);
     try {
       const appointment = await bookAppointment({
-        user_id: authUser.id,
         business_id: businessId,
         service_id: selectedService.id,
         date: format(selectedDate, 'yyyy-MM-dd'),
         start_time: selectedSlot.start,
         end_time: selectedSlot.end,
         notes: customerEmail ? `Email: ${customerEmail}` : undefined,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        customer_email: customerEmail || undefined,
       });
       router.push(`/booking/${appointment.id}/confirmed`);
     } catch {

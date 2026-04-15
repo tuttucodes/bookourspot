@@ -161,42 +161,33 @@ export async function getAvailableSlots(businessId: string, date: string) {
 }
 
 export async function bookAppointment(appointment: {
-  user_id: string;
   business_id: string;
   service_id: string;
   date: string;
   start_time: string;
   end_time: string;
   notes?: string;
+  customer_name?: string;
+  customer_phone?: string;
+  customer_email?: string;
 }) {
-  const sb = supabase();
-  const { data, error } = await sb
-    .from('appointments')
-    .insert({ ...appointment, status: 'booked' })
-    .select('*, service:services(*), business:businesses(*)')
-    .single();
-  if (error) throw error;
+  const response = await fetch('/api/appointments/book', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(appointment),
+  });
 
-  const row = data as Appointment;
-  const price =
-    row.service && typeof row.service === 'object' && 'price' in row.service
-      ? Number((row.service as { price: number }).price)
-      : NaN;
-
-  if (!Number.isNaN(price)) {
-    const { error: txError } = await sb.from('transactions').insert({
-      appointment_id: row.id,
-      amount: price,
-      payment_method: 'cash',
-      status: 'pending',
-    });
-    if (txError) {
-      await sb.from('appointments').delete().eq('id', row.id);
-      throw txError;
-    }
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    const message = payload && typeof payload.error === 'string'
+      ? payload.error
+      : 'Failed to book appointment.';
+    throw new Error(message);
   }
 
-  return row;
+  return payload.data as Appointment;
 }
 
 export async function getMyBookings(userId: string) {

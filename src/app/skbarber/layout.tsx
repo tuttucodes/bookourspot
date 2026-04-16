@@ -1,17 +1,16 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'SK Barbershop Cyberjaya | Book Haircuts Online',
-  description:
-    'Book your SK Barbershop appointment in Cyberjaya. View services, reviews, availability, and confirm your slot instantly.',
+  title: 'SK Barbershop Cyberjaya | Redirect',
+  description: 'Redirecting to the latest SK Barbershop profile page.',
   alternates: {
-    canonical: '/skbarber',
+    canonical: '/skbarbershop',
   },
+  robots: { index: false, follow: true },
   openGraph: {
     title: 'SK Barbershop Cyberjaya | BookOurSpot',
-    description:
-      'Book SK Barbershop appointments online with instant confirmation on BookOurSpot.',
-    url: 'https://bookourspot.com/skbarber',
+    description: 'Redirecting to the latest SK Barbershop booking page.',
+    url: 'https://bookourspot.com/skbarbershop',
     type: 'website',
     images: ['/og-image.svg'],
   },

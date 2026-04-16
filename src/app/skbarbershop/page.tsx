@@ -151,17 +151,19 @@ export default function SKBarbershopPage() {
       setSelectedSlotStart('');
       return;
     }
+    const businessId = business.id;
+    const serviceDurationMinutes = selectedService.duration_minutes;
 
     let cancelled = false;
     async function loadSlots() {
       setLoadingSlots(true);
       setSelectedSlotStart('');
       try {
-        const appointments = await getAvailableSlots(business.id, selectedDate);
+        const appointments = await getAvailableSlots(businessId, selectedDate);
         const computed = generateTimeSlots(
           new Date(`${selectedDate}T00:00:00`),
           workingHours,
-          selectedService.duration_minutes,
+          serviceDurationMinutes,
           appointments
         );
         if (!cancelled) setSlots(computed);

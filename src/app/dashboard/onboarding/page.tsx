@@ -143,13 +143,13 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-        <div className="max-w-lg mx-auto px-4 py-4">
+        <div className="app-content-compact py-4">
           <h1 className="text-lg font-semibold text-gray-900">Set Up Your Business</h1>
           <p className="text-sm text-gray-500 mt-0.5">Step {step + 1} of {STEPS.length}</p>
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 pt-6 pb-32">
+      <main className="app-content-compact pt-6 pb-32">
         {/* Progress Indicator */}
         <div className="flex items-center gap-2 mb-8">
           {STEPS.map((label, i) => (
@@ -361,7 +361,7 @@ export default function OnboardingPage() {
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 safe-area-bottom">
-        <div className="max-w-lg mx-auto flex items-center gap-3 px-4 py-4">
+        <div className="app-content-compact flex items-center gap-3 py-4">
           {step > 0 && (
             <Button variant="outline" size="lg" onClick={handleBack} className="flex-1">
               <ChevronLeft size={18} className="mr-1" />

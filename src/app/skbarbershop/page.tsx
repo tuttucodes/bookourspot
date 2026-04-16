@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { addDays, format } from 'date-fns';
 import { Clock3, Loader2, MapPin, Phone, Scissors, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { bookAppointment, getAvailableSlots, getBusinesses, getServices } from '@/lib/api';
 import { generateTimeSlots, formatTime } from '@/lib/slots';
 import type { Business, Service, TimeSlot, WorkingHours } from '@/lib/types';
 import { DEFAULT_WORKING_HOURS } from '@/lib/constants';
+import { SK_BARBERSHOP_IMAGES } from '@/lib/sk-barbershop';
 
 const STATIC_PROFILE = {
   name: 'SK Barbershop',
@@ -294,21 +296,74 @@ export default function SKBarbershopPage() {
 
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-6">
         <div className="rounded-3xl overflow-hidden border border-[#e5e2e1] bg-white shadow-sm">
-          <div className="bg-gradient-to-r from-[#006273] via-[#107c91] to-[#7cd3ea] p-6 sm:p-10 text-white">
-            <p className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]">
-              Cyberjaya Featured Barbershop
-            </p>
-            <h1 className="mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight">
-              {displayName}
-            </h1>
-            <p className="mt-3 text-sm sm:text-base text-white/90 max-w-3xl">{displayDescription}</p>
-            <div className="mt-5 flex flex-wrap gap-2 text-sm">
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">
-                <Star size={14} className="text-yellow-300" fill="currentColor" />
-                {STATIC_PROFILE.ratingAverage} ({STATIC_PROFILE.ratingCount} reviews)
-              </span>
-              <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.category}</span>
-              <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.priceRange}</span>
+          <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="bg-gradient-to-r from-[#006273] via-[#107c91] to-[#7cd3ea] p-6 sm:p-10 text-white">
+              <p className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]">
+                Cyberjaya Featured Barbershop
+              </p>
+              <h1 className="mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight">
+                {displayName}
+              </h1>
+              <p className="mt-3 text-sm sm:text-base text-white/90 max-w-3xl">{displayDescription}</p>
+              <div className="mt-5 flex flex-wrap gap-2 text-sm">
+                <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">
+                  <Star size={14} className="text-yellow-300" fill="currentColor" />
+                  {STATIC_PROFILE.ratingAverage} ({STATIC_PROFILE.ratingCount} reviews)
+                </span>
+                <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.category}</span>
+                <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.priceRange}</span>
+              </div>
+            </div>
+            <div className="relative min-h-[260px] bg-[#f6f3f2]">
+              <Image
+                src={SK_BARBERSHOP_IMAGES.hero}
+                alt="SK Barbershop interior with premium barber chairs"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                priority
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
+        <div className="rounded-2xl border border-[#e5e2e1] bg-white p-5 sm:p-6">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Inside SK Barbershop</h2>
+              <p className="mt-1 text-sm text-[#3e484c]">
+                Real photos of the Cyberjaya shop so customers know exactly what to expect.
+              </p>
+            </div>
+            <span className="rounded-full bg-[#ebfaff] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#006273]">
+              Photo gallery
+            </span>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-[1.3fr_0.7fr]">
+            <div className="relative min-h-[320px] overflow-hidden rounded-2xl bg-[#f6f3f2]">
+              <Image
+                src={SK_BARBERSHOP_IMAGES.gallery[0].src}
+                alt={SK_BARBERSHOP_IMAGES.gallery[0].alt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 60vw"
+              />
+            </div>
+            <div className="grid gap-3">
+              {SK_BARBERSHOP_IMAGES.gallery.slice(1).map((photo) => (
+                <div key={photo.src} className="relative min-h-[154px] overflow-hidden rounded-2xl bg-[#f6f3f2]">
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 30vw"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MapPin, Phone, Clock, BadgeCheck, Scissors, Car, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { getBusinessBySlug, getServices } from '@/lib/api';
 import type { Business, Service, WorkingHours } from '@/lib/types';
+import { SK_BARBERSHOP_IMAGES } from '@/lib/sk-barbershop';
 
 const DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
@@ -62,7 +64,7 @@ export default function BusinessSlugPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="" showBack />
-        <div className="mx-auto max-w-lg animate-pulse space-y-4 px-4 pt-6">
+        <div className="app-content-compact animate-pulse space-y-4 pt-6">
           <div className="h-8 w-2/3 rounded-lg bg-gray-200" />
           <div className="h-4 w-1/3 rounded-lg bg-gray-100" />
           <div className="h-4 w-1/2 rounded-lg bg-gray-100" />
@@ -90,6 +92,7 @@ export default function BusinessSlugPage() {
 
   const catConfig = CATEGORY_CONFIG[business.category] || CATEGORY_CONFIG.other;
   const workingHours = business.working_hours as WorkingHours | null;
+  const isSkBarbershop = business.slug === 'skbarbershop';
   const localBusinessSchema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -110,8 +113,20 @@ export default function BusinessSlugPage() {
       />
       <Header title={business.name} showBack />
 
-      <div className="mx-auto max-w-lg px-4 pt-5">
+      <div className="app-content pt-5">
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+          {isSkBarbershop && (
+            <div className="relative mb-4 h-56 overflow-hidden rounded-2xl bg-gray-100">
+              <Image
+                src={SK_BARBERSHOP_IMAGES.hero}
+                alt="SK Barbershop interior in Cyberjaya"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 40rem"
+                priority
+              />
+            </div>
+          )}
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h1 className="text-xl font-bold text-gray-900">{business.name}</h1>
@@ -145,6 +160,35 @@ export default function BusinessSlugPage() {
           </div>
         </div>
 
+        {isSkBarbershop && (
+          <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-900">Photo Gallery</h2>
+              <span className="rounded-full bg-[#ebfaff] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#006273]">
+                Real shop photos
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {SK_BARBERSHOP_IMAGES.gallery.map((photo, index) => (
+                <div
+                  key={photo.src}
+                  className={`relative overflow-hidden rounded-2xl bg-gray-100 ${
+                    index === 0 ? 'col-span-2 h-48' : 'h-32'
+                  }`}
+                >
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 40rem"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {workingHours && Object.keys(workingHours).length > 0 && (
           <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-gray-900">
@@ -173,7 +217,8 @@ export default function BusinessSlugPage() {
           </div>
         )}
 
-        <div className="mt-4">
+        <div className="mt-4 lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-6">
+          <div>
           <h2 className="mb-3 text-base font-semibold text-gray-900">Services</h2>
 
           {services.length === 0 && (
@@ -213,6 +258,7 @@ export default function BusinessSlugPage() {
                 </div>
               </div>
             ))}
+          </div>
           </div>
         </div>
       </div>

@@ -41,7 +41,7 @@ export default function BookingConfirmedPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Booking Confirmed" showBack />
-        <div className="max-w-lg mx-auto px-4 pt-10">
+        <div className="app-content-compact pt-10">
           <div className="animate-pulse space-y-4 flex flex-col items-center">
             <div className="w-20 h-20 bg-gray-200 rounded-full" />
             <div className="h-5 bg-gray-200 rounded-lg w-2/3" />
@@ -87,7 +87,7 @@ export default function BookingConfirmedPage() {
     <div className="min-h-screen bg-gray-50 pb-10">
       <Header title="Booking Confirmed" showBack />
 
-      <div className="max-w-lg mx-auto px-4 pt-8">
+      <div className="app-content-compact pt-8">
         {/* Success Animation */}
         <div className="flex flex-col items-center mb-8">
           <div className="relative">

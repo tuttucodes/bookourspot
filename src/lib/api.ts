@@ -1,6 +1,6 @@
 import { createClient } from './supabase/client';
 import { getPublicSiteUrl } from './env';
-import type { Business, Service, Appointment, User } from './types';
+import type { Business, Service, Appointment, User, StaffMember } from './types';
 
 // Lazy client — avoids module-level initialization during SSR/prerender
 function supabase() {
@@ -167,6 +167,42 @@ export async function deleteService(id: string) {
 }
 
 // ============================================
+// STAFF
+// ============================================
+export async function getBusinessStaff(businessId: string) {
+  const { data, error } = await supabase()
+    .from('business_staff')
+    .select('*')
+    .eq('business_id', businessId)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data as StaffMember[];
+}
+
+export async function createStaffMember(staff: Partial<StaffMember>) {
+  const { data, error } = await supabase().from('business_staff').insert(staff).select().single();
+  if (error) throw error;
+  return data as StaffMember;
+}
+
+export async function updateStaffMember(id: string, updates: Partial<StaffMember>) {
+  const { data, error } = await supabase()
+    .from('business_staff')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data as StaffMember;
+}
+
+export async function deleteStaffMember(id: string) {
+  const { error } = await supabase().from('business_staff').update({ is_active: false }).eq('id', id);
+  if (error) throw error;
+}
+
+// ============================================
 // APPOINTMENTS
 // ============================================
 export async function getAvailableSlots(businessId: string, date: string) {
@@ -293,7 +329,7 @@ export async function getDashboardStats(businessId: string) {
 export async function getBusinessCustomers(businessId: string) {
   const { data, error } = await supabase()
     .from('appointments')
-    .select('user:users(id, name, email, phone), date, status')
+    .select('user:users(id, name, email, phone), date, status, service:services(name, price)')
     .eq('business_id', businessId)
     .order('date', { ascending: false });
   if (error) throw error;

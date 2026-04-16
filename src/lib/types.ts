@@ -5,6 +5,7 @@ export type AppointmentStatus = 'booked' | 'cancelled' | 'completed';
 export type BusinessCategory = 'salon' | 'barbershop' | 'car_wash' | 'spa' | 'other';
 
 export type TransactionStatus = 'pending' | 'completed';
+export type StaffStatus = 'available' | 'busy' | 'off_duty';
 
 export interface WorkingHours {
   [day: string]: {
@@ -50,6 +51,20 @@ export interface Service {
   description: string | null;
   price: number;
   duration_minutes: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StaffMember {
+  id: string;
+  business_id: string;
+  name: string;
+  role: string;
+  avatar_url: string | null;
+  status: StaffStatus;
+  rating: number;
+  monthly_bookings: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;

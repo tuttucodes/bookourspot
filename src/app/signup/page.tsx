@@ -77,7 +77,7 @@ function SignupForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-violet-50 to-white flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-xl">
         {/* Branding */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">

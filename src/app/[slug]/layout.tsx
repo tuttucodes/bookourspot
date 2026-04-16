@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { getSupabasePublicConfig } from '@/lib/env';
+import { SK_BARBERSHOP_IMAGES } from '@/lib/sk-barbershop';
 
 const SITE_URL = 'https://bookourspot.com';
 
@@ -48,6 +49,15 @@ export async function generateMetadata(
   const description =
     business.description ||
     `Book ${business.category.replace('_', ' ')} appointments at ${business.name}${business.location ? ` in ${business.location}` : ''} with BookOurSpot.`;
+  const isSkBarbershop = business.slug === 'skbarbershop';
+  const socialImages = isSkBarbershop
+    ? [
+        {
+          url: SK_BARBERSHOP_IMAGES.card,
+          alt: 'SK Barbershop storefront in Cyberjaya',
+        },
+      ]
+    : ['/og-image.svg'];
 
   return {
     title: `${business.name} | Book Appointment`,
@@ -58,13 +68,13 @@ export async function generateMetadata(
       description,
       url: canonical,
       type: 'website',
-      images: ['/og-image.svg'],
+      images: socialImages,
     },
     twitter: {
       card: 'summary_large_image',
       title: `${business.name} | Book Appointment`,
       description,
-      images: ['/og-image.svg'],
+      images: isSkBarbershop ? [SK_BARBERSHOP_IMAGES.card] : ['/og-image.svg'],
     },
   };
 }

@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useMemo } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { format, addDays } from 'date-fns';
-import { Clock, Check, ChevronRight, Loader2, Sun, Sunset, Moon } from 'lucide-react';
+import { Clock, Check, ChevronRight, Loader2, Sun, Sunset, Moon, MapPin, ShieldCheck, WalletCards } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { getBusiness, getServices, getAvailableSlots, bookAppointment } from '@/lib/api';
@@ -181,7 +181,7 @@ function BookingFlow() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Book Appointment" showBack />
-        <div className="max-w-lg mx-auto px-4 pt-8">
+        <div className="app-content-compact pt-8">
           <div className="animate-pulse space-y-4">
             <div className="h-6 bg-gray-200 rounded-lg w-1/2" />
             <div className="h-4 bg-gray-100 rounded-lg w-1/3" />
@@ -211,7 +211,7 @@ function BookingFlow() {
     <div className="min-h-screen bg-[#fcf9f8] pb-10">
       <Header title="Book Appointment" showBack />
 
-      <div className="max-w-lg mx-auto px-4 pt-5">
+      <div className="app-content pt-5">
         {/* Step Indicator */}
         <div className="flex items-center gap-2 mb-6">
           {(['service', 'date', 'time', 'confirm'] as Step[]).map((s, i) => (
@@ -252,7 +252,7 @@ function BookingFlow() {
 
         {/* Step 1: Service Selection */}
         {step === 'service' && (
-          <div className="space-y-3">
+          <div className="grid gap-3 lg:grid-cols-2">
             <h2 className="text-lg font-semibold text-gray-900">Select a Service</h2>
             {services.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
@@ -317,7 +317,7 @@ function BookingFlow() {
               </div>
             )}
 
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide md:flex-wrap md:overflow-visible">
               {next14Days.map((date) => {
                 const isSelected = selectedDate && format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
                 const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
@@ -395,7 +395,7 @@ function BookingFlow() {
                         <Icon size={14} />
                         <h4 className="text-xs font-semibold uppercase tracking-[0.08em]">{period}</h4>
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2 md:grid-cols-4 xl:grid-cols-5">
                         {slots.map((slot) => {
                           const isSelected =
                             selectedSlot?.start === slot.start && selectedSlot?.end === slot.end;
@@ -427,66 +427,99 @@ function BookingFlow() {
 
         {/* Step 4: Confirmation */}
         {step === 'confirm' && selectedService && selectedDate && selectedSlot && (
-          <div className="space-y-5">
+          <div className="space-y-5 pb-28">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Confirm Booking</h2>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Secure Checkout</h2>
+                <p className="mt-1 text-sm text-gray-500">Final review before your appointment is reserved.</p>
+              </div>
               <button onClick={handleBack} className="text-sm text-violet-600 font-medium">
                 Back
               </button>
             </div>
 
-            {/* Summary Card */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Business</span>
-                <span className="text-sm font-medium text-gray-900">{business.name}</span>
+            <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
+              <div className="bg-gradient-to-br from-[#006273] to-[#107c91] p-5 text-white">
+                <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#acecff]">Booking summary</p>
+                <h3 className="mt-2 text-2xl font-black tracking-tight">{selectedService.name}</h3>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
+                    <Clock size={12} /> {format(selectedDate, 'EEE, d MMM')}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
+                    <Clock size={12} /> {formatTime(selectedSlot.start)}
+                  </span>
+                </div>
               </div>
-              <div className="border-t border-gray-50" />
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Service</span>
-                <span className="text-sm font-medium text-gray-900">{selectedService.name}</span>
+
+              <div className="space-y-4 p-5">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 rounded-2xl bg-[#ebfaff] p-2 text-[#006273]">
+                    <MapPin size={16} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{business.name}</p>
+                    <p className="text-sm text-gray-500">{business.address || business.location || 'Malaysia'}</p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl bg-[#f6f3f2] p-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Service</span>
+                    <span className="font-medium text-gray-900">{selectedService.name}</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Duration</span>
+                    <span className="font-medium text-gray-900">{selectedService.duration_minutes} min</span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Appointment</span>
+                    <span className="font-medium text-gray-900">
+                      {format(selectedDate, 'EEE, d MMM yyyy')}
+                    </span>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Time</span>
+                    <span className="font-medium text-gray-900">
+                      {formatTime(selectedSlot.start)} - {formatTime(selectedSlot.end)}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="border-t border-gray-50" />
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Date</span>
-                <span className="text-sm font-medium text-gray-900">
-                  {format(selectedDate, 'EEE, d MMM yyyy')}
-                </span>
+            </div>
+
+            <div className="rounded-3xl border border-[#cfe9ee] bg-[#ebfaff] p-5">
+              <div className="flex items-start gap-3">
+                <div className="rounded-2xl bg-white p-2 text-[#006273]">
+                  <WalletCards size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#006273]">Payment method</p>
+                  <p className="mt-1 text-sm font-semibold text-[#004e5c]">Pay after you arrive by cash or card</p>
+                  <p className="mt-2 text-sm text-[#004e5c]">
+                    No online payment is required. Book now and settle the amount directly at the business.
+                  </p>
+                </div>
               </div>
-              <div className="border-t border-gray-50" />
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Time</span>
-                <span className="text-sm font-medium text-gray-900">
-                  {formatTime(selectedSlot.start)} - {formatTime(selectedSlot.end)}
-                </span>
-              </div>
-              <div className="border-t border-gray-50" />
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">Price</span>
-                <span className="text-base font-bold text-[#006273]">
-                  RM {selectedService.price.toFixed(2)}
-                </span>
+            </div>
+
+            <div className="rounded-3xl border border-green-100 bg-green-50 p-5">
+              <div className="flex items-start gap-3">
+                <div className="rounded-2xl bg-white p-2 text-green-700">
+                  <ShieldCheck size={16} />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.08em] text-green-700">Cancellation policy</p>
+                  <p className="mt-1 text-sm font-semibold text-green-700">100% free cancellation</p>
+                  <p className="mt-2 text-sm text-green-700">
+                    Change of plans? You can cancel this appointment for free.
+                  </p>
+                </div>
               </div>
             </div>
 
             <div className="space-y-3">
-              <div className="rounded-2xl border border-[#cfe9ee] bg-[#ebfaff] px-4 py-3">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#006273]">Payment</p>
-                <p className="mt-1 text-sm text-[#004e5c]">
-                  No online payment is required. Pay after you arrive by cash or card at the business.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-green-100 bg-green-50 px-4 py-3">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-green-700">Cancellation Policy</p>
-                <p className="mt-1 text-sm text-green-700">
-                  100% free cancellation.
-                </p>
-              </div>
-            </div>
-
-            {/* Contact Details */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-700">Your Details</h3>
+              <h3 className="text-sm font-semibold text-gray-700">Your details</h3>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Name</label>
                 <input
@@ -521,7 +554,6 @@ function BookingFlow() {
               </div>
             </div>
 
-            {/* Auth warning */}
             {!authLoading && !authUser && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                 <p className="text-xs text-amber-700">
@@ -530,25 +562,46 @@ function BookingFlow() {
               </div>
             )}
 
-            {/* Confirm Button */}
-            <button
-              onClick={handleConfirmBooking}
-              disabled={submitting || !customerPhone.trim()}
-              className="w-full py-4 bg-gradient-to-r from-[#006273] to-[#107c91] text-white font-semibold rounded-2xl hover:opacity-95 active:scale-[0.98] transition-all shadow-lg shadow-[#006273]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
-                  Booking...
-                </>
-              ) : (
-                'Confirm Booking'
-              )}
-            </button>
+            <div className="rounded-3xl bg-[#f6f3f2] p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.08em] text-gray-500">Payment details</p>
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Subtotal</span>
+                  <span className="font-medium text-gray-900">RM {selectedService.price.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Online payment</span>
+                  <span className="font-medium text-gray-900">Not required</span>
+                </div>
+                <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
+                  <span className="text-base font-bold text-gray-900">Pay at store</span>
+                  <span className="text-xl font-extrabold text-[#006273]">RM {selectedService.price.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
 
-            <p className="text-xs text-center text-gray-400">
-              Pay in person by cash or card &middot; Free cancellation anytime
-            </p>
+            <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#fcf9f8]/95 p-4 backdrop-blur-xl">
+              <div className="app-content-compact">
+                <button
+                  onClick={handleConfirmBooking}
+                  disabled={submitting || !customerPhone.trim()}
+                  className="w-full py-4 bg-gradient-to-r from-[#006273] to-[#107c91] text-white font-semibold rounded-2xl hover:opacity-95 active:scale-[0.98] transition-all shadow-lg shadow-[#006273]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      Booking...
+                    </>
+                  ) : (
+                    `Reserve Appointment · RM ${selectedService.price.toFixed(2)}`
+                  )}
+                </button>
+
+                <p className="mt-3 text-xs text-center text-gray-400">
+                  Pay in person by cash or card · Free cancellation anytime
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -562,7 +615,7 @@ export default function BookingPage() {
       fallback={
         <div className="min-h-screen bg-gray-50">
           <Header title="Book Appointment" showBack />
-          <div className="max-w-lg mx-auto px-4 pt-8 flex justify-center">
+          <div className="app-content-compact flex justify-center pt-8">
             <div className="animate-spin h-8 w-8 border-4 border-violet-600 border-t-transparent rounded-full" />
           </div>
         </div>

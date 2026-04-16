@@ -149,7 +149,7 @@ export default function MerchantServicesPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Services" showBack />
-        <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
+        <main className="app-content-compact pt-6 pb-24">
           {[1, 2, 3].map((i) => (
             <div key={i} className="bg-white rounded-2xl p-5 mb-3 shadow-sm border border-gray-100 animate-pulse">
               <div className="h-5 w-40 bg-gray-200 rounded mb-3" />
@@ -163,23 +163,30 @@ export default function MerchantServicesPage() {
     );
   }
 
+  const featuredService = services[0];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fcf9f8]">
       <Header
         title="Services"
         showBack
         rightAction={
-          <Button variant="ghost" size="sm" onClick={handleOpenAdd}>
+          <Button variant="ghost" size="sm" className="text-[#006273]" onClick={handleOpenAdd}>
             <Plus size={18} className="mr-1" />
             Add
           </Button>
         }
       />
 
-      <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
+      <main className="app-content pb-24 pt-6">
+        <div className="mb-6">
+          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">Service Menu</h2>
+          <p className="mt-1 text-sm text-gray-500">Refine your salon offerings and pricing structures.</p>
+        </div>
+
         {/* Inline Form */}
         {showForm && (
-          <div className="bg-white rounded-2xl p-5 mb-4 shadow-sm border border-violet-200">
+          <div className="bg-white rounded-2xl p-5 mb-5 shadow-sm border border-[#acecff]">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900">
                 {editingId ? 'Edit Service' : 'Add New Service'}
@@ -228,7 +235,7 @@ export default function MerchantServicesPage() {
               <Button
                 variant="primary"
                 size="md"
-                className="w-full"
+                className="w-full bg-gradient-to-r from-[#006273] to-[#107c91] hover:opacity-95"
                 loading={submitting}
                 disabled={!form.name || !form.price || !form.duration_minutes}
                 onClick={handleSubmit}
@@ -236,6 +243,20 @@ export default function MerchantServicesPage() {
                 {editingId ? 'Save Changes' : 'Add Service'}
               </Button>
             </div>
+          </div>
+        )}
+
+        {!showForm && (
+          <div className="mb-5 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <span className="rounded-full bg-[#006273] px-4 py-2 text-xs font-bold uppercase tracking-[0.08em] text-white">
+              All
+            </span>
+            <span className="rounded-full bg-[#f0eded] px-4 py-2 text-xs font-bold uppercase tracking-[0.08em] text-gray-500">
+              Active
+            </span>
+            <span className="rounded-full bg-[#f0eded] px-4 py-2 text-xs font-bold uppercase tracking-[0.08em] text-gray-500">
+              Featured
+            </span>
           </div>
         )}
 
@@ -253,7 +274,37 @@ export default function MerchantServicesPage() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid gap-3 lg:grid-cols-2">
+            {!showForm && featuredService && (
+              <div className="overflow-hidden rounded-3xl bg-[#eae7e7] shadow-sm">
+                <div className="p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#006273]">Featured Service</p>
+                  <div className="mt-2 flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">{featuredService.name}</h3>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {featuredService.description || 'Your most visible service card for quick editing.'}
+                      </p>
+                    </div>
+                    <span className="text-sm font-bold text-[#006273]">
+                      RM {featuredService.price.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="mt-4 flex items-center gap-3 text-xs text-gray-500">
+                    <span className="rounded-full bg-white px-3 py-1 font-bold uppercase tracking-[0.08em]">
+                      {featuredService.duration_minutes} mins
+                    </span>
+                    <button
+                      onClick={() => handleOpenEdit(featuredService)}
+                      className="font-bold text-[#006273] underline underline-offset-4"
+                    >
+                      Quick Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {services.map((service) => (
               <div
                 key={service.id}
@@ -266,7 +317,7 @@ export default function MerchantServicesPage() {
                       <p className="text-sm text-gray-500 mt-0.5">{service.description}</p>
                     )}
                     <div className="flex items-center gap-4 mt-2.5">
-                      <span className="flex items-center gap-1.5 text-sm font-medium text-violet-600">
+                      <span className="flex items-center gap-1.5 text-sm font-medium text-[#006273]">
                         <DollarSign size={14} />
                         RM {service.price.toFixed(2)}
                       </span>
@@ -282,7 +333,7 @@ export default function MerchantServicesPage() {
                       onClick={() => handleOpenEdit(service)}
                       className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                      <Pencil size={16} className="text-gray-500" />
+                      <Pencil size={16} className="text-[#006273]" />
                     </button>
                     <button
                       onClick={() => handleDelete(service.id)}

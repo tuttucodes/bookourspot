@@ -1,5 +1,5 @@
 import { formatTime } from './slots';
-import type { Appointment, Business, Service } from './types';
+import type { Business, Service } from './types';
 
 /**
  * WhatsApp message hooks for booking notifications.

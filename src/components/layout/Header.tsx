@@ -14,7 +14,7 @@ export function Header({ title, showBack = false, rightAction }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-100">
-      <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-14">
+      <div className="app-content flex h-14 items-center justify-between">
         <div className="flex items-center gap-3">
           {showBack && (
             <button onClick={() => router.back()} className="p-1 -ml-1 hover:bg-gray-100 rounded-lg transition-colors">

@@ -67,7 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.className} h-full`}>
       <body className="min-h-full bg-gray-50">
-        <main className="max-w-lg mx-auto bg-white min-h-screen relative">
+        <main className="app-shell relative bg-[#fcf9f8]">
           {children}
         </main>
       </body>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SK_BARBERSHOP_IMAGES } from '@/lib/sk-barbershop';
 
 const title = 'SK Barbershop Cyberjaya, Malaysia | Book Appointment Online';
 const description =
@@ -26,13 +27,18 @@ export const metadata: Metadata = {
     url: canonicalUrl,
     type: 'website',
     locale: 'en_MY',
-    images: ['/og-image.svg'],
+    images: [
+      {
+        url: SK_BARBERSHOP_IMAGES.card,
+        alt: 'SK Barbershop storefront in Cyberjaya',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title,
     description,
-    images: ['/og-image.svg'],
+    images: [SK_BARBERSHOP_IMAGES.card],
   },
 };
 

@@ -19,6 +19,37 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.app-shell {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-content {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .app-content {
+    padding-inline: 1.5rem;
+  }
+}
+
+.app-content-compact {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 48rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .app-content-compact {
+    padding-inline: 1.5rem;
+  }
+}
+
 /* Safe area for bottom navigation */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);

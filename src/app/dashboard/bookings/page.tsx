@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Calendar, Clock, Phone, Plus, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, Phone, Plus, X } from 'lucide-react';
 import { format, addDays, subDays } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -201,7 +201,7 @@ export default function MerchantBookingsPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Bookings" showBack />
-        <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
+        <main className="app-content-compact pt-6 pb-24">
           <div className="h-16 bg-gray-200 rounded-xl animate-pulse mb-4" />
           <div className="flex gap-2 mb-4">
             {[1, 2, 3, 4].map((i) => (
@@ -222,13 +222,22 @@ export default function MerchantBookingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#fcf9f8]">
       <Header title="Bookings" showBack />
 
-      <main className="max-w-lg mx-auto px-4 pt-4 pb-24">
+      <main className="app-content pt-4 pb-24">
+        <div className="mb-6">
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.08em] text-gray-500">
+            Current Schedule
+          </label>
+          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">
+            {format(new Date(selectedDate + 'T00:00:00'), 'EEEE, d MMM')}
+          </h2>
+        </div>
+
         {/* Date Picker - Horizontal Scroll */}
         <div className="mb-4 -mx-4 px-4">
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide md:flex-wrap md:overflow-visible">
             {dateRange.map((date) => {
               const d = new Date(date + 'T00:00:00');
               const isSelected = date === selectedDate;
@@ -239,8 +248,8 @@ export default function MerchantBookingsPage() {
                   onClick={() => setSelectedDate(date)}
                   className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl text-xs font-medium transition-all
                     ${isSelected
-                      ? 'bg-violet-600 text-white shadow-sm'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                      ? 'bg-[#006273] text-white shadow-sm ring-4 ring-[#107c91]/10'
+                      : 'bg-[#f0eded] text-gray-600 border border-transparent hover:bg-[#e5e2e1]'
                     }`}
                 >
                   <span className={`text-[10px] uppercase ${isSelected ? 'text-violet-200' : 'text-gray-400'}`}>
@@ -267,7 +276,7 @@ export default function MerchantBookingsPage() {
               onClick={() => setStatusFilter(filter.value)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
                 ${statusFilter === filter.value
-                  ? 'bg-violet-600 text-white'
+                  ? 'bg-[#006273] text-white'
                   : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                 }`}
             >
@@ -298,11 +307,11 @@ export default function MerchantBookingsPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid gap-4 xl:grid-cols-2">
             {filtered.map((apt) => (
               <div
                 key={apt.id}
-                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
+                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div>
@@ -319,9 +328,9 @@ export default function MerchantBookingsPage() {
                   <StatusBadge status={apt.status} />
                 </div>
 
-                <p className="text-sm text-gray-600 mb-1">{apt.service?.name || 'Service'}</p>
+                <p className="mb-1 text-sm text-gray-600">{apt.service?.name || 'Service'}</p>
 
-                <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
+                <div className="mb-3 flex items-center gap-1.5 text-sm text-gray-500">
                   <Clock size={14} className="text-gray-400" />
                   {formatTime(apt.start_time)} - {formatTime(apt.end_time)}
                 </div>
@@ -335,8 +344,8 @@ export default function MerchantBookingsPage() {
                 {apt.status === 'booked' && (
                   <div className="flex gap-2">
                     <Button
-                      variant="primary"
                       size="sm"
+                      className="bg-gradient-to-r from-[#006273] to-[#107c91] hover:opacity-95"
                       loading={actionLoading === apt.id}
                       onClick={() => handleMarkComplete(apt.id)}
                     >
@@ -359,10 +368,10 @@ export default function MerchantBookingsPage() {
         )}
 
         {/* Add Booking Button */}
-        <div className="fixed bottom-20 right-4 max-w-lg mx-auto">
+        <div className="fixed bottom-20 right-4 md:right-8">
           <button
             onClick={() => setShowManualBooking(true)}
-            className="w-14 h-14 bg-violet-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-violet-700 active:bg-violet-800 transition-colors"
+            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#006273] to-[#107c91] text-white shadow-lg transition-colors hover:opacity-95"
           >
             <Plus size={24} />
           </button>
@@ -372,7 +381,7 @@ export default function MerchantBookingsPage() {
         {showManualBooking && (
           <div className="fixed inset-0 z-50 flex items-end justify-center">
             <div className="absolute inset-0 bg-black/40" onClick={() => setShowManualBooking(false)} />
-            <div className="relative bg-white rounded-t-3xl w-full max-w-lg p-6 pb-8 max-h-[85vh] overflow-y-auto">
+            <div className="relative bg-white rounded-t-3xl w-full max-w-2xl p-6 pb-8 max-h-[85vh] overflow-y-auto md:rounded-3xl md:mb-10">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-gray-900">Add Manual Booking</h2>
                 <button

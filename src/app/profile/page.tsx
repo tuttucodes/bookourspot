@@ -66,7 +66,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Profile" />
-        <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
+        <main className="app-content-compact pt-6 pb-24">
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-pulse">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full bg-gray-200" />
@@ -91,7 +91,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Profile" />
-        <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
+        <main className="app-content-compact pt-6 pb-24">
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mb-4">
               <UserIcon size={28} className="text-violet-500" />
@@ -126,7 +126,7 @@ export default function ProfilePage() {
         }
       />
 
-      <main className="max-w-lg mx-auto px-4 pt-6 pb-24 space-y-4">
+      <main className="app-content-compact space-y-4 pt-6 pb-24">
         {/* User Info Card */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           {/* Avatar and name header */}

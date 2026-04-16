@@ -80,7 +80,7 @@ export default function BookingsPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="My Bookings" />
-        <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
+        <main className="app-content-compact pt-6 pb-24">
           {/* Tab skeleton */}
           <div className="flex gap-2 mb-6">
             <div className="h-10 w-28 bg-gray-200 rounded-xl animate-pulse" />
@@ -108,7 +108,7 @@ export default function BookingsPage() {
     <div className="min-h-screen bg-[#fcf9f8]">
       <Header title="My Appointments" />
 
-      <main className="mx-auto max-w-2xl px-4 pb-24 pt-6">
+      <main className="app-content-compact pb-24 pt-6">
         {/* Tabs */}
         <div className="mb-6 flex gap-2 rounded-full bg-[#f0eded] p-1">
           {(['upcoming', 'past'] as Tab[]).map((tab) => (

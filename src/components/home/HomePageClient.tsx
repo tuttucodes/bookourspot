@@ -98,7 +98,7 @@ export default function HomePageClient() {
   const searchHref = searchQuery.trim() ? `/explore?search=${encodeURIComponent(searchQuery.trim())}` : '/explore';
 
   return (
-    <div className="bg-[#fcf9f8] pb-20">
+    <div className="bg-[#fcf9f8] pb-20 md:pb-8">
       <section className="rounded-b-[2rem] bg-[#fcf9f8] px-5 pt-6 pb-6">
         <div className="mb-5 flex items-center justify-between">
           <div>

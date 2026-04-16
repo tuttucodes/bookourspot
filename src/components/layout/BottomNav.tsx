@@ -29,15 +29,15 @@ export function BottomNav() {
   const links = isMerchant ? merchantLinks : customerLinks;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 safe-area-bottom sm:px-4 md:bottom-4 md:px-6">
-      <div className="mx-auto flex w-full max-w-md items-center justify-between gap-1 rounded-2xl border border-gray-200 bg-white/95 p-1.5 shadow-lg shadow-black/5 backdrop-blur md:max-w-3xl md:gap-2 md:rounded-3xl md:p-2">
+    <nav className="fixed inset-x-0 bottom-0 z-50 px-3 pb-3 safe-area-bottom sm:px-4 md:inset-x-auto md:bottom-auto md:left-4 md:top-1/2 md:w-auto md:-translate-y-1/2 md:px-0 md:pb-0 lg:left-6">
+      <div className="mx-auto flex w-full max-w-md items-center justify-between gap-1 rounded-2xl border border-gray-200 bg-white/95 p-1.5 shadow-lg shadow-black/5 backdrop-blur md:mx-0 md:w-24 md:max-w-none md:flex-col md:gap-2 md:rounded-[2rem] md:p-2">
         {links.map(({ href, icon: Icon, label }) => {
           const active = pathname === href || (href !== '/' && pathname.startsWith(href));
           return (
             <Link
               key={href}
               href={href}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 text-center transition-all md:rounded-2xl md:px-3 md:py-2.5
+              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 text-center transition-all md:w-full md:flex-none md:rounded-2xl md:px-2 md:py-3
                 ${active
                   ? 'bg-violet-50 text-violet-600 shadow-sm'
                   : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'}`}

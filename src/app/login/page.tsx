@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signIn, signInWithGoogle } from '@/lib/api';
+import { getPublicSiteUrl } from '@/lib/env';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -27,6 +28,13 @@ function LoginForm() {
     }
   }, [authUser, authLoading, redirect, router]);
 
+  useEffect(() => {
+    const q = searchParams.get('error');
+    if (q === 'auth') {
+      setError('Sign-in was cancelled or could not be completed. Please try again.');
+    }
+  }, [searchParams]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
@@ -45,8 +53,9 @@ function LoginForm() {
   async function handleGoogle() {
     setError('');
     try {
+      const site = getPublicSiteUrl() || window.location.origin;
       await signInWithGoogle(
-        `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`
+        `${site}/auth/callback?redirect=${encodeURIComponent(redirect)}`
       );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to sign in with Google';

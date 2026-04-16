@@ -8,3 +8,10 @@ export function getSupabasePublicConfig() {
   }
   return { url, anonKey };
 }
+
+/** Canonical site URL for OAuth redirectTo (must match Supabase Redirect URLs). No trailing slash. */
+export function getPublicSiteUrl(): string | undefined {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!raw) return undefined;
+  return raw.replace(/\/$/, '');
+}

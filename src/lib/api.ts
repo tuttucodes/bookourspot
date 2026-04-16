@@ -1,4 +1,5 @@
 import { createClient } from './supabase/client';
+import { getPublicSiteUrl } from './env';
 import type { Business, Service, Appointment, User } from './types';
 
 // Lazy client — avoids module-level initialization during SSR/prerender
@@ -25,14 +26,22 @@ export async function signIn(email: string, password: string) {
   return data;
 }
 
+function oauthRedirectBase(): string {
+  if (typeof window === 'undefined') return '';
+  const canonical = getPublicSiteUrl();
+  return canonical || window.location.origin;
+}
+
 export async function signInWithGoogle(
   redirectTo?: string,
   userMetadata?: { name?: string; role?: 'customer' | 'merchant' }
 ) {
+  const base = oauthRedirectBase();
+  const fallback = `${base}/auth/callback`;
   const { data, error } = await supabase().auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: redirectTo || `${window.location.origin}/auth/callback`,
+      redirectTo: redirectTo || fallback,
       ...(userMetadata && Object.keys(userMetadata).length > 0
         ? { data: userMetadata }
         : {}),

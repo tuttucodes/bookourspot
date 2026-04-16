@@ -25,6 +25,18 @@ Copy `.env.example` to `.env.local` and fill all values.
 ### Required for core app
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SITE_URL` (recommended in production: canonical origin, no trailing slash, e.g. `https://www.example.com` — must match Supabase redirect allowlist)
+
+### Google sign-in (production checklist)
+
+1. **Supabase** → Authentication → Providers → **Google**: enable and paste Client ID / Secret from Google Cloud Console.
+2. **Supabase** → Authentication → **URL Configuration**:
+   - **Site URL**: your canonical site (e.g. `https://www.example.com`).
+   - **Redirect URLs**: include every URL your app uses for the OAuth return, including query strings on the path is not needed — allow the callback path, e.g. `https://www.example.com/auth/callback`, `https://example.com/auth/callback` if you use apex, and `http://localhost:3000/auth/callback`.
+3. **Google Cloud Console** → APIs & Services → Credentials → your OAuth 2.0 Client → **Authorized redirect URIs**: add exactly  
+   `https://<YOUR_PROJECT_REF>.supabase.co/auth/v1/callback`  
+   (from Supabase; this is where Google returns to Supabase, not your Next.js URL).
+4. **Vercel** (or host): set `NEXT_PUBLIC_SITE_URL` to the same canonical origin as Site URL so `redirectTo` matches the allowlist.
 
 ### Required for server-side booking notifications
 - `SUPABASE_SERVICE_ROLE_KEY`

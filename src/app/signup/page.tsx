@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signUp, signInWithGoogle } from '@/lib/api';
+import { getPublicSiteUrl } from '@/lib/env';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -55,8 +56,9 @@ function SignupForm() {
     setError('');
     try {
       const afterAuth = role === 'merchant' ? '/dashboard/onboarding' : '/';
+      const site = getPublicSiteUrl() || window.location.origin;
       await signInWithGoogle(
-        `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(afterAuth)}`,
+        `${site}/auth/callback?redirect=${encodeURIComponent(afterAuth)}`,
         { role }
       );
     } catch (err: unknown) {

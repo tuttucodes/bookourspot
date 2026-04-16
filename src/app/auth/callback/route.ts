@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getRequestOrigin } from '@/lib/auth/request-origin';
 
 /** Only allow same-origin relative paths to avoid open redirects. */
 function safeInternalPath(raw: string | null): string {
@@ -8,7 +9,8 @@ function safeInternalPath(raw: string | null): string {
 }
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+  const origin = getRequestOrigin(request);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const next = safeInternalPath(
     searchParams.get('redirect') ?? searchParams.get('next')
@@ -18,9 +20,11 @@ export async function GET(request: Request) {
     const supabase = await createServerSupabaseClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(new URL(next, origin).toString());
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  return NextResponse.redirect(
+    new URL(`/login?error=auth&redirect=${encodeURIComponent(next)}`, origin).toString()
+  );
 }

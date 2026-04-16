@@ -25,6 +25,18 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   other: <SlidersHorizontal size={18} className="text-gray-400" />,
 };
 
+const PUBLIC_PROFILE_SHOPS = [
+  {
+    key: 'skbarbershop-public',
+    name: 'SK Barbershop',
+    category: 'barbershop' as BusinessCategory,
+    location: 'Cyberjaya, Selangor, Malaysia',
+    description:
+      'Affordable grooming, clean fades, and quick service in Cyberjaya.',
+    href: '/skbarbershop',
+  },
+];
+
 export default function ExplorePage() {
   return <Suspense fallback={<div className="min-h-screen bg-white" />}><ExploreContent /></Suspense>;
 }
@@ -57,6 +69,20 @@ function ExploreContent() {
   useEffect(() => {
     fetchBusinesses(activeCategory, searchQuery);
   }, [activeCategory, searchQuery, fetchBusinesses]);
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const matchingPublicProfiles = PUBLIC_PROFILE_SHOPS.filter((shop) => {
+    const matchesCategory = activeCategory === 'all' || shop.category === activeCategory;
+    if (!matchesCategory) return false;
+    if (!normalizedQuery) return true;
+    const haystack = `${shop.name} ${shop.location} ${shop.description}`.toLowerCase();
+    return haystack.includes(normalizedQuery);
+  });
+
+  const hasShopInDb = (shopName: string) =>
+    businesses.some((biz) => biz.name.trim().toLowerCase() === shopName.trim().toLowerCase());
+
+  const publicOnlyProfiles = matchingPublicProfiles.filter((shop) => !hasShopInDb(shop.name));
 
   const handleCategoryChange = (key: string) => {
     setActiveCategory(key);
@@ -129,7 +155,7 @@ function ExploreContent() {
         )}
 
         {/* Empty State */}
-        {!loading && businesses.length === 0 && (
+        {!loading && businesses.length === 0 && publicOnlyProfiles.length === 0 && (
           <div className="text-center py-16">
             <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mx-auto mb-4">
               <Search size={28} className="text-violet-400" />
@@ -155,8 +181,29 @@ function ExploreContent() {
         )}
 
         {/* Business Cards */}
-        {!loading && businesses.length > 0 && (
+        {!loading && (businesses.length > 0 || publicOnlyProfiles.length > 0) && (
           <div className="space-y-3">
+            {publicOnlyProfiles.map((shop) => (
+              <Link
+                key={shop.key}
+                href={shop.href}
+                className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-violet-100 transition-all"
+              >
+                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 flex items-center justify-center shrink-0">
+                  {CATEGORY_ICONS[shop.category] || CATEGORY_ICONS.other}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-900 truncate">{shop.name}</h3>
+                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                    <MapPin size={12} className="shrink-0" /> <span className="truncate">{shop.location}</span>
+                  </p>
+                  <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-medium rounded-full bg-violet-50 text-violet-600 capitalize">
+                    {shop.category.replace('_', ' ')}
+                  </span>
+                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">{shop.description}</p>
+                </div>
+              </Link>
+            ))}
             {businesses.map((biz) => (
               <Link
                 key={biz.id}

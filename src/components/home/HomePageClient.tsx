@@ -45,6 +45,17 @@ const TESTIMONIALS = [
   },
 ];
 
+const PUBLIC_PROFILE_SHOPS = [
+  {
+    key: 'skbarbershop-public',
+    name: 'SK Barbershop',
+    category: 'barbershop',
+    location: 'Cyberjaya, Selangor, Malaysia',
+    description: 'Affordable grooming, clean fades, and quick service in Cyberjaya.',
+    href: '/skbarbershop',
+  },
+];
+
 export default function HomePageClient() {
   const { profile, loading } = useAuth();
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -52,6 +63,11 @@ export default function HomePageClient() {
   useEffect(() => {
     getBusinesses().then(setBusinesses).catch(() => {});
   }, []);
+
+  const hasShopInDb = (shopName: string) =>
+    businesses.some((biz) => biz.name.trim().toLowerCase() === shopName.trim().toLowerCase());
+  const publicOnlyProfiles = PUBLIC_PROFILE_SHOPS.filter((shop) => !hasShopInDb(shop.name));
+  const totalShopsCount = businesses.length + publicOnlyProfiles.length;
 
   return (
     <div className="pb-20 bg-white">
@@ -77,7 +93,7 @@ export default function HomePageClient() {
 
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
           <div className="bg-white/10 border border-white/15 rounded-xl p-3">
-            <p className="text-xl font-semibold">{businesses.length > 0 ? `${businesses.length}+` : '100+'}</p>
+            <p className="text-xl font-semibold">{totalShopsCount > 0 ? `${totalShopsCount}+` : '100+'}</p>
             <p className="text-violet-200 text-xs">Local businesses</p>
           </div>
           <div className="bg-white/10 border border-white/15 rounded-xl p-3">
@@ -155,7 +171,7 @@ export default function HomePageClient() {
         </div>
 
         <div className="space-y-3">
-          {businesses.length === 0 && !loading && (
+          {businesses.length === 0 && publicOnlyProfiles.length === 0 && !loading && (
             <div className="text-center py-10 text-gray-500 bg-gray-50 border border-gray-100 rounded-2xl">
               <Sparkles size={28} className="mx-auto mb-2 opacity-60" />
               <p className="text-sm">No businesses listed yet in this area.</p>
@@ -164,6 +180,37 @@ export default function HomePageClient() {
               </Link>
             </div>
           )}
+
+          {publicOnlyProfiles.map((shop) => (
+            <Link
+              key={shop.key}
+              href={shop.href}
+              className="block rounded-2xl border border-gray-100 bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex gap-4">
+                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 flex items-center justify-center shrink-0">
+                  <Scissors size={24} className="text-violet-600" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-gray-900 truncate">{shop.name}</h3>
+                    <span className="text-xs px-2 py-1 rounded-full bg-violet-50 text-violet-700 capitalize">
+                      {shop.category.replace('_', ' ')}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                    <MapPin size={12} /> {shop.location}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1 line-clamp-2">{shop.description}</p>
+                  <div className="flex items-center gap-1 mt-2">
+                    <Star size={12} className="text-amber-400 fill-amber-400" />
+                    <span className="text-xs font-medium text-gray-700">4.2</span>
+                    <span className="text-xs text-gray-400">(13)</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
 
           {businesses.slice(0, 6).map((biz) => (
             <Link

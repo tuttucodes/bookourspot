@@ -91,6 +91,17 @@ export async function getBusiness(id: string) {
   return data as Business;
 }
 
+export async function getBusinessBySlug(slug: string) {
+  const { data, error } = await supabase()
+    .from('businesses')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_active', true)
+    .single();
+  if (error) throw error;
+  return data as Business;
+}
+
 export async function getMyBusiness() {
   const { data: { user } } = await supabase().auth.getUser();
   if (!user) return null;

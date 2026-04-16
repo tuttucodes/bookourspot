@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Marketing &amp; Loyalty - BookOurSpot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#006273",
+                    "on-secondary-fixed-variant": "#6a1b9a",
+                    "surface-container": "#f0eded",
+                    "surface-bright": "#fcf9f8",
+                    "inverse-primary": "#7cd3ea",
+                    "surface-container-highest": "#e5e2e1",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#107c91",
+                    "on-surface-variant": "#3e484c",
+                    "on-error-container": "#93000a",
+                    "background": "#fcf9f8",
+                    "tertiary-container": "#96636d",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed": "#2f004b",
+                    "secondary-container": "#cc80fd",
+                    "tertiary": "#7b4b55",
+                    "surface-dim": "#dcd9d9",
+                    "outline-variant": "#bec8cc",
+                    "primary-fixed-dim": "#7cd3ea",
+                    "on-secondary-container": "#580087",
+                    "on-primary-container": "#ebfaff",
+                    "on-tertiary-fixed": "#330f19",
+                    "surface-tint": "#00687a",
+                    "on-tertiary-container": "#fff4f5",
+                    "surface-variant": "#e5e2e1",
+                    "on-primary-fixed-variant": "#004e5c",
+                    "secondary": "#843ab4",
+                    "surface-container-low": "#f6f3f2",
+                    "primary-fixed": "#acecff",
+                    "inverse-surface": "#313030",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-primary-fixed": "#001f26",
+                    "tertiary-fixed": "#ffd9df",
+                    "on-error": "#ffffff",
+                    "outline": "#6e797c",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#fcf9f8",
+                    "on-tertiary-fixed-variant": "#663a43",
+                    "on-surface": "#1c1b1b",
+                    "tertiary-fixed-dim": "#f4b6c1",
+                    "secondary-fixed": "#f4d9ff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-high": "#eae7e7",
+                    "secondary-fixed-dim": "#e4b5ff",
+                    "on-background": "#1c1b1b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { display: none; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md shadow-[0_8px_32px_rgba(28,27,27,0.04)]">
+<div class="flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#3e484c] dark:text-[#fcf9f8]/60 hover:opacity-80 transition-opacity active:scale-95 duration-200" data-icon="menu">menu</span>
+<h1 class="font-['Inter'] tracking-tight font-bold text-lg text-[#006273] dark:text-[#107c91]">Marketing</h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest active:scale-95 duration-200 transition-opacity hover:opacity-80">
+<img alt="Salon Manager Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional woman with a friendly expression in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbX7On8rZUmVajJwUxKvJpmZ9q4O9nnunaJOnexeo5i6tQY8m4qfa67KspahmPqdye4VQO36WKCrQeo6pHDpBoCxH75iNdprPBBn4bc6Zf5ydF0-eAoXPJqTzhYO7i1Rnl8LK2GyLqL6-_m5VIL6BWOtS2wpRTxAgL9HcQGuQg1mMvRhwTkLq20XwhdWcac_WRyMNwTFg-8QKHx1pid_CBXOIEZHGcJ8iRHsIf0SwnursYoLPoeO1mgXdBKLnrO_9Cy3PegKXvTyDI"/>
+</div>
+</div>
+</header>
+<main class="pt-20 px-4 space-y-8">
+<!-- Active Campaigns Section -->
+<section>
+<div class="flex justify-between items-end mb-4">
+<div>
+<span class="font-label text-[10px] uppercase tracking-[0.05em] font-medium text-on-surface-variant">Ongoing Performance</span>
+<h2 class="text-2xl font-bold tracking-tight text-on-surface">Active Campaigns</h2>
+</div>
+<button class="text-primary font-medium text-sm">View All</button>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x">
+<!-- Campaign Card 1 -->
+<div class="min-w-[280px] snap-center bg-surface-container-lowest rounded-xl p-5 shadow-[0_8px_32px_rgba(28,27,27,0.04)]">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Active</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</div>
+<h3 class="font-bold text-lg mb-1">First-time Customer 20% Off</h3>
+<p class="text-sm text-on-surface-variant mb-6">Auto-applied to new bookings</p>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] text-on-surface-variant uppercase font-semibold">Uses</span>
+<div class="text-xl font-bold text-primary">142</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] text-on-surface-variant uppercase font-semibold">Revenue</span>
+<div class="text-xl font-bold text-primary">RM 4.2k</div>
+</div>
+</div>
+</div>
+<!-- Campaign Card 2 -->
+<div class="min-w-[280px] snap-center bg-surface-container-lowest rounded-xl p-5 shadow-[0_8px_32px_rgba(28,27,27,0.04)]">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-tertiary/10 text-tertiary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Seasonal</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="more_vert">more_vert</span>
+</div>
+<h3 class="font-bold text-lg mb-1">Ramadan Special</h3>
+<p class="text-sm text-on-surface-variant mb-6">Complimentary therapy add-on</p>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] text-on-surface-variant uppercase font-semibold">Uses</span>
+<div class="text-xl font-bold text-tertiary">89</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] text-on-surface-variant uppercase font-semibold">Revenue</span>
+<div class="text-xl font-bold text-tertiary">RM 2.8k</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Blast Marketing Section -->
+<section>
+<div class="mb-4">
+<span class="font-label text-[10px] uppercase tracking-[0.05em] font-medium text-on-surface-variant">Reach Your Clients</span>
+<h2 class="text-2xl font-bold tracking-tight text-on-surface">Blast Marketing</h2>
+</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<button class="flex flex-col items-center justify-center gap-2 p-6 bg-primary rounded-xl text-on-primary shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="sms">sms</span>
+<span class="font-semibold">SMS Blast</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-6 bg-surface-container-highest rounded-xl text-primary active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="mail">mail</span>
+<span class="font-semibold">Email Campaign</span>
+</button>
+</div>
+<div class="space-y-3">
+<p class="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest px-1">Quick Templates</p>
+<div class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="w-12 h-12 rounded-lg bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
+<span class="material-symbols-outlined" data-icon="waving_hand">waving_hand</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold">Welcome Back</h4>
+<p class="text-xs text-on-surface-variant">Win back inactive clients</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="w-12 h-12 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined" data-icon="cake">cake</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold">Birthday Treat</h4>
+<p class="text-xs text-on-surface-variant">Automated wishes &amp; gifts</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="flex items-center gap-4 p-4 bg-surface-container-lowest rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="w-12 h-12 rounded-lg bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold">Quiet Day Special</h4>
+<p class="text-xs text-on-surface-variant">Fill gaps in your schedule</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Loyalty Program Management -->
+<section class="bg-surface-container-low -mx-4 px-4 py-8 rounded-t-[2rem]">
+<div class="mb-6 flex justify-between items-center">
+<div>
+<span class="font-label text-[10px] uppercase tracking-[0.05em] font-medium text-on-surface-variant">Retention Hub</span>
+<h2 class="text-2xl font-bold tracking-tight text-on-surface">Loyalty Program</h2>
+</div>
+<div class="bg-surface-container-lowest p-2 rounded-lg shadow-sm border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary" data-icon="settings">settings</span>
+</div>
+</div>
+<div class="bg-gradient-to-br from-primary to-primary-container p-6 rounded-2xl text-on-primary mb-6 shadow-xl shadow-primary/10">
+<div class="flex justify-between items-center mb-6">
+<div>
+<p class="text-xs opacity-80 uppercase font-semibold tracking-wider">Active Members</p>
+<h3 class="text-3xl font-black italic">1,284</h3>
+</div>
+<div class="w-12 h-12 rounded-full border-2 border-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl" data-icon="loyalty" data-weight="fill">loyalty</span>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex-1">
+<p class="text-[10px] opacity-70 mb-1">Earning Rule</p>
+<p class="font-bold text-sm">1 RM = 10 Points</p>
+</div>
+<div class="flex-1 text-right">
+<p class="text-[10px] opacity-70 mb-1">Redemption Rate</p>
+<p class="font-bold text-sm">92% High</p>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<p class="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest px-1">Reward Milestones</p>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-medium">Free Manicure</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-bold">500 pts</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="edit">edit</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-medium">Full Spa Day</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-bold">2,500 pts</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="edit">edit</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Referral Program Section -->
+<section class="pb-10">
+<div class="bg-secondary-fixed text-on-secondary-fixed p-6 rounded-2xl relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="text-xl font-extrabold mb-1">Refer a Friend</h2>
+<p class="text-sm opacity-90 mb-4 max-w-[200px]">Grow your community organically with personalized bonuses.</p>
+<div class="flex gap-4 items-center">
+<div class="bg-on-secondary-fixed text-on-secondary py-2 px-4 rounded-full text-xs font-bold">
+                            Edit Rules
+                        </div>
+<div class="text-xs font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="group">group</span>
+                            42 referrals this month
+                        </div>
+</div>
+</div>
+<!-- Decorative element -->
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[120px] opacity-10" data-icon="volunteer_activism">volunteer_activism</span>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 pb-safe px-4 bg-[#fcf9f8] dark:bg-[#1c1b1b] shadow-[0_-8px_32px_rgba(28,27,27,0.04)] border-t border-[#3e484c]/10 z-50 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#fcf9f8]/40 hover:bg-[#006273]/5 dark:hover:bg-[#107c91]/5 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#fcf9f8]/40 hover:bg-[#006273]/5 dark:hover:bg-[#107c91]/5 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium">Calendar</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#fcf9f8]/40 hover:bg-[#006273]/5 dark:hover:bg-[#107c91]/5 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium">Clients</span>
+</a>
+<!-- Active Tab: Assuming Marketing falls under a general business/settings or growth category here, but focusing on the requested "Active Navigation" logic for the most relevant item if not explicitly in JSON. Since JSON has Dashboard/Calendar/Clients/Settings, let's keep it clean. -->
+<a class="flex flex-col items-center justify-center text-[#006273] dark:text-[#107c91] font-bold hover:bg-[#006273]/5 dark:hover:bg-[#107c91]/5 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="campaign" data-weight="fill">campaign</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium">Marketing</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#fcf9f8]/40 hover:bg-[#006273]/5 dark:hover:bg-[#107c91]/5 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium">Settings</span>
+</a>
+</nav>
+<!-- FAB (Suppressed on this deep screen per rules, but showing one contextually if needed as a 'New Campaign' button. However, rules say suppress on Details/Settings screens. This is a dashboard-like landing, so we skip to keep the UI clean as per 'The Curated Sanctuary' guidelines). -->
+</body></html>

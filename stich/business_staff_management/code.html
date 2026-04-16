@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Staff Management | BookOurSpot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#006273",
+                    "on-secondary-fixed-variant": "#6a1b9a",
+                    "on-secondary-container": "#580087",
+                    "on-primary-fixed": "#001f26",
+                    "surface-container-high": "#eae7e7",
+                    "inverse-surface": "#313030",
+                    "surface-container": "#f0eded",
+                    "secondary-container": "#cc80fd",
+                    "surface-bright": "#fcf9f8",
+                    "secondary": "#843ab4",
+                    "surface-container-low": "#f6f3f2",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffd9df",
+                    "on-primary-container": "#ebfaff",
+                    "on-tertiary-fixed-variant": "#663a43",
+                    "surface-tint": "#00687a",
+                    "on-primary-fixed-variant": "#004e5c",
+                    "on-tertiary": "#ffffff",
+                    "background": "#fcf9f8",
+                    "tertiary-fixed-dim": "#f4b6c1",
+                    "on-secondary-fixed": "#2f004b",
+                    "surface-variant": "#e5e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#3e484c",
+                    "primary-fixed-dim": "#7cd3ea",
+                    "on-error-container": "#93000a",
+                    "surface-container-highest": "#e5e2e1",
+                    "surface": "#fcf9f8",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed": "#f4d9ff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#acecff",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#dcd9d9",
+                    "outline": "#6e797c",
+                    "tertiary": "#7b4b55",
+                    "on-surface": "#1c1b1b",
+                    "outline-variant": "#bec8cc",
+                    "primary-container": "#107c91",
+                    "secondary-fixed-dim": "#e4b5ff",
+                    "inverse-primary": "#7cd3ea",
+                    "on-background": "#1c1b1b",
+                    "on-tertiary-container": "#fff4f5",
+                    "tertiary-container": "#96636d",
+                    "on-tertiary-fixed": "#330f19",
+                    "inverse-on-surface": "#f3f0ef"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-header {
+        background: rgba(252, 249, 248, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 glass-header">
+<div class="flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+<h1 class="text-xl font-bold tracking-tight text-on-surface">Staff</h1>
+</div>
+<div class="h-10 w-10 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Owner" class="w-full h-full object-cover" data-alt="portrait of a professional business owner with a friendly smile, clean studio background, minimalist lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc0TsUExAsW0qlsvQqTDWfPc5tYEJjuLmDQW1RWG30n-U3yJGvWnHD4uJoqRwQBIVfwRP9XsVQeEVKQF5nHQls5veHqxHGT2v6uAGD_MKNTFYCoiPuNoT23mlDMK38JHqZuwtFJATTmkSrf_5_o7vCeoVIBeia3n850ZPwDuHZcWRqtffbdwfhjAhbDsLiLiEswSFh9rH4YDVeROGkxo_0_5V71CJZSyfjF7V52UY0okVV_4v7o6ltmd6DJPLD7rgAV1ObEK5frX3O"/>
+</div>
+</div>
+</header>
+<main class="pt-20 px-4 max-w-lg mx-auto">
+<!-- Search & Add Section -->
+<section class="mt-4 space-y-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface-container-low border-none rounded-xl text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search staff members..." type="text"/>
+</div>
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary rounded-full font-semibold flex items-center justify-center gap-2 shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                Add New Staff
+            </button>
+</section>
+<!-- Staff List (Editorial Bento-ish Cards) -->
+<section class="mt-8 space-y-6">
+<!-- Staff Member 1: Ahmad R. -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 shadow-[0_8px_32px_rgba(28,27,27,0.02)]">
+<div class="flex gap-4">
+<div class="relative">
+<img alt="Ahmad R." class="w-20 h-20 rounded-lg object-cover bg-surface-container" data-alt="Close-up professional headshot of a stylish male stylist, neutral grey background, high-end editorial photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCq1cmDrQnidCRuL568z5AoK6GBINOb_vta9SkGX6mSA2JuT_zF987rjuZNCNN-NBimoxyqcGhLb_gFmjBTaoYQ1GxtxJz-mqWId_KA3dBbm6u6QX7ZGGgNHai21TcT2PJLPJYlCyM9sM8uvgG22vkCigEydFg8v-TEeV19llls7AK2YLSZAh-aI2sXrmZMW4CGpQ7IFHnv_Ile-Nrya6keQlaUmRvbsdz_jBfB4DS_5L0v4Z8GQq22KSE0yOgY5niXralmEjKPodqm"/>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-lg text-on-surface">Ahmad R.</h3>
+<p class="text-sm text-on-surface-variant">Senior Stylist</p>
+</div>
+<span class="text-[10px] uppercase tracking-widest font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">Available</span>
+</div>
+<div class="mt-3 flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-semibold">4.9</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-outline" data-icon="event_available">event_available</span>
+<span class="text-sm font-semibold">120 <span class="font-normal text-on-surface-variant text-xs">this month</span></span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 py-2.5 rounded-full bg-surface-container-highest text-primary font-semibold text-sm hover:bg-surface-container-high transition-colors">
+                        Edit Schedule
+                    </button>
+<button class="flex-1 py-2.5 rounded-full bg-surface-container-highest text-primary font-semibold text-sm hover:bg-surface-container-high transition-colors">
+                        View Performance
+                    </button>
+</div>
+</div>
+<!-- Staff Member 2: Sarah T. -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 shadow-[0_8px_32px_rgba(28,27,27,0.02)]">
+<div class="flex gap-4">
+<div class="relative">
+<img alt="Sarah T." class="w-20 h-20 rounded-lg object-cover bg-surface-container" data-alt="Professional portrait of a female barber with modern haircut, soft natural lighting, elegant salon setting background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3prkccvDUninyb8Cf-77LAIYUNJx6dr26sO-FJYSk1fuOhf-aJmv-ZUJZ-QdGDY2nGVceO5pVtzc3JxHpjtddzNbpV0Pj-CE5E-rWGYb8iP9OMGkPLbRY8WAQ--mESdf3WoUiL8BODJE-TSnwzVBqyUGYaZii-0XL7ECZTDYd9ZYoYbC2yHTqUiBpAZ-ukzg7AwF4jA32BxfVboYipxLGoluIvuJ-Y9ouVxVHtQnu2XiSdFgFaRoD8KDCnqv8GRjYMGBBdHGcUpq7"/>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-amber-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-lg text-on-surface">Sarah T.</h3>
+<p class="text-sm text-on-surface-variant">Junior Barber</p>
+</div>
+<span class="text-[10px] uppercase tracking-widest font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">Busy</span>
+</div>
+<div class="mt-3 flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-semibold">4.8</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-outline" data-icon="event_available">event_available</span>
+<span class="text-sm font-semibold">95 <span class="font-normal text-on-surface-variant text-xs">this month</span></span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 py-2.5 rounded-full bg-surface-container-highest text-primary font-semibold text-sm">
+                        Edit Schedule
+                    </button>
+<button class="flex-1 py-2.5 rounded-full bg-surface-container-highest text-primary font-semibold text-sm">
+                        View Performance
+                    </button>
+</div>
+</div>
+<!-- Staff Member 3: Siti K. -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 shadow-[0_8px_32px_rgba(28,27,27,0.02)]">
+<div class="flex gap-4">
+<div class="relative">
+<img alt="Siti K." class="w-20 h-20 rounded-lg object-cover bg-surface-container" data-alt="Portrait of a southeast asian woman with professional salon attire, warm skin tones, soft focused spa interior background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBLUQqRoMizIA5vXyoIRYYQ8cjVM6_n7SeYTJK2l6LBVCtT-1JbmaNwm4OqCAACQPGb0UxbrhP5V3NtQWmplUvzsqa5wij9vjdo74pyK3pgWmZyoq5Q3YwaUrdREvzmq_KtYNx9fX9wDzOT3JlzxoQPlNpLBeK1LFjE2HGhBb-APWpKSK9ShBT0pQvhUmHCL03EW-Ca5d0qC5ZIOtNVio8ranvIi-9x0VU0dCU5m8wZMPRTD3EDn5sxMCYVbZXpAkFwOKOL2Hg2qnH"/>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-lg text-on-surface">Siti K.</h3>
+<p class="text-sm text-on-surface-variant">Nail Tech</p>
+</div>
+<span class="text-[10px] uppercase tracking-widest font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">Available</span>
+</div>
+<div class="mt-3 flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-semibold">5.0</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-outline" data-icon="event_available">event_available</span>
+<span class="text-sm font-semibold">142 <span class="font-normal text-on-surface-variant text-xs">this month</span></span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 py-2.5 rounded-full bg-surface-container-highest text-primary font-semibold text-sm">
+                        Edit Schedule
+                    </button>
+<button class="flex-1 py-2.5 rounded-full bg-surface-container-highest text-primary font-semibold text-sm">
+                        View Performance
+                    </button>
+</div>
+</div>
+<!-- Staff Member 4: Marcus L. -->
+<div class="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 shadow-[0_8px_32px_rgba(28,27,27,0.02)] opacity-75">
+<div class="flex gap-4">
+<div class="relative">
+<img alt="Marcus L." class="w-20 h-20 rounded-lg object-cover bg-surface-container grayscale" data-alt="Portrait of a young man with glasses, professional creative style, minimal shadows, studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuMsDsQ22azOPNChYrnYUDu3-JqCRyKoABdbOQ1ZGu3zDaQZFY-7lQuAm2OVcjcy-fN4Q0Bf69M0zQdYZRNl7zX3unMo4b41X8I84Bs5KIJIzqxma6fM6gIPjqS1kN4rczywMI1b5jzBbLosI0nxg5pghlwIRhPoi8ZjWRM6U6jY-6ZjsceOAhDIHvsrA08AD9dzFarohO_dklGNYvcqAbc2X0qYdrlUQ2IgZMfBmcq7KkGOCeOBf5V3bDd49mSxNvvKYw9QDkNWVJ"/>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-outline border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-bold text-lg text-on-surface">Marcus L.</h3>
+<p class="text-sm text-on-surface-variant">Junior Stylist</p>
+</div>
+<span class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant bg-surface-container-highest px-2 py-1 rounded-full">Off-duty</span>
+</div>
+<div class="mt-3 flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-semibold">4.7</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px] text-outline" data-icon="event_available">event_available</span>
+<span class="text-sm font-semibold">88 <span class="font-normal text-on-surface-variant text-xs">this month</span></span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 py-2.5 rounded-full bg-surface-container-highest text-primary font-semibold text-sm">
+                        Edit Schedule
+                    </button>
+<button class="flex-1 py-2.5 rounded-full bg-surface-container-highest text-primary font-semibold text-sm">
+                        View Performance
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 pb-safe glass-header shadow-[0_-8px_32px_rgba(28,27,27,0.04)]">
+<div class="flex justify-around items-center w-full h-16 px-4">
+<a class="flex flex-col items-center justify-center text-[#3e484c] hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Calendar</span>
+</a>
+<!-- Active Tab: Staff -->
+<a class="flex flex-col items-center justify-center text-[#006273] relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-[#006273] after:rounded-full active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Staff</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Clients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] hover:opacity-80 transition-opacity active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

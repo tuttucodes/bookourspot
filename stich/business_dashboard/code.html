@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Sanctuary - Salon Owner Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#580087",
+                    "on-tertiary-fixed": "#330f19",
+                    "surface-dim": "#dcd9d9",
+                    "secondary-fixed-dim": "#e4b5ff",
+                    "outline": "#6e797c",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#f4b6c1",
+                    "on-surface": "#1c1b1b",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#cc80fd",
+                    "on-background": "#1c1b1b",
+                    "primary-fixed-dim": "#7cd3ea",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#fcf9f8",
+                    "primary-fixed": "#acecff",
+                    "inverse-surface": "#313030",
+                    "on-tertiary-container": "#fff4f5",
+                    "on-secondary-fixed-variant": "#6a1b9a",
+                    "background": "#fcf9f8",
+                    "on-primary-container": "#ebfaff",
+                    "on-error-container": "#93000a",
+                    "primary": "#006273",
+                    "tertiary-fixed": "#ffd9df",
+                    "on-surface-variant": "#3e484c",
+                    "on-secondary-fixed": "#2f004b",
+                    "on-primary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#7cd3ea",
+                    "secondary-fixed": "#f4d9ff",
+                    "surface-tint": "#00687a",
+                    "primary-container": "#107c91",
+                    "tertiary": "#7b4b55",
+                    "tertiary-container": "#96636d",
+                    "surface-variant": "#e5e2e1",
+                    "on-primary-fixed-variant": "#004e5c",
+                    "surface-container-highest": "#e5e2e1",
+                    "surface": "#fcf9f8",
+                    "secondary": "#843ab4",
+                    "on-primary-fixed": "#001f26",
+                    "surface-container-low": "#f6f3f2",
+                    "surface-container": "#f0eded",
+                    "outline-variant": "#bec8cc",
+                    "on-tertiary-fixed-variant": "#663a43",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#eae7e7",
+                    "inverse-on-surface": "#f3f0ef"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #006273 0%, #107c91 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md shadow-[0_8px_32px_0_rgba(28,27,27,0.04)]">
+<div class="flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<img alt="Salon owner profile" class="w-8 h-8 rounded-full object-cover" data-alt="professional headshot of a smiling salon owner with a clean minimalist background, soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy5NMRVVBh1APiRKe8UTL_ZjbdbOr5d-1gJTxiDGQM-T-vBn0wbA35_iF4FoXay0m5AyraMfAAqzC1KKJMO8-2o_rcc-GgYNyeSBYFN49otOXGnwoD53JfHjK3_ck7MTO3qHWdVXC25Czw79xo2ixZP0hYOeoneFr72OgErdxPrAVZ_D1sGhx90G-qfovkC00vB56w5Cp46R28zmWzSXz-Q8aFEClv0aeClW1xF9IqCshhoTRw3subupi41g_BJol1niGyHpK0omcO"/>
+<h1 class="text-xl font-bold tracking-[-0.02em] text-[#1c1b1b] dark:text-[#fcf9f8]">The Sanctuary</h1>
+</div>
+<button class="hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[#006273] dark:text-[#107c91]" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-20 px-6 max-w-5xl mx-auto space-y-8">
+<!-- Bento Grid Hero Section -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Hero Metric: Total Revenue -->
+<section class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl flex flex-col justify-between relative overflow-hidden">
+<div class="z-10">
+<p class="text-[10px] uppercase tracking-[0.05em] font-medium text-on-surface-variant mb-2">Total Revenue Today</p>
+<h2 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">RM 1,240.00</h2>
+<div class="flex items-center gap-1 text-[#006273]">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span class="text-xs font-semibold">+14.2% from yesterday</span>
+</div>
+</div>
+<!-- Subtle Gradient Element -->
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+</section>
+<!-- Appointment Summary -->
+<section class="bg-primary p-8 rounded-xl text-on-primary flex flex-col justify-between">
+<div>
+<p class="text-[10px] uppercase tracking-[0.05em] font-medium opacity-80 mb-2">Today's Schedule</p>
+<h3 class="text-3xl font-bold">12 Appointments</h3>
+</div>
+<div class="mt-6">
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs">Progress (8/12)</span>
+<span class="text-xs font-bold">66%</span>
+</div>
+<div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-white h-full w-2/3 rounded-full"></div>
+</div>
+</div>
+</section>
+</div>
+<!-- Quick Actions -->
+<section class="grid grid-cols-3 gap-4">
+<button class="bg-surface-container-low p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="add_circle">add_circle</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">Add Appt</span>
+</button>
+<button class="bg-surface-container-low p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="person_add">person_add</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">New Client</span>
+</button>
+<button class="bg-surface-container-low p-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-surface-container-highest transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="calendar_month">calendar_month</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant">Calendar</span>
+</button>
+</section>
+<!-- Upcoming Appointments -->
+<section>
+<div class="flex justify-between items-center mb-6">
+<h4 class="text-lg font-bold tracking-tight">Upcoming Appointments</h4>
+<button class="text-[10px] font-bold text-primary uppercase tracking-widest">View All</button>
+</div>
+<div class="space-y-4">
+<!-- Appointment Card 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between shadow-[0_4px_16px_0_rgba(28,27,27,0.02)]">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="Customer Sarah" class="w-full h-full object-cover" data-alt="portrait of a young woman with natural makeup and stylish hair in a sunlit setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6419B9DHn2YCPS_2yO1U-g0eQFd7ortJYcLf2FsfcFmnMT_NQLFwPjdbihZAanyr4bPoRbb4E7D1TSkmNEViJPCIXGTh0AiM8w_BEuC8jH-xuibIf3x-vA08ycLwRzn8hYdYgBch7nEnR9ntVrv_DfZbPpLkhODXMXABtIz2nySnwmg69ihJvapYgucRbl5OLkEQvcBslxd3rf3IxnuXpSE-TDHryV-Ktnav5X1ijfP_kZL-dRSSrwhedaXInJ-w2gRzDigpWkNSx"/>
+</div>
+<div>
+<h5 class="font-bold text-sm text-on-surface">Sarah Mitchell</h5>
+<p class="text-xs text-on-surface-variant">Signature Haircut</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface">02:00 PM</p>
+<span class="text-[10px] px-2 py-0.5 bg-secondary-fixed text-on-secondary-fixed rounded-full font-bold uppercase tracking-tighter">Confirmed</span>
+</div>
+</div>
+<!-- Appointment Card 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between shadow-[0_4px_16px_0_rgba(28,27,27,0.02)]">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="Customer James" class="w-full h-full object-cover" data-alt="portrait of a handsome man with a groomed beard and modern hairstyle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLB8xxBn60uxQPBk_OmqcZXn8OdbXrYwm3gT3I64CPPrYnbgfr5O80mZNPkLsivHTeFO98hRMEyYmylDG4rwq-wRaTK-1jh2LKiKXSI1Iw7Bqm-PGQRhYBfdkg4h3KL9oU5dowtx_sJ0WhAy1nnCRAemdTu11o0nfAwpH2LgDSJ9xIK8kyCzt8AKntoFJ0sMrg1OnYA6a8BQZQNsafwL7_TrC_2PHRr697FDKEyD9qRYvg3URPXAzN9B2IzpFN_NK29TB3W01CvHR9"/>
+</div>
+<div>
+<h5 class="font-bold text-sm text-on-surface">James Wilson</h5>
+<p class="text-xs text-on-surface-variant">Deep Tissue Massage</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface">03:30 PM</p>
+<span class="text-[10px] px-2 py-0.5 bg-secondary-fixed text-on-secondary-fixed rounded-full font-bold uppercase tracking-tighter">Confirmed</span>
+</div>
+</div>
+<!-- Appointment Card 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between shadow-[0_4px_16px_0_rgba(28,27,27,0.02)]">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img alt="Customer Elena" class="w-full h-full object-cover" data-alt="close up portrait of a woman with radiant skin and elegant features" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyjjxCQgJS6CF5Z83k2rTcAuULsp9w9KEU4xvSoObZfJHV6A-_Bph4d76gPw5ubLp6wRiGBy-3QvNLZcFPepIvU4F0d_R7q4MRhw74lpnCw3R0Qi5R10knTMshOUbe5pshloN9fkQQ1tvIQdNg9nwDQ50XWUbI1F0FBd14Muufd-FQb007R0Mwb6-Rd5VIoeeiaG5wkJGP5T1vffxf-1vO8JjpsNBw6MQz_1NZGWdzlws1r6qSpPbsDiO4k6OjViWCp8MeuL57WP3c"/>
+</div>
+<div>
+<h5 class="font-bold text-sm text-on-surface">Elena Tan</h5>
+<p class="text-xs text-on-surface-variant">HydraFacial Premium</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface">05:00 PM</p>
+<span class="text-[10px] px-2 py-0.5 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full font-bold uppercase tracking-tighter">Pending</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Staff Activity -->
+<section class="pb-8">
+<h4 class="text-xs font-bold tracking-[0.1em] text-on-surface-variant uppercase mb-4">Live Staff Status</h4>
+<div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+<div class="flex-shrink-0 flex items-center gap-2 bg-surface-container-low py-2 px-3 rounded-full">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="text-xs font-medium">Siti (Busy)</span>
+</div>
+<div class="flex-shrink-0 flex items-center gap-2 bg-surface-container-low py-2 px-3 rounded-full">
+<div class="w-2 h-2 rounded-full bg-[#107c91]"></div>
+<span class="text-xs font-medium">Marcus (Available)</span>
+</div>
+<div class="flex-shrink-0 flex items-center gap-2 bg-surface-container-low py-2 px-3 rounded-full">
+<div class="w-2 h-2 rounded-full bg-[#107c91]"></div>
+<span class="text-xs font-medium">Zara (Available)</span>
+</div>
+<div class="flex-shrink-0 flex items-center gap-2 bg-surface-container-low py-2 px-3 rounded-full">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="text-xs font-medium">Wei (Busy)</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md rounded-t-xl shadow-[0_-8px_32px_0_rgba(28,27,27,0.04)]">
+<div class="flex justify-around items-center px-4 py-3 pb-safe">
+<!-- Dashboard Active -->
+<a class="flex flex-col items-center justify-center text-[#006273] dark:text-[#107c91] scale-110 transition-transform active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Dashboard</span>
+</a>
+<!-- Calendar Inactive -->
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#fcf9f8]/60 hover:text-[#006273] dark:hover:text-[#107c91] active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Calendar</span>
+</a>
+<!-- Clients Inactive -->
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#fcf9f8]/60 hover:text-[#006273] dark:hover:text-[#107c91] active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Clients</span>
+</a>
+<!-- Settings Inactive -->
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#fcf9f8]/60 hover:text-[#006273] dark:hover:text-[#107c91] active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

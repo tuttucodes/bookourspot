@@ -142,7 +142,7 @@ function ExploreContent() {
         {loading && (
           <div className="space-y-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm animate-pulse">
+              <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white border border-[#e5e2e1] shadow-sm animate-pulse">
                 <div className="w-20 h-20 rounded-xl bg-gray-200 shrink-0" />
                 <div className="flex-1 space-y-2.5 py-1">
                   <div className="h-4 bg-gray-200 rounded-lg w-3/4" />
@@ -187,17 +187,22 @@ function ExploreContent() {
               <Link
                 key={shop.key}
                 href={shop.href}
-                className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-violet-100 transition-all"
+                className="flex gap-4 p-4 rounded-2xl bg-white border border-[#e5e2e1] shadow-sm hover:shadow-md hover:border-[#7cd3ea] transition-all"
               >
-                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 flex items-center justify-center shrink-0">
+                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[#ebfaff] to-[#acecff] flex items-center justify-center shrink-0">
                   {CATEGORY_ICONS[shop.category] || CATEGORY_ICONS.other}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 truncate">{shop.name}</h3>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-gray-900 truncate">{shop.name}</h3>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#006273]">
+                      <Search size={10} /> Featured
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                     <MapPin size={12} className="shrink-0" /> <span className="truncate">{shop.location}</span>
                   </p>
-                  <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-medium rounded-full bg-violet-50 text-violet-600 capitalize">
+                  <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-medium rounded-full bg-[#f4d9ff] text-[#580087] capitalize">
                     {shop.category.replace('_', ' ')}
                   </span>
                   <p className="text-xs text-gray-400 mt-1 line-clamp-2">{shop.description}</p>
@@ -207,20 +212,25 @@ function ExploreContent() {
             {businesses.map((biz) => (
               <Link
                 key={biz.id}
-                href={`/business/${biz.id}`}
-                className="flex gap-4 p-4 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-violet-100 transition-all"
+                href={`/${biz.slug}`}
+                className="flex gap-4 p-4 rounded-2xl bg-white border border-[#e5e2e1] shadow-sm hover:shadow-md hover:border-[#7cd3ea] transition-all"
               >
-                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 flex items-center justify-center shrink-0">
+                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[#ebfaff] to-[#acecff] flex items-center justify-center shrink-0">
                   {CATEGORY_ICONS[biz.category] || CATEGORY_ICONS.other}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 truncate">{biz.name}</h3>
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-gray-900 truncate">{biz.name}</h3>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#006273]">
+                      <Scissors size={10} /> Pro
+                    </span>
+                  </div>
                   {biz.location && (
                     <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
                       <MapPin size={12} className="shrink-0" /> <span className="truncate">{biz.location}</span>
                     </p>
                   )}
-                  <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-medium rounded-full bg-violet-50 text-violet-600 capitalize">
+                  <span className="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-medium rounded-full bg-[#f4d9ff] text-[#580087] capitalize">
                     {biz.category.replace('_', ' ')}
                   </span>
                   {biz.description && (

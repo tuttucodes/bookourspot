@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Calendar, Clock, XCircle } from 'lucide-react';
+import { Calendar, Clock, XCircle, Sparkles, Repeat2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
 import { getMyBookings, cancelAppointment } from '@/lib/api';
@@ -105,21 +105,21 @@ export default function BookingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header title="My Bookings" />
+    <div className="min-h-screen bg-[#fcf9f8]">
+      <Header title="My Appointments" />
 
-      <main className="max-w-lg mx-auto px-4 pt-6 pb-24">
+      <main className="mx-auto max-w-2xl px-4 pb-24 pt-6">
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="mb-6 flex gap-2 rounded-full bg-[#f0eded] p-1">
           {(['upcoming', 'past'] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150
+              className={`flex-1 rounded-full px-4 py-2.5 text-sm transition-all duration-150
                 ${
                   activeTab === tab
-                    ? 'bg-violet-600 text-white shadow-sm'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                    ? 'bg-white text-[#006273] shadow-sm font-semibold'
+                    : 'text-gray-500 hover:text-gray-700 font-medium'
                 }`}
             >
               {tab === 'upcoming' ? `Upcoming (${upcoming.length})` : `Past (${past.length})`}
@@ -155,56 +155,101 @@ export default function BookingsPage() {
             )}
           </div>
         ) : (
-          <div className="space-y-3">
-            {displayed.map((booking) => (
-              <div
-                key={booking.id}
-                className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 transition-all hover:shadow-md"
-              >
-                {/* Business name */}
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">
-                    {booking.business?.name || 'Unknown Business'}
-                  </h3>
-                  <StatusBadge status={booking.status} />
+          <>
+            <div className="mb-3 flex items-baseline justify-between px-1">
+              <h2 className="text-xs font-bold uppercase tracking-[0.1em] text-gray-500">
+                {activeTab === 'upcoming' ? 'Active Bookings' : 'Booking History'}
+              </h2>
+              <span className="rounded-full border border-gray-200 px-2 py-0.5 text-[10px] text-gray-500">
+                {displayed.length} appointments
+              </span>
+            </div>
+            <div className="space-y-4">
+              {displayed.map((booking) => (
+                <div
+                  key={booking.id}
+                  className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:shadow-md"
+                >
+                  <div className="p-4 md:p-5">
+                    {/* Business name */}
+                    <div className="mb-2 flex items-start justify-between">
+                      <h3 className="text-base font-bold text-gray-900">
+                        {booking.business?.name || 'Unknown Business'}
+                      </h3>
+                      <StatusBadge status={booking.status} />
+                    </div>
+
+                    {/* Service and price */}
+                    <p className="mb-2 text-sm text-gray-600">
+                      {booking.service?.name || 'Service'}
+                      <span className="mx-1.5 text-gray-300">|</span>
+                      <span className="font-semibold text-[#006273]">
+                        RM {booking.service?.price?.toFixed(2) || '0.00'}
+                      </span>
+                    </p>
+
+                    {/* Date and time */}
+                    <div className="mb-2 flex items-center gap-4 text-sm text-gray-500">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar size={14} className="text-gray-400" />
+                        {format(new Date(booking.date + 'T00:00:00'), 'EEE, d MMM yyyy')}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock size={14} className="text-gray-400" />
+                        {formatTime(booking.start_time)} - {formatTime(booking.end_time)}
+                      </span>
+                    </div>
+
+                    {booking.business?.location && (
+                      <p className="text-xs text-gray-500">{booking.business.location}</p>
+                    )}
+
+                    {activeTab === 'upcoming' && booking.status === 'booked' && (
+                      <p className="mt-3 text-xs text-green-700">
+                        100% free cancellation. Payment is made in person by cash or card.
+                      </p>
+                    )}
+                  </div>
+
+                  {activeTab === 'upcoming' && booking.status === 'booked' && (
+                    <div className="flex gap-3 border-t border-gray-100 bg-[#f6f3f2] px-4 py-3 md:px-5">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 rounded-full border-red-200 text-red-600 hover:bg-red-50"
+                        loading={cancellingId === booking.id}
+                        onClick={() => handleCancel(booking.id)}
+                      >
+                        <XCircle size={14} className="mr-1.5" />
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1 rounded-full bg-gradient-to-r from-[#006273] to-[#107c91] text-white hover:opacity-95"
+                        onClick={() => router.push(`/booking/${booking.id}/confirmed`)}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  )}
                 </div>
+              ))}
+            </div>
+          </>
+        )}
 
-                {/* Service and price */}
-                <p className="text-sm text-gray-600 mb-2">
-                  {booking.service?.name || 'Service'}
-                  <span className="mx-1.5 text-gray-300">|</span>
-                  <span className="font-medium text-violet-600">
-                    RM {booking.service?.price?.toFixed(2) || '0.00'}
-                  </span>
-                </p>
-
-                {/* Date and time */}
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                  <span className="flex items-center gap-1.5">
-                    <Calendar size={14} className="text-gray-400" />
-                    {format(new Date(booking.date + 'T00:00:00'), 'EEE, d MMM yyyy')}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock size={14} className="text-gray-400" />
-                    {formatTime(booking.start_time)} - {formatTime(booking.end_time)}
-                  </span>
-                </div>
-
-                {/* Cancel button for upcoming booked appointments */}
-                {activeTab === 'upcoming' && booking.status === 'booked' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-red-600 border-red-200 hover:bg-red-50"
-                    loading={cancellingId === booking.id}
-                    onClick={() => handleCancel(booking.id)}
-                  >
-                    <XCircle size={14} className="mr-1.5" />
-                    Cancel Appointment
-                  </Button>
-                )}
-              </div>
-            ))}
+        {activeTab === 'upcoming' && displayed.length > 0 && (
+          <div className="mt-10 grid grid-cols-2 gap-3">
+            <div className="aspect-square rounded-2xl bg-[#f4d9ff] p-4 text-[#2f004b]">
+              <Sparkles size={22} />
+              <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.1em]">Loyalty</p>
+              <p className="mt-1 text-sm font-semibold leading-tight">Keep booking to unlock surprise rewards</p>
+            </div>
+            <div className="aspect-square rounded-2xl bg-[#eae7e7] p-4 text-gray-700">
+              <Repeat2 size={22} />
+              <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.1em]">Rebook</p>
+              <p className="mt-1 text-sm font-semibold leading-tight">Your favorite services are one tap away</p>
+            </div>
           </div>
         )}
       </main>

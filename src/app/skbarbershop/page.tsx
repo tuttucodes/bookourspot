@@ -289,33 +289,35 @@ export default function SKBarbershopPage() {
   const displayPhone = business?.phone || STATIC_PROFILE.phone;
 
   return (
-    <main className="min-h-screen bg-neutral-50 text-neutral-900">
+    <main className="min-h-screen bg-[#fcf9f8] text-[#1c1b1b] pb-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 pb-6">
-        <p className="inline-flex items-center rounded-full bg-neutral-900 text-white px-3 py-1 text-xs font-medium">
-          Barbershop Profile
-        </p>
-        <h1 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">
-          {displayName} - Cyberjaya, Malaysia
-        </h1>
-        <p className="mt-3 text-neutral-700 max-w-3xl">{displayDescription}</p>
-
-        <div className="mt-5 flex flex-wrap gap-2 text-sm">
-          <span className="inline-flex items-center gap-1 rounded-full border border-neutral-300 px-3 py-1">
-            <Star size={14} className="text-amber-500" fill="currentColor" />
-            {STATIC_PROFILE.ratingAverage} ({STATIC_PROFILE.ratingCount} reviews)
-          </span>
-          <span className="rounded-full border border-neutral-300 px-3 py-1">{STATIC_PROFILE.category}</span>
-          <span className="rounded-full border border-neutral-300 px-3 py-1">{STATIC_PROFILE.priceRange}</span>
-          <span className="rounded-full border border-neutral-300 px-3 py-1">Online Presence Link: /skbarbershop</span>
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-6">
+        <div className="rounded-3xl overflow-hidden border border-[#e5e2e1] bg-white shadow-sm">
+          <div className="bg-gradient-to-r from-[#006273] via-[#107c91] to-[#7cd3ea] p-6 sm:p-10 text-white">
+            <p className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]">
+              Cyberjaya Featured Barbershop
+            </p>
+            <h1 className="mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight">
+              {displayName}
+            </h1>
+            <p className="mt-3 text-sm sm:text-base text-white/90 max-w-3xl">{displayDescription}</p>
+            <div className="mt-5 flex flex-wrap gap-2 text-sm">
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">
+                <Star size={14} className="text-yellow-300" fill="currentColor" />
+                {STATIC_PROFILE.ratingAverage} ({STATIC_PROFILE.ratingCount} reviews)
+              </span>
+              <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.category}</span>
+              <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.priceRange}</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-8 grid lg:grid-cols-3 gap-4">
-        <article className="lg:col-span-2 rounded-2xl border border-neutral-200 bg-white p-5">
-          <h2 className="text-xl font-semibold">Services & Prices</h2>
-          <p className="text-sm text-neutral-600 mt-1">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8 grid lg:grid-cols-3 gap-4">
+        <article className="lg:col-span-2 rounded-2xl border border-[#e5e2e1] bg-white p-5 sm:p-6">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Services & Prices</h2>
+          <p className="text-sm text-[#3e484c] mt-1">
             Real-time active services from BookOurSpot business profile.
           </p>
 
@@ -330,15 +332,15 @@ export default function SKBarbershopPage() {
                   onClick={() => setSelectedServiceId(service.id)}
                   className={`text-left rounded-xl border p-4 transition ${
                     selectedServiceId === service.id
-                      ? 'border-neutral-900 bg-neutral-900 text-white'
-                      : 'border-neutral-200 bg-white hover:border-neutral-400'
+                      ? 'border-[#006273] bg-[#006273] text-white shadow-md'
+                      : 'border-[#bec8cc] bg-white hover:border-[#006273]'
                   }`}
                 >
                   <p className="font-semibold">{service.name}</p>
-                  <p className={`text-sm mt-1 ${selectedServiceId === service.id ? 'text-neutral-200' : 'text-neutral-600'}`}>
+                  <p className={`text-sm mt-1 ${selectedServiceId === service.id ? 'text-[#acecff]' : 'text-[#3e484c]'}`}>
                     RM {service.price.toFixed(2)}
                   </p>
-                  <p className={`text-xs mt-2 ${selectedServiceId === service.id ? 'text-neutral-300' : 'text-neutral-500'}`}>
+                  <p className={`text-xs mt-2 ${selectedServiceId === service.id ? 'text-[#7cd3ea]' : 'text-[#6e797c]'}`}>
                     Duration: {service.duration_minutes} min
                   </p>
                 </button>
@@ -347,34 +349,34 @@ export default function SKBarbershopPage() {
           </div>
         </article>
 
-        <article className="rounded-2xl border border-neutral-200 bg-white p-5">
-          <h2 className="text-xl font-semibold">Location & Contact</h2>
-          <p className="mt-3 text-sm text-neutral-700 inline-flex items-start gap-2">
-            <MapPin size={16} className="mt-0.5" /> {displayAddress}
+        <article className="rounded-2xl border border-[#e5e2e1] bg-white p-5 sm:p-6">
+          <h2 className="text-xl font-bold tracking-tight">Location & Contact</h2>
+          <p className="mt-3 text-sm text-[#3e484c] inline-flex items-start gap-2">
+            <MapPin size={16} className="mt-0.5 text-[#006273]" /> {displayAddress}
           </p>
-          <p className="mt-3 text-sm text-neutral-700 inline-flex items-center gap-2">
-            <Phone size={16} /> {displayPhone}
+          <p className="mt-3 text-sm text-[#3e484c] inline-flex items-center gap-2">
+            <Phone size={16} className="text-[#006273]" /> {displayPhone}
           </p>
           <div className="mt-4 grid grid-cols-1 gap-2">
-            <a className="rounded-lg border border-neutral-300 px-3 py-2 text-sm hover:bg-neutral-100" href={STATIC_PROFILE.googleMapsLink} target="_blank" rel="noreferrer">
+            <a className="rounded-xl border border-[#bec8cc] px-3 py-2 text-sm hover:bg-[#f6f3f2]" href={STATIC_PROFILE.googleMapsLink} target="_blank" rel="noreferrer">
               Open in Google Maps
             </a>
-            <a className="rounded-lg border border-neutral-300 px-3 py-2 text-sm hover:bg-neutral-100" href={STATIC_PROFILE.googleMapsDirectionLink} target="_blank" rel="noreferrer">
+            <a className="rounded-xl border border-[#bec8cc] px-3 py-2 text-sm hover:bg-[#f6f3f2]" href={STATIC_PROFILE.googleMapsDirectionLink} target="_blank" rel="noreferrer">
               Get Google Maps Directions
             </a>
           </div>
         </article>
       </section>
 
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-8 grid lg:grid-cols-3 gap-4">
-        <article className="rounded-2xl border border-neutral-200 bg-white p-5">
-          <h2 className="text-xl font-semibold inline-flex items-center gap-2">
-            <Clock3 size={18} /> Opening Hours
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8 grid lg:grid-cols-3 gap-4">
+        <article className="rounded-2xl border border-[#e5e2e1] bg-white p-5">
+          <h2 className="text-xl font-bold tracking-tight inline-flex items-center gap-2">
+            <Clock3 size={18} className="text-[#006273]" /> Opening Hours
           </h2>
           <ul className="mt-4 space-y-2 text-sm">
             {Object.entries(workingHours).map(([day, hours]) => (
-              <li key={day} className="flex items-center justify-between border-b border-neutral-100 pb-2">
-                <span className="text-neutral-700">{DAY_LABELS[day] ?? day}</span>
+              <li key={day} className="flex items-center justify-between border-b border-[#f0eded] pb-2">
+                <span className="text-[#3e484c]">{DAY_LABELS[day] ?? day}</span>
                 <span className="font-medium">
                   {hours.closed ? 'Closed' : `${hours.open} - ${hours.close}`}
                 </span>
@@ -383,32 +385,32 @@ export default function SKBarbershopPage() {
           </ul>
         </article>
 
-        <article className="rounded-2xl border border-neutral-200 bg-white p-5">
-          <h2 className="text-xl font-semibold">Shop Highlights</h2>
-          <ul className="mt-4 space-y-2 text-sm text-neutral-700">
+        <article className="rounded-2xl border border-[#e5e2e1] bg-white p-5">
+          <h2 className="text-xl font-bold tracking-tight">Shop Highlights</h2>
+          <ul className="mt-4 space-y-2 text-sm text-[#3e484c]">
             {FEATURES.map((feature) => (
               <li key={feature} className="inline-flex items-center gap-2">
-                <Scissors size={14} /> {feature}
+                <Scissors size={14} className="text-[#006273]" /> {feature}
               </li>
             ))}
           </ul>
         </article>
 
-        <article className="rounded-2xl border border-neutral-200 bg-white p-5">
-          <h2 className="text-xl font-semibold">Share This Booking Page</h2>
-          <p className="mt-3 text-sm text-neutral-700">
+        <article className="rounded-2xl border border-[#e5e2e1] bg-white p-5">
+          <h2 className="text-xl font-bold tracking-tight">Share This Booking Page</h2>
+          <p className="mt-3 text-sm text-[#3e484c]">
             Use this dedicated link in bio, Instagram, and QR codes outside your shop:
           </p>
-          <p className="mt-2 rounded-lg bg-neutral-100 px-3 py-2 text-sm font-medium break-all">
+          <p className="mt-2 rounded-xl bg-[#f6f3f2] px-3 py-2 text-sm font-medium break-all">
             https://bookourspot.com/skbarbershop
           </p>
         </article>
       </section>
 
-      <section id="book-now" className="max-w-3xl mx-auto px-4 sm:px-6 pb-14">
-        <article className="rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6">
-          <h2 className="text-2xl font-semibold">Book an Appointment</h2>
-          <p className="mt-1 text-sm text-neutral-600">
+      <section id="book-now" className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+        <article className="rounded-3xl border border-[#e5e2e1] bg-white p-5 sm:p-8">
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Book an Appointment</h2>
+          <p className="mt-1 text-sm text-[#3e484c]">
             Book directly on BookOurSpot with service, date, and exact time slot.
           </p>
 
@@ -420,50 +422,50 @@ export default function SKBarbershopPage() {
 
           <div className="mt-5 grid sm:grid-cols-2 gap-3">
             <div>
-              <label htmlFor="fullName" className="text-sm font-medium">Full name</label>
+              <label htmlFor="fullName" className="text-sm font-semibold">Full name</label>
               <input
                 id="fullName"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2"
+                className="mt-1 w-full rounded-xl border border-[#bec8cc] px-3 py-2 bg-white focus:border-[#006273] focus:ring-[#7cd3ea]"
                 placeholder="Your full name"
               />
               {errors.fullName ? <p className="mt-1 text-xs text-red-600">{errors.fullName}</p> : null}
             </div>
 
             <div>
-              <label htmlFor="customerPhone" className="text-sm font-medium">Phone</label>
+              <label htmlFor="customerPhone" className="text-sm font-semibold">Phone</label>
               <input
                 id="customerPhone"
                 type="tel"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2"
+                className="mt-1 w-full rounded-xl border border-[#bec8cc] px-3 py-2 bg-white focus:border-[#006273] focus:ring-[#7cd3ea]"
                 placeholder="+6012xxxxxxx"
               />
               {errors.customerPhone ? <p className="mt-1 text-xs text-red-600">{errors.customerPhone}</p> : null}
             </div>
 
             <div>
-              <label htmlFor="customerEmail" className="text-sm font-medium">Email (optional)</label>
+              <label htmlFor="customerEmail" className="text-sm font-semibold">Email (optional)</label>
               <input
                 id="customerEmail"
                 type="email"
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2"
+                className="mt-1 w-full rounded-xl border border-[#bec8cc] px-3 py-2 bg-white focus:border-[#006273] focus:ring-[#7cd3ea]"
                 placeholder="your@email.com"
               />
             </div>
 
             <div>
-              <label htmlFor="selectedDate" className="text-sm font-medium">Preferred date</label>
+              <label htmlFor="selectedDate" className="text-sm font-semibold">Preferred date</label>
               <select
                 id="selectedDate"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white"
+                className="mt-1 w-full rounded-xl border border-[#bec8cc] px-3 py-2 bg-white focus:border-[#006273] focus:ring-[#7cd3ea]"
               >
                 <option value="">Select date</option>
                 {next14Days.map((date) => {
@@ -479,12 +481,12 @@ export default function SKBarbershopPage() {
             </div>
 
             <div className="sm:col-span-2">
-              <label htmlFor="selectedService" className="text-sm font-medium">Service</label>
+              <label htmlFor="selectedService" className="text-sm font-semibold">Service</label>
               <select
                 id="selectedService"
                 value={selectedServiceId}
                 onChange={(e) => setSelectedServiceId(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white"
+                className="mt-1 w-full rounded-xl border border-[#bec8cc] px-3 py-2 bg-white focus:border-[#006273] focus:ring-[#7cd3ea]"
               >
                 <option value="">Select service</option>
                 {services.map((service) => (
@@ -497,7 +499,7 @@ export default function SKBarbershopPage() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium">Available time slots</label>
+              <label className="text-sm font-semibold">Available time slots</label>
               {loadingSlots ? (
                 <div className="mt-2 text-sm text-neutral-500 inline-flex items-center gap-2">
                   <Loader2 size={14} className="animate-spin" /> Loading slots...
@@ -505,7 +507,7 @@ export default function SKBarbershopPage() {
               ) : slots.length === 0 ? (
                 <p className="mt-2 text-sm text-neutral-500">Select a date and service to see available slots.</p>
               ) : (
-                <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                   {slots.map((slot) => (
                     <button
                       key={slot.start}
@@ -514,10 +516,10 @@ export default function SKBarbershopPage() {
                       disabled={!slot.available}
                       className={`rounded-lg px-2 py-2 text-xs border ${
                         !slot.available
-                          ? 'border-neutral-200 text-neutral-300 bg-neutral-100 cursor-not-allowed'
+                          ? 'border-[#e5e2e1] text-[#bec8cc] bg-[#f0eded] cursor-not-allowed line-through'
                           : selectedSlotStart === slot.start
-                          ? 'bg-neutral-900 text-white border-neutral-900'
-                          : 'border-neutral-300 hover:border-neutral-500'
+                          ? 'bg-[#006273] text-white border-[#006273]'
+                          : 'border-[#bec8cc] hover:border-[#006273]'
                       }`}
                     >
                       {formatTime(slot.start)}
@@ -529,18 +531,18 @@ export default function SKBarbershopPage() {
             </div>
 
             {selectedSlot ? (
-              <div className="sm:col-span-2 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-700">
+              <div className="sm:col-span-2 rounded-full bg-[#ebfaff] text-[#004e5c] px-3 py-2 text-sm">
                 Selected slot: {format24hToText(selectedSlot.start)} - {format24hToText(selectedSlot.end)}
               </div>
             ) : null}
 
             <div className="sm:col-span-2">
-              <label htmlFor="notes" className="text-sm font-medium">Notes (optional)</label>
+              <label htmlFor="notes" className="text-sm font-semibold">Notes (optional)</label>
               <textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 min-h-24"
+                className="mt-1 w-full rounded-xl border border-[#bec8cc] px-3 py-2 min-h-24 bg-white focus:border-[#006273] focus:ring-[#7cd3ea]"
                 placeholder="Any preferred style or request?"
               />
             </div>
@@ -557,21 +559,21 @@ export default function SKBarbershopPage() {
               type="button"
               onClick={onBookNow}
               disabled={submitting || !business || !selectedService || !selectedSlot}
-              className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 text-white px-4 py-2 text-sm font-medium hover:bg-black disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-full bg-[#006273] text-white px-5 py-2.5 text-sm font-semibold hover:bg-[#004e5c] disabled:opacity-50"
             >
               {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
               Book on BookOurSpot
             </button>
             <a
               href={`tel:${displayPhone}`}
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-100"
+              className="inline-flex items-center gap-2 rounded-full border border-[#bec8cc] px-5 py-2.5 text-sm font-medium hover:bg-[#f6f3f2]"
             >
               <Phone size={16} /> Call Shop
             </a>
             <Link
               href={STATIC_PROFILE.googleMapsDirectionLink}
               target="_blank"
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium hover:bg-neutral-100"
+              className="inline-flex items-center gap-2 rounded-full border border-[#bec8cc] px-5 py-2.5 text-sm font-medium hover:bg-[#f6f3f2]"
             >
               <MapPin size={16} /> Get Directions
             </Link>

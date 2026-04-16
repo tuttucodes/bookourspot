@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Appointments - BookOurSpot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#f4d9ff",
+                    "inverse-surface": "#313030",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#00687a",
+                    "secondary-fixed-dim": "#e4b5ff",
+                    "surface-dim": "#dcd9d9",
+                    "surface-container-highest": "#e5e2e1",
+                    "outline": "#6e797c",
+                    "secondary-container": "#cc80fd",
+                    "secondary": "#843ab4",
+                    "on-tertiary-fixed": "#330f19",
+                    "on-secondary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#f4b6c1",
+                    "surface-container-high": "#eae7e7",
+                    "primary-fixed-dim": "#7cd3ea",
+                    "surface": "#fcf9f8",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed": "#2f004b",
+                    "on-primary-container": "#ebfaff",
+                    "primary-container": "#107c91",
+                    "inverse-primary": "#7cd3ea",
+                    "on-tertiary-container": "#fff4f5",
+                    "on-surface": "#1c1b1b",
+                    "on-primary-fixed": "#001f26",
+                    "surface-container-low": "#f6f3f2",
+                    "on-primary-fixed-variant": "#004e5c",
+                    "tertiary-fixed": "#ffd9df",
+                    "on-secondary-container": "#580087",
+                    "error-container": "#ffdad6",
+                    "primary-fixed": "#acecff",
+                    "surface-container": "#f0eded",
+                    "on-tertiary-fixed-variant": "#663a43",
+                    "on-secondary-fixed-variant": "#6a1b9a",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1c1b1b",
+                    "surface-bright": "#fcf9f8",
+                    "on-surface-variant": "#3e484c",
+                    "tertiary-container": "#96636d",
+                    "background": "#fcf9f8",
+                    "surface-variant": "#e5e2e1",
+                    "outline-variant": "#bec8cc",
+                    "tertiary": "#7b4b55",
+                    "primary": "#006273",
+                    "inverse-on-surface": "#f3f0ef"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md shadow-[0_8px_32px_0_rgba(28,27,27,0.04)]">
+<div class="flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-[#006273] dark:text-[#107c91] hover:opacity-80 transition-opacity active:scale-95 duration-200 cursor-pointer" data-icon="menu">menu</span>
+</div>
+<h1 class="font-['Inter'] tracking-tight font-semibold text-lg text-[#006273] dark:text-[#107c91]">My Appointments</h1>
+<div class="h-8 w-8 rounded-full overflow-hidden bg-surface-container-high active:scale-95 duration-200 cursor-pointer">
+<img alt="User Profile" class="h-full w-full object-cover" data-alt="close up professional portrait of a stylish young woman with a clean minimal aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkukySAi8HbzWm2-igEPfTPi3QgLwNG8vxCh9hqoSCa4PBL5rnWIDGb1PisRBp_C19ijzQNKFseXb_CrNKFjt0qNEDGhPgKPVJp4_zQItl9V45h28j8pXlJtpgktUDPVw4oFkObE-PCGt_nG5KIBBNgDh90YrCk2h-oQ-cpMADNTTHSqs1_XlSPIDGDQVF4r_ErvpdCtPg8lzX7XnSyqqyewR_UWIqGq5xVqDFRAPkCzqzC6HpgN1x3cmB_PGDZR9qwjnlqCo5Xg1h"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Tab Navigation -->
+<div class="flex space-x-1 p-1 bg-surface-container-low rounded-full mb-8">
+<button class="flex-1 py-3 px-6 text-sm font-semibold rounded-full bg-surface-container-lowest text-primary shadow-sm transition-all">
+                Upcoming
+            </button>
+<button class="flex-1 py-3 px-6 text-sm font-medium rounded-full text-on-surface-variant hover:text-on-surface transition-all">
+                Past
+            </button>
+</div>
+<!-- Section: Upcoming -->
+<section class="space-y-6">
+<div class="flex items-baseline justify-between mb-2">
+<h2 class="text-xs font-bold uppercase tracking-[0.1em] text-on-surface-variant">Active Bookings</h2>
+<span class="text-[10px] text-outline px-2 py-0.5 rounded-full border border-outline-variant/30">2 Appointments</span>
+</div>
+<!-- Appointment Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-outline-variant/10">
+<div class="p-5 flex flex-col md:flex-row gap-5">
+<div class="w-full md:w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Salon" class="w-full h-full object-cover" data-alt="interior of a high-end luxury hair salon with minimalist white marble decor and warm designer lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFp34PIFeYFCPPagnhaxqD6p184e74uUuDJpheZEZnIZFrO-XFlbX7bRJTsYxe-wwFq8kRYNnRwvlIgKglBCOBS62YteYxgp1XqJjov9kxdQmdfACWywFRLJXKL4flvD049Y8D1asobQVTjaAhAT65HC2hNX_7EUFmPF_w4xwdmnxz2mxVZtSXUgZaSaT5v5jxwvA-GH2HlZVF-edrLHS03bKXBxj78DxavdK13D-rlkNl5G-iikcYTkQH3j6lt_PYfF9KCvrE1lBp"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface leading-tight">Lumière Artistry Salon</h3>
+<p class="text-primary text-sm font-medium">Signature Haircut &amp; Styling</p>
+</div>
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Confirmed</span>
+</div>
+<div class="flex items-center gap-4 mt-4 text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_today">calendar_today</span>
+<span class="text-xs">Tue, 15 Oct 2024</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-xs">01:30 PM</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span>
+<span class="text-xs">Bangsar Village II, KL</span>
+</div>
+</div>
+</div>
+<div class="px-5 py-4 bg-surface-container-low flex gap-3">
+<button class="flex-1 py-2.5 px-4 rounded-full bg-surface-container-highest text-primary text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all">
+                        Reschedule
+                    </button>
+<button class="flex-1 py-2.5 px-4 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all">
+                        View Details
+                    </button>
+</div>
+</div>
+<!-- Appointment Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-outline-variant/10">
+<div class="p-5 flex flex-col md:flex-row gap-5">
+<div class="w-full md:w-32 h-32 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Spa" class="w-full h-full object-cover" data-alt="serene spa treatment room with bamboo accents, soft candlelight, and folded white towels in a tranquil atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvXvPQ0OicWR4MY7H5gr9hUZ2yFZSxA5bPaWApTA293brXxoBP7M3224Ku2qI0duZD4mNg3-5RU2YPHqqZSNuvjJ7cg-Os8CMT2yJXeu1E77nwzsqW7BhYst31_hiCyiVVlHgJENiuPpUkzP3GpLwsr7TYaMobjgETL6j8cC1cvihaxdaoJjg2zy9k278ci2LZr2-o5gm_gJ-HdXfZZH-0SSQFWWPbdIwwBBYds-dA1j0qtr-tqbM6aFNhuMV75nTqcajhYXtjW_7k"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface leading-tight">Oasis Wellness Retreat</h3>
+<p class="text-primary text-sm font-medium">Deep Tissue Massage (90 min)</p>
+</div>
+<span class="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">Premium Service</span>
+</div>
+<div class="flex items-center gap-4 mt-4 text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="calendar_today">calendar_today</span>
+<span class="text-xs">Sat, 19 Oct 2024</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span class="text-xs">10:00 AM</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span>
+<span class="text-xs">Bukit Bintang, KL</span>
+</div>
+</div>
+</div>
+<div class="px-5 py-4 bg-surface-container-low flex gap-3">
+<button class="flex-1 py-2.5 px-4 rounded-full bg-surface-container-highest text-primary text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all">
+                        Reschedule
+                    </button>
+<button class="flex-1 py-2.5 px-4 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all">
+                        View Details
+                    </button>
+</div>
+</div>
+<!-- Bento Mini Insight Section -->
+<div class="grid grid-cols-2 gap-4 mt-12">
+<div class="bg-secondary-fixed p-6 rounded-2xl flex flex-col justify-between aspect-square">
+<span class="material-symbols-outlined text-on-secondary-fixed text-3xl" data-icon="loyalty" style="font-variation-settings: 'FILL' 1;">loyalty</span>
+<div>
+<p class="text-on-secondary-fixed text-xs font-bold uppercase tracking-widest mb-1">Loyalty</p>
+<h4 class="text-on-secondary-fixed text-xl font-bold leading-tight">3 Stamps to Free Glow-up</h4>
+</div>
+</div>
+<div class="bg-surface-container-high p-6 rounded-2xl flex flex-col justify-between aspect-square">
+<div class="flex -space-x-2">
+<img alt="Specialist" class="h-8 w-8 rounded-full border-2 border-surface-container-high" data-alt="professional beauty therapist portrait with neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTJwbEXoTStnFEslb1PPxpItsSMBuDh2SB_Q-KBV4RaqXwLR9SAtc9XIhqGL-ZV6oMVktHP04itAE9Pdxf9AAmEcgCi96kMObLohs_Mi7qp2A8xJhlfoL9p-6PNWM01g-8O29ataZNZtQKj7hPfjTbXu6Ov4dnOHEJf-5nMG016_BR0m3VosXiafdqER7wE2ihCnXTKyMqFcPKdP8naTb3TOnV0rACCybZZvx600l_1T0quBi4j8XhO75zlXbAeNOPj2UlzT50A-zK"/>
+<img alt="Specialist" class="h-8 w-8 rounded-full border-2 border-surface-container-high" data-alt="professional hair stylist portrait with modern aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAopTfYwy2yNv-DLIOhLT9zrFx-p5ntlmdqT1ey37YphyYDmkAwb0jaWy25hD1sVhhteF2Orq9veC12yHp8EGeqIDfPkFFRpkQUFU4TcvQRcX3b8qEPE5dtDrsukC4XP6eTdC6Xei_8f9LnOi4gA7LLIP3lvslT_lvnLVmUKSJevb54rgpE_qE4WUir8EC9UGgVv3uu4UBsV6I_ZX-0Bo6mfQsrJ9zSN5SRyyJELY_eQX21sYZyIujPJvHFePvKWcAyYuGn5GeeFy51"/>
+</div>
+<div>
+<p class="text-on-surface-variant text-xs font-bold uppercase tracking-widest mb-1">Favorite Artists</p>
+<h4 class="text-on-surface text-xl font-bold leading-tight">Ready for Rebook</h4>
+</div>
+</div>
+</div>
+</section>
+<!-- Suggested Section -->
+<section class="mt-16">
+<h2 class="text-xs font-bold uppercase tracking-[0.1em] text-on-surface-variant mb-6">Frequently Rebooked</h2>
+<div class="bg-surface-container rounded-2xl p-5 flex items-center gap-4">
+<div class="h-16 w-16 bg-white rounded-xl overflow-hidden flex-shrink-0">
+<img alt="Nail Art" class="w-full h-full object-cover" data-alt="close-up of elegant minimalist nail art on well-manicured hands with soft focus background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf32sQhj_7Z7rLeH4mcV4g06akKWp_QR8TLJ2i_u6Zfd_jXoaWAVC5_2prrhHDWS1zi2zGHU8vcGGQphtz-O6lNATlnM9Tdj7Lrq2cKxX4yRN0UXBgVbRZ0sEP4kvUJWJkMGqJ0OvSUX-MDG_VCzDaICXs-RCYRVUfHkuYpicgjdpHqYCqB-yKz-4gtG5Vp7bPPL0rS4m6IprNyhvsm0262ug6M-z3N5ah4glvByAnX8xZINc6LgtakDmmqA-ZUdCp3qjRfwANc9Tq"/>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface">The Nail Parlour</h4>
+<p class="text-xs text-on-surface-variant">Signature Gel Manicure</p>
+<p class="text-xs font-bold text-primary mt-1">RM 120.00</p>
+</div>
+<button class="h-10 w-10 rounded-full bg-primary text-on-primary flex items-center justify-center active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md shadow-[0_-8px_32px_0_rgba(28,27,27,0.04)]">
+<div class="flex justify-around items-center h-20 px-4 pb-safe w-full">
+<div class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#9ca3af] hover:text-[#006273] dark:hover:text-[#107c91] transition-colors active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#006273] dark:text-[#107c91] bg-[#006273]/10 dark:bg-[#107c91]/20 rounded-full px-4 py-1 active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="calendar_month" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Bookings</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#9ca3af] hover:text-[#006273] dark:hover:text-[#107c91] transition-colors active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Favorites</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#9ca3af] hover:text-[#006273] dark:hover:text-[#107c91] transition-colors active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-medium mt-1">Profile</span>
+</div>
+</div>
+</nav>
+</body></html>

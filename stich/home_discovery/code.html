@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Sanctuary - BookOurSpot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#313030",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-tertiary-fixed": "#330f19",
+                    "surface-container": "#f0eded",
+                    "on-primary": "#ffffff",
+                    "background": "#fcf9f8",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#7cd3ea",
+                    "on-tertiary-container": "#fff4f5",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#663a43",
+                    "primary-fixed": "#acecff",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#3e484c",
+                    "surface-tint": "#00687a",
+                    "tertiary": "#7b4b55",
+                    "surface-dim": "#dcd9d9",
+                    "outline": "#6e797c",
+                    "surface-bright": "#fcf9f8",
+                    "secondary-fixed-dim": "#e4b5ff",
+                    "on-background": "#1c1b1b",
+                    "on-secondary-fixed-variant": "#6a1b9a",
+                    "inverse-primary": "#7cd3ea",
+                    "on-primary-container": "#ebfaff",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#e5e2e1",
+                    "surface-container-high": "#eae7e7",
+                    "on-surface": "#1c1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#f4d9ff",
+                    "on-primary-fixed": "#001f26",
+                    "on-primary-fixed-variant": "#004e5c",
+                    "inverse-on-surface": "#f3f0ef",
+                    "secondary": "#843ab4",
+                    "outline-variant": "#bec8cc",
+                    "primary-container": "#107c91",
+                    "secondary-container": "#cc80fd",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fcf9f8",
+                    "tertiary-fixed-dim": "#f4b6c1",
+                    "surface-container-low": "#f6f3f2",
+                    "on-secondary-container": "#580087",
+                    "tertiary-fixed": "#ffd9df",
+                    "on-secondary-fixed": "#2f004b",
+                    "primary": "#006273",
+                    "tertiary-container": "#96636d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<nav class="sticky top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-xl">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#006273] dark:text-[#107c91]" data-icon="location_on">location_on</span>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface-variant">Kuala Lumpur</span>
+</div>
+</div>
+<h1 class="text-xl font-bold tracking-tighter text-[#1c1b1b] dark:text-[#fcf9f8] uppercase">The Sanctuary</h1>
+<button class="hover:bg-[#1c1b1b]/5 dark:hover:bg-[#fcf9f8]/5 transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+</button>
+</div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 space-y-12">
+<!-- Search Section -->
+<section class="mt-4">
+<div class="bg-surface-container-low p-4 rounded-xl flex items-center gap-4">
+<span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full font-body text-on-surface-variant placeholder:text-outline-variant" placeholder="Treatments or locations in Malaysia..." type="text"/>
+</div>
+</section>
+<!-- Hero Promo Section -->
+<section class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container h-[420px] flex items-center">
+<div class="relative z-10 p-12 max-w-lg">
+<span class="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-6 inline-block">Sultan Ismail Exclusive</span>
+<h2 class="text-on-primary text-5xl font-extrabold tracking-tight mb-6 leading-[1.1]">Your first sanctuary visit is on us.</h2>
+<p class="text-on-primary-container text-lg mb-8 opacity-90">Enjoy 25% off your first booking at any premium salon in Kuala Lumpur &amp; Petaling Jaya.</p>
+<button class="bg-surface-container-lowest text-primary px-8 py-4 rounded-full font-bold uppercase text-xs tracking-widest hover:scale-105 active:scale-95 transition-all">Claim Now</button>
+</div>
+<img alt="Spa interior" class="absolute right-0 top-0 h-full w-2/3 object-cover opacity-60 mix-blend-overlay" data-alt="luxury minimalist spa interior with warm ambient lighting wooden accents and soft focused background of a treatment room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjYigPeZaXt-HtHtOe9SLYSN4QVDz6bNDB2Ms9H0W5V2jfy_NKdRlzbn3U9RNbaoc46gv4FLUHCgjA2DpirqWTYwRCc9YXQclX0xtVlq9LdE49fSGeReJIxeieExF1mF_kOmDoXek_t7Wq-Upevvl3LDmKGeibld1DWIGVBXaM1zeQeJxhjERJ3oyYC50I3-mvLa2gD55-TxqiHC7B8YDysLWPa_tL5osWnTp6IjvmvEL4sqcxEsIecWoVYyyRZd-yWU5WZ1a5dWjD"/>
+</section>
+<!-- Categories Bento Grid -->
+<section>
+<div class="flex justify-between items-end mb-8">
+<h3 class="text-3xl font-bold tracking-tight">Curation</h3>
+<span class="text-primary font-bold text-xs uppercase tracking-widest cursor-pointer">Explore All</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+<!-- Hair -->
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-between aspect-square hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform" data-icon="content_cut">content_cut</span>
+<span class="font-bold uppercase text-[10px] tracking-widest">Hair</span>
+</div>
+<!-- Nails -->
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-between aspect-square hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform" data-icon="brush">brush</span>
+<span class="font-bold uppercase text-[10px] tracking-widest">Nails</span>
+</div>
+<!-- Massage -->
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-between aspect-square hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform" data-icon="spa">spa</span>
+<span class="font-bold uppercase text-[10px] tracking-widest">Massage</span>
+</div>
+<!-- Facials -->
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-between aspect-square hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform" data-icon="face">face</span>
+<span class="font-bold uppercase text-[10px] tracking-widest">Facials</span>
+</div>
+<!-- Barbers -->
+<div class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-between aspect-square hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-primary text-3xl group-hover:scale-110 transition-transform" data-icon="face_retouching_natural">face_retouching_natural</span>
+<span class="font-bold uppercase text-[10px] tracking-widest">Barbers</span>
+</div>
+</div>
+</section>
+<!-- Recommended for You -->
+<section>
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="text-3xl font-bold tracking-tight">Recommended</h3>
+<p class="text-on-surface-variant text-sm mt-1">Personalized for your aesthetic</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Salon 1 -->
+<div class="group cursor-pointer">
+<div class="relative overflow-hidden rounded-xl aspect-[4/5] mb-4">
+<img alt="Luxury Salon" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Modern high-end hair salon interior with minimal white furniture large mirrors and warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuJRMomFSj9ospcRZOspKKmZjiI4vBCzAIeQ2qQKQuf-yg5V9HYBtL09KIS6AolPCXykcioEp4yAalUz7AnRDcJwkZsgaoQA19TO7yghcsa5MoxUn9RGwjdU6W41yC5Lt--s_5JsgwQLvUpWR2fZUm4baQC1y911oNKD8-uqRjkbzt3Tkp8jKMqjTg94ku6kdiIJffBd-IOR8C1TC4WLYXDsJj1grvLduD6KA2mjwkky70MPcu-UQ0vC9Ainx-jfdH60vEeoBGtYVe"/>
+<div class="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-xs" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[10px] font-bold">4.9</span>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg">Aura Wellness Pavilion</h4>
+<p class="text-on-surface-variant text-sm">Bukit Bintang, KL</p>
+</div>
+<span class="text-primary font-bold">RM 120+</span>
+</div>
+</div>
+<!-- Salon 2 -->
+<div class="group cursor-pointer">
+<div class="relative overflow-hidden rounded-xl aspect-[4/5] mb-4">
+<img alt="Skincare Studio" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Chic facial spa room with soft pink walls professional skincare products on glass shelves and cozy atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcZrtfFRVkOv9_GcCwrDTwDZyELYHhSqPDJADsPk1hX_y-4ebDQdRDSVO33PDjaMHKK3wS31bl7xL3iW5J46trt9YMX8vHrvEQBHm_5oCLFKiBeuOndi2nVgDFKhEzo6tbep1bvzQdI4sFpfa1G2slds73AIRcQvVGg9axtZ2EEDwo5RYgK8-a3VlTNK5Th7FhrXqjskcDLfE0b0cfqvSiHtR5yKMOdi9_hGeTnFbZJiEVjFwo7stJBU3zpNTVzOwgYINYUOrPdf2R"/>
+<div class="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-xs" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[10px] font-bold">5.0</span>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg">Glow Theory Facials</h4>
+<p class="text-on-surface-variant text-sm">Bangsar Village, KL</p>
+</div>
+<span class="text-primary font-bold">RM 180+</span>
+</div>
+</div>
+<!-- Salon 3 -->
+<div class="group cursor-pointer">
+<div class="relative overflow-hidden rounded-xl aspect-[4/5] mb-4">
+<img alt="Nail Art Gallery" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Artistic nail salon setup with marble tabletops premium polish bottles arranged by color and sleek minimalist chairs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgh902nLtzHSztMfg1oOmrhWBMP4Ct-tGLq_jx6pPzYYi4eoJqQppIudYPgutuB8RFfj4RwAwlKyRudKW-TInZVIR8WhLTsClYgHAJJu0jm1ptDB4LDpKO5OcNA40rbEBEIVP00VukvePLnTgPduGKW-rFFBZ4He3eJGtsPABRuPtKkpg4Iw-tKbsykpT_gwquPQq3GeV2ZiVG90EIazBoaf8w-Yd1nAWXwmR1HJdXTiA5n5jGmOk77Ztk4OvbkB77lyARhN2sxA54"/>
+<div class="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-xs" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-[10px] font-bold">4.8</span>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-bold text-lg">The Polish Atelier</h4>
+<p class="text-on-surface-variant text-sm">Mont Kiara, KL</p>
+</div>
+<span class="text-primary font-bold">RM 85+</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Trending in Malaysia -->
+<section class="pb-12">
+<h3 class="text-3xl font-bold tracking-tight mb-8">Trending in Malaysia</h3>
+<div class="flex gap-6 overflow-x-auto hide-scrollbar -mx-6 px-6">
+<!-- Trend Card 1 -->
+<div class="flex-shrink-0 w-[300px] bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+<img alt="Trend 1" class="h-40 w-full object-cover" data-alt="Close up of a luxury aromatherapy oil massage session with smooth stones and essential oils in a dark tropical spa" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_eu8rvaD74-OKph_30xqd6_2I9duujtdF9RjOMXtJMh0EJrNQ1o-AOpxhCsbpivQ9JTzoHsMQUnrtH8L1-YaxNu--ix3CeDE-HAxYMaz_EFw_97Df_tabIl61bHmvLtTEYNTTPdOdKQoPInyNDdd4r4mqGhJEj6qS47QsTooPf_N3AaMuy0tFqciVT5PPmJXO34KNsx89rtZ6bQ3QJg2R9Q0O6mIkMUNqvlXdxh6RqnJUMYXqa4if9DWj7CrnPYtt8ERmUiX_kMcC"/>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Top Pick</span>
+<h5 class="font-bold text-lg mb-1">Traditional Balinese Rituals</h5>
+<p class="text-on-surface-variant text-xs line-clamp-2">Authentic relaxation techniques now trending in Petaling Jaya spas.</p>
+</div>
+</div>
+<!-- Trend Card 2 -->
+<div class="flex-shrink-0 w-[300px] bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+<img alt="Trend 2" class="h-40 w-full object-cover" data-alt="Hydra facial machine being used on a clean face in a brightly lit modern medical spa setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlIk2CS8o1OgSj405Tt93HA5WS-dAQko6AEYt-N2gxTrACT597G_cyNctECSFa1aGpxm7oFgdC6tH710ZbgxhEBfsCDTK8XW_f1gov2KPdM1g9bSgP04D0fEFjXTtUJBLvC0USEUgZZyNdA3aPATP8_BXu416TohzT-hTUaFBLNnlQL3diAxhn_8ZQvyC5bIVlwuMtDHCEuAHLPyNrd2xLasMuTEak837xwyga72jTIlYlamGk_kBbfPzKfmc7d28xdu76m3viS2ma"/>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Rising</span>
+<h5 class="font-bold text-lg mb-1">Advanced Hydra Facials</h5>
+<p class="text-on-surface-variant text-xs line-clamp-2">The latest non-invasive skin rejuvenation taking over Cyberjaya.</p>
+</div>
+</div>
+<!-- Trend Card 3 -->
+<div class="flex-shrink-0 w-[300px] bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+<img alt="Trend 3" class="h-40 w-full object-cover" data-alt="Expert barber at work in a vintage-style barbershop with leather chairs and classic grooming tools" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtnqlYkZkUSIYTLMLlD3_31ALmpdfpNt-uL_wF-AsZNYi7qkBmP8hokkhKIhZjYBWhzGkgxYbBnwr6kaUgMTXbHzqFTUOExGBA9h-z_3TUP7h2Jpto5brFnJJni_1cSXbH-Yq-gm_-Qu-Y07CGok5zbn_UWBqdN3o2yQ3kGAy-kHRLJGcs2aIViOzPjN5h7TNoE2gp3uA_HxG1CpmIR91mA_zLlzMTTB8Fh3U5lksdNMhhF1JP-NQqbnGBdPGB0WG0Dzx7Fjp97_Bx"/>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Popular</span>
+<h5 class="font-bold text-lg mb-1">Artisan Barber Craft</h5>
+<p class="text-on-surface-variant text-xs line-clamp-2">Precision fades and hot towel shaves are back in Georgetown.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 h-20 bg-[#fcf9f8]/90 dark:bg-[#1c1b1b]/95 backdrop-blur-2xl z-50 pb-safe shadow-[0_-8px_32px_rgba(28,27,27,0.04)]">
+<div class="flex flex-col items-center justify-center text-[#006273] dark:text-[#107c91] gap-1 active:scale-90 duration-200 ease-in-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3e484c] dark:text-slate-500 gap-1 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-200 ease-in-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Search</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3e484c] dark:text-slate-500 gap-1 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-200 ease-in-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Bookings</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3e484c] dark:text-slate-500 gap-1 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-200 ease-in-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Profile</span>
+</div>
+</nav>
+<!-- FAB Contextual (on Home) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</button>
+</body></html>

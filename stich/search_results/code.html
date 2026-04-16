@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#313030",
+                      "surface-container-highest": "#e5e2e1",
+                      "on-tertiary-fixed": "#330f19",
+                      "surface-container": "#f0eded",
+                      "on-primary": "#ffffff",
+                      "background": "#fcf9f8",
+                      "error": "#ba1a1a",
+                      "primary-fixed-dim": "#7cd3ea",
+                      "on-tertiary-container": "#fff4f5",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#663a43",
+                      "primary-fixed": "#acecff",
+                      "on-tertiary": "#ffffff",
+                      "on-surface-variant": "#3e484c",
+                      "surface-tint": "#00687a",
+                      "tertiary": "#7b4b55",
+                      "surface-dim": "#dcd9d9",
+                      "outline": "#6e797c",
+                      "surface-bright": "#fcf9f8",
+                      "secondary-fixed-dim": "#e4b5ff",
+                      "on-background": "#1c1b1b",
+                      "on-secondary-fixed-variant": "#6a1b9a",
+                      "inverse-primary": "#7cd3ea",
+                      "on-primary-container": "#ebfaff",
+                      "error-container": "#ffdad6",
+                      "surface-variant": "#e5e2e1",
+                      "surface-container-high": "#eae7e7",
+                      "on-surface": "#1c1b1b",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-fixed": "#f4d9ff",
+                      "on-primary-fixed": "#001f26",
+                      "on-primary-fixed-variant": "#004e5c",
+                      "inverse-on-surface": "#f3f0ef",
+                      "secondary": "#843ab4",
+                      "outline-variant": "#bec8cc",
+                      "primary-container": "#107c91",
+                      "secondary-container": "#cc80fd",
+                      "on-secondary": "#ffffff",
+                      "surface": "#fcf9f8",
+                      "tertiary-fixed-dim": "#f4b6c1",
+                      "surface-container-low": "#f6f3f2",
+                      "on-secondary-container": "#580087",
+                      "tertiary-fixed": "#ffd9df",
+                      "on-secondary-fixed": "#2f004b",
+                      "primary": "#006273",
+                      "tertiary-container": "#96636d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Inter"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="sticky top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-xl">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#006273] dark:text-[#107c91]" data-icon="location_on">location_on</span>
+<span class="font-['Inter'] tracking-tight font-semibold text-[#1c1b1b] dark:text-[#fcf9f8]">Kuala Lumpur</span>
+</div>
+<h1 class="text-xl font-bold tracking-tighter text-[#1c1b1b] dark:text-[#fcf9f8] uppercase">The Sanctuary</h1>
+<button class="hover:bg-[#1c1b1b]/5 dark:hover:bg-[#fcf9f8]/5 transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined text-[#3e484c] dark:text-slate-400" data-icon="tune">tune</span>
+</button>
+</div>
+</header>
+<!-- Search Context & Filters -->
+<section class="px-6 pt-2 pb-6">
+<div class="mb-6">
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-1">Discover</h2>
+<p class="text-on-surface-variant text-sm">42 premium spots found in Kuala Lumpur</p>
+</div>
+<!-- Filter Pills -->
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-container rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap shadow-sm">
+<span>Price</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="expand_more">expand_more</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap hover:bg-surface-container-highest transition-colors">
+<span>Date</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="calendar_today">calendar_today</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap hover:bg-surface-container-highest transition-colors">
+<span>Distance</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="near_me">near_me</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-high text-on-surface-variant rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap hover:bg-surface-container-highest transition-colors">
+<span>Top Rated</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="star">star</span>
+</button>
+</div>
+</section>
+<!-- Results List -->
+<main class="px-6 space-y-10">
+<!-- Salon Card 1 -->
+<article class="group relative">
+<div class="relative aspect-[4/3] overflow-hidden rounded-xl mb-4">
+<img alt="Modern minimalist hair salon interior with warm lighting" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="luxury hair salon interior with high ceilings, minimalist beige furniture, warm ambient lighting, and large mirrors in a premium spa setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBxlHiYNgV3-KRiox48h7d7LgqpfRq09gkABlgtzD2fO1SuLS_rfa3cyiBQH7-62pXW7mJJx8w7x5zI71aNQH672wamtQPFyfIkT2G2yaftfn9ejUULT3WBzSLCTOyMN3DkwXbCtSOD0CwrWV9oykAs5K9xq5boKhtkW6GcevCEuVIlMKgH9ODtodOGeSxbCOe9fslF4bN-PNHg3S03zbmH8v9bew2uoaZEKr5UMOxqFP6IK_DHo_O2KAf4dIg4yuPDC94Pq926mc6"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-amber-500 text-[18px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.9</span>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-xl font-bold tracking-tight text-on-surface mb-0.5">Lumière Artistry Salon</h3>
+<div class="flex items-center gap-1.5 text-on-surface-variant text-sm mb-3">
+<span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span>
+<span>Bukit Bintang, KL • 1.2km away</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold uppercase tracking-wider rounded-full">Sultan Ismail Exclusive</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant leading-none mb-1">Starting From</p>
+<p class="text-2xl font-extrabold text-primary">RM85</p>
+</div>
+</div>
+</article>
+<!-- Salon Card 2 -->
+<article class="group relative">
+<div class="relative aspect-[4/3] overflow-hidden rounded-xl mb-4">
+<img alt="Upscale boutique nail spa with marble finishings" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="sophisticated nail boutique with white marble surfaces, plush velvet chairs, soft pink accents, and professional manicurist stations in a luxury environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAkFT8QX7fyquvCbbikvMIRZ8x5-NlXPgCck2wGettE3pnL9hcxdeu60-BFXRWKXh_HFXGYqm2nqudSOA5hup-gCowG5CZsiDRTGSP5TqFatGZDL9nlEiIQm4_Bwhmo2sWu_L707dmjXorWUTxKihN64Lc0HUDRnIn2j7grAADAJYKNaSDPx4oDXSN-49VLSf_H_KWBz_FfDCC4VbIJ6_E_WDthVWKrlhOVi49sJCxVjIeiO4_Tmt40_Mz4yxTx6gVsJ2MDJWHmtr9"/>
+<div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-amber-500 text-[18px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.8</span>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-xl font-bold tracking-tight text-on-surface mb-0.5">The Velvet Studio</h3>
+<div class="flex items-center gap-1.5 text-on-surface-variant text-sm mb-3">
+<span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span>
+<span>Mont Kiara, KL • 4.5km away</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold uppercase tracking-wider rounded-full">Premium Manicure</span>
+</div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant leading-none mb-1">Starting From</p>
+<p class="text-2xl font-extrabold text-primary">RM120</p>
+</div>
+</div>
+</article>
+<!-- Salon Card 3 (Bento-style layout for variety) -->
+<article class="bg-surface-container-low p-5 rounded-xl">
+<div class="flex flex-col md:flex-row gap-6">
+<div class="md:w-1/3 aspect-square rounded-lg overflow-hidden shrink-0">
+<img alt="Cozy wellness center for facials" class="w-full h-full object-cover" data-alt="peaceful wellness treatment room with soft linen towels, aromatic candles, and organic skincare products on a wooden shelf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWGpBZPtEgUgT7soPWgg7ReJ1q2xzQocuZTyZ4LaZ_KK8_-ZTYr_Nkpi8yBRlZPMAVFFQYAWMJ5kDCka_FxRheyKihM-Gd_K4jFe7uHhOsoLUu1DBqInKa5hzAxT0FF3JiclidTPI5_71K7Y7vCNEKKMcvgfiV1w_HBaHy0ANhORZyy1xEcedt3egxuBDzFT8J9qQfPeCKlFzUs9e1xUwOQNoddqZDwmq4P37_BCtyMJPYBUs6PEaGc8onAMBLB4APAPRYnNldlKBs"/>
+</div>
+<div class="flex-1 flex flex-col justify-between py-1">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="text-xl font-bold tracking-tight text-on-surface">Pure Zen Esthetics</h3>
+<div class="flex items-center gap-1 text-on-surface font-bold text-sm">
+<span class="material-symbols-outlined text-amber-500 text-[18px]" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+                                4.7
+                            </div>
+</div>
+<p class="text-on-surface-variant text-sm mt-1">Bangsar South • 2.8km away</p>
+<p class="text-on-surface-variant text-sm mt-4 leading-relaxed line-clamp-2 italic">A restorative oasis specializing in holistic facial treatments and organic skincare therapy.</p>
+</div>
+<div class="mt-6 flex items-center justify-between border-t border-outline-variant/20 pt-4">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="face">face</span>
+</div>
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Organic Facial</span>
+</div>
+<span class="text-lg font-extrabold text-primary">RM180</span>
+</div>
+</div>
+</div>
+</article>
+</main>
+<!-- Floating Map Button -->
+<div class="fixed bottom-28 left-1/2 -translate-x-1/2 z-40">
+<button class="bg-primary text-on-primary px-6 py-3.5 rounded-full shadow-[0_8px_32px_rgba(0,98,115,0.3)] flex items-center gap-2.5 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="text-sm font-bold uppercase tracking-[0.1em]">Show Map</span>
+</button>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 h-20 bg-[#fcf9f8]/90 dark:bg-[#1c1b1b]/95 backdrop-blur-2xl z-50 shadow-[0_-8px_32px_rgba(28,27,27,0.04)]">
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-slate-500 gap-1 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#006273] dark:text-[#107c91] gap-1 hover:opacity-100 transition-opacity active:scale-90 duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="search" style="font-variation-settings: 'wght' 700;">search</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-slate-500 gap-1 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-slate-500 gap-1 opacity-60 hover:opacity-100 transition-opacity active:scale-90 duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.05em]">Profile</span>
+</a>
+</nav>
+</body></html>

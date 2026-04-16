@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#fcf9f8",
+                    "tertiary-container": "#96636d",
+                    "on-background": "#1c1b1b",
+                    "primary": "#006273",
+                    "on-secondary-fixed-variant": "#6a1b9a",
+                    "inverse-on-surface": "#f3f0ef",
+                    "error-container": "#ffdad6",
+                    "surface": "#fcf9f8",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-error-container": "#93000a",
+                    "surface-container-high": "#eae7e7",
+                    "inverse-primary": "#7cd3ea",
+                    "error": "#ba1a1a",
+                    "outline": "#6e797c",
+                    "secondary-fixed": "#f4d9ff",
+                    "surface-tint": "#00687a",
+                    "on-secondary-fixed": "#2f004b",
+                    "on-primary": "#ffffff",
+                    "secondary": "#843ab4",
+                    "primary-fixed": "#acecff",
+                    "surface-container-low": "#f6f3f2",
+                    "tertiary": "#7b4b55",
+                    "surface-variant": "#e5e2e1",
+                    "secondary-fixed-dim": "#e4b5ff",
+                    "on-primary-fixed": "#001f26",
+                    "surface-dim": "#dcd9d9",
+                    "tertiary-fixed-dim": "#f4b6c1",
+                    "on-tertiary-fixed-variant": "#663a43",
+                    "inverse-surface": "#313030",
+                    "secondary-container": "#cc80fd",
+                    "on-tertiary-fixed": "#330f19",
+                    "on-surface-variant": "#3e484c",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-container": "#107c91",
+                    "on-secondary-container": "#580087",
+                    "primary-fixed-dim": "#7cd3ea",
+                    "outline-variant": "#bec8cc",
+                    "on-surface": "#1c1b1b",
+                    "on-tertiary-container": "#fff4f5",
+                    "background": "#fcf9f8",
+                    "tertiary-fixed": "#ffd9df",
+                    "surface-container": "#f0eded",
+                    "on-primary-fixed-variant": "#004e5c",
+                    "on-primary-container": "#ebfaff",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md shadow-[0_8px_32px_rgba(28,27,27,0.04)]">
+<div class="flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/20">
+<img alt="Salon Owner Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional woman with a warm, serene expression in a bright, modern studio setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTl0rztMecJdIea8yp0f8-5-pq6hHXs7PnQ7WV1f_6NdLqV1UJlNsnyqBu80hVuo43J4JGtuC_wu_B1m1bkAAN1KHkwwiy_RDu2nWfDpE451TEajPElWYWdABqG7f80Z2iHy2CUdReWpbL4AxexVPoeOEsWesf4Ji5lFn3F64JNbwIg63ew2D_p890eN2hfi2lL5k3CCv7ife30_bO1ogEhO7YJ_Zzq8Ygj98uwNaaTQDvlJvRts12mXD75YJUYYpCL4huRZ_hck5K"/>
+</div>
+<h1 class="text-xl font-bold tracking-tighter text-[#006273] dark:text-[#107c91] font-headline">The Sanctuary</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#fcf9f8] transition-colors">
+<span class="material-symbols-outlined text-[#006273]" data-icon="search">search</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-4xl mx-auto">
+<!-- Header Section -->
+<div class="mb-8">
+<h2 class="text-3xl font-extrabold tracking-tight mb-2">Service Menu</h2>
+<p class="text-on-surface-variant text-sm tracking-wide">Refine your salon offerings and pricing structures.</p>
+</div>
+<!-- Sticky Category Scroll -->
+<div class="flex gap-2 mb-8 overflow-x-auto no-scrollbar py-2">
+<button class="px-6 py-2 bg-primary text-on-primary rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">Hair</button>
+<button class="px-6 py-2 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold tracking-widest uppercase hover:bg-surface-container-high transition-colors">Nails</button>
+<button class="px-6 py-2 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold tracking-widest uppercase hover:bg-surface-container-high transition-colors">Skin</button>
+</div>
+<!-- Services Groups -->
+<div class="space-y-12">
+<!-- Category: Hair -->
+<section>
+<div class="flex items-baseline justify-between mb-6">
+<h3 class="text-lg font-bold tracking-tight text-primary">Hair</h3>
+<span class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant opacity-50">4 Services</span>
+</div>
+<div class="grid gap-4">
+<!-- Service Card -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-xl transition-all duration-300 hover:shadow-[0_8px_32px_rgba(0,98,115,0.06)] flex items-center justify-between overflow-hidden">
+<div class="flex items-center gap-5">
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Signature Haircut" class="w-full h-full object-cover" data-alt="Elegant hair salon scene with professional scissors and a sleek haircut in progress, soft warm tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACYkzeTiYfiI1y54qdYsaMrtr7juH4N3lfNmjWL5wrNQ_ejrqpI1fYv7yandvXXbM5SkrgBH3zPHhhjbtdpjfH7GyxmGG5RyNINUPFXXWpKW4hN23wwMwYj1f8vT3vY8D4opl5WceYdJwtkKi2gZBrB-y_ljL8C4JtE7gCCheNzTt1Ux63lPzb2_hlbv4gquNkPU1lQ4f65wFGOiuTNKmZzGSOAzu4mNXetWpkU4qZ99UsUUJJZOT9-iBWTd9CODbCbAVFdlHpVaU0"/>
+</div>
+<div>
+<h4 class="font-semibold text-on-surface">Signature Haircut</h4>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> 60 mins
+                                    </span>
+<span class="text-xs font-bold text-primary">RM 120</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<!-- Service Card -->
+<div class="group bg-surface-container-lowest p-5 rounded-xl transition-all duration-300 flex items-center justify-between">
+<div class="flex items-center gap-5">
+<div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Balayage &amp; Tone" class="w-full h-full object-cover" data-alt="Close up of golden balayage hair texture with high gloss finish, luxurious and soft aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJa1J2dkAmaYU6ceZLTIoDoYwzwEfCBEwqCk6n6j2q7LIUhrcA-GribZCOSsB5LWvIj6Y04bO9WgjkTs7-YMw0rzBTzVPZ_Qy56Zg15oFjlCkHkebahFaoHoFBoD2b1kjSK8-kkPrg5YFAffkWG0jG2HKvDc9rid1BQQgkhJd4ADrCJ27xDuDw-kdi2UPbCycu77pr0GyBPApc6_F-24fMeEBVdc1vnkWkeF1ud-SJsZOOzE8JCgpDN1aQeGNHwI1f7o2cO5C5cD2Z"/>
+</div>
+<div>
+<h4 class="font-semibold text-on-surface">Balayage &amp; Tone</h4>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span> 180 mins
+                                    </span>
+<span class="text-xs font-bold text-primary">RM 450</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Category: Nails -->
+<section>
+<div class="flex items-baseline justify-between mb-6">
+<h3 class="text-lg font-bold tracking-tight text-primary">Nails</h3>
+<span class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant opacity-50">2 Services</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Asymmetric Layout: Wide Bento-style Card -->
+<div class="md:col-span-2 relative bg-surface-container-low p-6 rounded-2xl flex flex-col md:flex-row gap-6 items-center">
+<div class="w-full md:w-48 h-32 rounded-xl overflow-hidden shadow-sm">
+<img alt="Luxe Gel Manicure" class="w-full h-full object-cover" data-alt="Minimalist nail art aesthetic, nude polish on elegant hands holding a ceramic mug, soft window light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDI69mtYgj48OqDY-nLYRowOUBPZ4j3u82vMAIW4CCBv5ZJLxPz1fBQqZLk3AusKf2IBzDrHJ8BNT99ecKR-3e-CX2-BXF8HOWJLmuL3unKV19ymtaaN_3R-lXS3vOOxy4J306_v5t224zJh0ClLWcs8FMWiR0okzsBqlP1jtKs8mdSkz4x1LtYjLKNZWcy749b2_Wd_ccXz6HplX46-ase-HyWFL6gprPpPeCoCy8UkTEtxbIM5SmbuuxINKTBni5_CqkUe9A1TXHP"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start mb-2">
+<h4 class="text-lg font-bold">Luxe Gel Manicure</h4>
+<span class="text-primary font-bold">RM 85</span>
+</div>
+<p class="text-xs text-on-surface-variant mb-4 max-w-md leading-relaxed">Long-lasting gel application with premium Japanese polish and detailed cuticle care.</p>
+<div class="flex items-center gap-4">
+<span class="text-[10px] font-bold tracking-widest uppercase bg-surface-container-highest px-3 py-1 rounded-full text-on-surface-variant">45 Mins</span>
+<div class="flex gap-1">
+<button class="text-primary text-xs font-bold underline underline-offset-4">Quick Edit</button>
+<span class="text-outline-variant">/</span>
+<button class="text-error text-xs font-bold underline underline-offset-4">Archive</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Regular Card -->
+<div class="bg-surface-container-lowest p-5 rounded-xl transition-all duration-300 flex items-center justify-between border border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed" data-icon="brush">brush</span>
+</div>
+<div>
+<h4 class="font-semibold text-on-surface">Pedicure SPA</h4>
+<div class="flex items-center gap-3 mt-0.5">
+<span class="text-[10px] font-bold text-on-surface-variant">60M</span>
+<span class="text-[10px] font-bold text-primary">RM 95</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="more_vert">more_vert</span>
+</div>
+<!-- Regular Card -->
+<div class="bg-surface-container-lowest p-5 rounded-xl transition-all duration-300 flex items-center justify-between border border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-fixed" data-icon="palette">palette</span>
+</div>
+<div>
+<h4 class="font-semibold text-on-surface">French Tips</h4>
+<div class="flex items-center gap-3 mt-0.5">
+<span class="text-[10px] font-bold text-on-surface-variant">+15M</span>
+<span class="text-[10px] font-bold text-primary">RM 30</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="more_vert">more_vert</span>
+</div>
+</div>
+</section>
+<!-- Category: Skin -->
+<section>
+<div class="flex items-baseline justify-between mb-6">
+<h3 class="text-lg font-bold tracking-tight text-primary">Skin</h3>
+<span class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant opacity-50">1 Service</span>
+</div>
+<div class="relative overflow-hidden group rounded-2xl bg-surface-container-high aspect-[16/7]">
+<img alt="Glow Facial" class="w-full h-full object-cover opacity-80 mix-blend-multiply group-hover:scale-105 transition-transform duration-700" data-alt="Luxury spa environment with aromatic candles, white towels, and a professional skincare product application on smooth skin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDQx3RubBS50bvNPQIbkEhET2NTTmFEyGCNWOilP-OsKc9TV94EaxkldJ_zykwohRFfj2Q4mCqRkltS16Ktw4wE3oiVykToFFdEVh6parx7bvTVHNiGtJoi40sY7hkkbAc2wjgXilRq9JG71Uv0VS-sfHC7HtsYdrURA5JPjOWQfLlcCpuMgwB60BMC5T_vD4xw2_ZiHorFiBrXjmfLQIyrzzuoeFmBJnYorer8cb_32GG1MUlsRNW6rOz6YqJzNJpnKIPM_2Wp-Ex"/>
+<div class="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-on-surface/80 to-transparent">
+<h4 class="text-white text-2xl font-bold tracking-tight mb-1">Glow Renewal Facial</h4>
+<div class="flex items-center gap-4 text-white/90">
+<span class="text-sm font-medium tracking-wide">75 mins</span>
+<span class="w-1 h-1 bg-white/50 rounded-full"></span>
+<span class="text-sm font-bold">RM 280</span>
+</div>
+<div class="absolute top-6 right-6 flex gap-2">
+<button class="bg-white/20 backdrop-blur-md text-white p-2 rounded-full hover:bg-white/30 transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Navigation Bar & FAB -->
+<div class="fixed bottom-0 left-0 w-full z-50">
+<!-- Floating Action Button -->
+<div class="flex justify-center mb-4">
+<button class="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-container text-on-primary px-8 py-4 rounded-full shadow-[0_8px_32px_rgba(0,98,115,0.25)] active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="text-xs font-bold tracking-widest uppercase">Add New Service</span>
+</button>
+</div>
+<nav class="bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md shadow-[0_-8px_32px_rgba(28,27,27,0.04)] rounded-t-xl">
+<div class="flex justify-around items-center w-full px-4 pb-6 pt-3">
+<div class="flex flex-col items-center justify-center text-[#3e484c] opacity-60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[24px] mb-1" data-icon="dashboard">dashboard</span>
+<span class="font-['Inter'] uppercase tracking-widest text-[10px] font-bold">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3e484c] opacity-60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[24px] mb-1" data-icon="calendar_today">calendar_today</span>
+<span class="font-['Inter'] uppercase tracking-widest text-[10px] font-bold">Calendar</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#006273] text-white rounded-full px-4 py-1">
+<span class="material-symbols-outlined text-[24px] mb-0.5" data-icon="group">group</span>
+<span class="font-['Inter'] uppercase tracking-widest text-[10px] font-bold">Clients</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3e484c] opacity-60 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[24px] mb-1" data-icon="settings">settings</span>
+<span class="font-['Inter'] uppercase tracking-widest text-[10px] font-bold">Settings</span>
+</div>
+</div>
+</nav>
+</div>
+</body></html>

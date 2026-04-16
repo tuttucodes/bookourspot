@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Select Date &amp; Time - The Sanctuary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#f3f0ef",
+                    "secondary-fixed": "#f4d9ff",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#663a43",
+                    "tertiary": "#7b4b55",
+                    "surface-container-high": "#eae7e7",
+                    "on-secondary-fixed-variant": "#6a1b9a",
+                    "surface-tint": "#00687a",
+                    "surface-variant": "#e5e2e1",
+                    "outline-variant": "#bec8cc",
+                    "primary-fixed-dim": "#7cd3ea",
+                    "on-surface": "#1c1b1b",
+                    "inverse-surface": "#313030",
+                    "secondary-container": "#cc80fd",
+                    "background": "#fcf9f8",
+                    "tertiary-fixed": "#ffd9df",
+                    "on-tertiary-fixed": "#330f19",
+                    "outline": "#6e797c",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-container": "#96636d",
+                    "on-tertiary-container": "#fff4f5",
+                    "tertiary-fixed-dim": "#f4b6c1",
+                    "secondary-fixed-dim": "#e4b5ff",
+                    "on-error": "#ffffff",
+                    "primary-container": "#107c91",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#acecff",
+                    "surface-bright": "#fcf9f8",
+                    "surface": "#fcf9f8",
+                    "primary": "#006273",
+                    "on-primary": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#001f26",
+                    "surface-container-low": "#f6f3f2",
+                    "surface-container": "#f0eded",
+                    "on-secondary-fixed": "#2f004b",
+                    "inverse-primary": "#7cd3ea",
+                    "secondary": "#843ab4",
+                    "on-primary-container": "#ebfaff",
+                    "on-surface-variant": "#3e484c",
+                    "on-secondary-container": "#580087",
+                    "on-primary-fixed-variant": "#004e5c",
+                    "on-background": "#1c1b1b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md shadow-[0_8px_32px_rgba(28,27,27,0.04)]">
+<div class="flex items-center justify-between px-6 py-4 w-full">
+<button class="text-[#006273] active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-inter tracking-tight font-bold text-lg text-[#006273]">The Sanctuary</h1>
+<button class="text-[#006273] active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Progress Steps -->
+<div class="flex items-center justify-between mb-10 px-2">
+<div class="flex flex-col items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-[10px] font-medium uppercase tracking-[0.05em] text-primary">Service</span>
+</div>
+<div class="flex-1 h-[1px] bg-outline-variant mx-4 opacity-30"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="text-[10px] font-bold">2</span>
+</div>
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface">Schedule</span>
+</div>
+<div class="flex-1 h-[1px] bg-outline-variant mx-4 opacity-30"></div>
+<div class="flex flex-col items-center gap-2 opacity-30">
+<div class="w-2 h-2 rounded-full bg-on-surface-variant"></div>
+<span class="text-[10px] font-medium uppercase tracking-[0.05em] text-on-surface-variant">Confirm</span>
+</div>
+</div>
+<!-- Service Summary Glass Card -->
+<section class="mb-10">
+<div class="bg-surface-container-low rounded-xl p-5 flex items-center gap-4">
+<div class="w-16 h-16 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="close-up of stylist cutting dark hair in a luxury modern salon with soft warm ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEVui_NMOdE2BZfptQem6d1z58eNojX0upfe4Vn-f-fqAynfkFE626q60pclR5WhxpDHoBRp9jL8_6kAADqEc16KjgCHlXJN17oFuGQJ5JNxiko59VRZysmtspT7KAPeWrkn6NdK21eS5mzlTivfVJX8svtfQcKn6EwKWrAXsIcrqn1cKewi1_jWhuZp9VpecJb5o6TMpwLclmRXNcn9YjdI4PARQ-ucLnbu96EHVk4BP6i3G647TutgX4BydJHsF6BQR01nrFAqYk"/>
+</div>
+<div class="flex-1">
+<h2 class="text-sm font-bold tracking-tight text-on-surface">Signature Haircut</h2>
+<p class="text-xs text-on-surface-variant mt-1">60 Minutes • Senior Stylist</p>
+</div>
+<div class="text-right">
+<span class="text-primary font-bold text-lg">RM85</span>
+</div>
+</div>
+</section>
+<!-- Date Selection -->
+<section class="mb-10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold tracking-tight">Select Date</h3>
+<span class="text-xs font-bold uppercase tracking-[0.05em] text-primary">October 2024</span>
+</div>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+<!-- Inactive Date -->
+<button class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface-variant">Mon</span>
+<span class="text-lg font-bold mt-1">14</span>
+</button>
+<!-- Active Date -->
+<button class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-primary text-on-primary shadow-lg shadow-primary/20">
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] opacity-80">Tue</span>
+<span class="text-lg font-bold mt-1">15</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface-variant">Wed</span>
+<span class="text-lg font-bold mt-1">16</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface-variant">Thu</span>
+<span class="text-lg font-bold mt-1">17</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface-variant">Fri</span>
+<span class="text-lg font-bold mt-1">18</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[64px] h-20 rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors">
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface-variant">Sat</span>
+<span class="text-lg font-bold mt-1">19</span>
+</button>
+</div>
+</section>
+<!-- Time Selection -->
+<section class="space-y-8">
+<!-- Morning -->
+<div>
+<div class="flex items-center gap-2 mb-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">light_mode</span>
+<h4 class="text-xs font-bold uppercase tracking-[0.05em]">Morning</h4>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<button class="py-3 px-2 rounded-lg bg-surface-container-low text-sm font-medium text-on-surface hover:bg-surface-container transition-colors">09:00 AM</button>
+<button class="py-3 px-2 rounded-lg bg-surface-container-low text-sm font-medium text-on-surface hover:bg-surface-container transition-colors">10:30 AM</button>
+<button class="py-3 px-2 rounded-lg bg-surface-container-low opacity-40 cursor-not-allowed text-sm font-medium line-through">11:00 AM</button>
+</div>
+</div>
+<!-- Afternoon -->
+<div>
+<div class="flex items-center gap-2 mb-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">wb_sunny</span>
+<h4 class="text-xs font-bold uppercase tracking-[0.05em]">Afternoon</h4>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<button class="py-3 px-2 rounded-lg bg-primary text-on-primary text-sm font-bold shadow-md shadow-primary/10">01:30 PM</button>
+<button class="py-3 px-2 rounded-lg bg-surface-container-low text-sm font-medium text-on-surface hover:bg-surface-container transition-colors">02:45 PM</button>
+<button class="py-3 px-2 rounded-lg bg-surface-container-low text-sm font-medium text-on-surface hover:bg-surface-container transition-colors">04:00 PM</button>
+</div>
+</div>
+<!-- Evening -->
+<div>
+<div class="flex items-center gap-2 mb-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">bedtime</span>
+<h4 class="text-xs font-bold uppercase tracking-[0.05em]">Evening</h4>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<button class="py-3 px-2 rounded-lg bg-surface-container-low text-sm font-medium text-on-surface hover:bg-surface-container transition-colors">06:00 PM</button>
+<button class="py-3 px-2 rounded-lg bg-surface-container-low text-sm font-medium text-on-surface hover:bg-surface-container transition-colors">07:30 PM</button>
+<button class="py-3 px-2 rounded-lg bg-surface-container-low text-sm font-medium text-on-surface hover:bg-surface-container transition-colors">08:15 PM</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-[#fcf9f8]/90 dark:bg-[#1c1b1b]/90 backdrop-blur-xl px-6 pb-10 pt-6">
+<div class="max-w-2xl mx-auto flex items-center justify-between gap-6">
+<div class="flex flex-col">
+<span class="text-[10px] font-bold uppercase tracking-[0.05em] text-on-surface-variant">Scheduled for</span>
+<span class="text-sm font-bold text-on-surface">Tue, 15 Oct • 01:30 PM</span>
+</div>
+<button class="bg-gradient-to-r from-[#006273] to-[#107c91] text-on-primary font-bold px-10 py-4 rounded-full flex-1 md:flex-none active:scale-95 transition-transform duration-200">
+                Continue
+            </button>
+</div>
+</div>
+<!-- Hidden Navigation Filter Shell (Suppressed as per rules for Transactional screen) -->
+<nav aria-hidden="true" class="hidden">
+<!-- This is a focused booking journey; global navigation is suppressed -->
+</nav>
+</body></html>

@@ -15,14 +15,14 @@ type BusinessRow = {
   is_active: boolean;
 };
 
-async function fetchBusiness(id: string): Promise<BusinessRow | null> {
+async function fetchBusiness(slug: string): Promise<BusinessRow | null> {
   const { url, anonKey } = getSupabasePublicConfig();
   const supabase = createClient(url, anonKey);
 
   const { data } = await supabase
     .from('businesses')
     .select('id, slug, name, description, category, location, updated_at, is_active')
-    .eq('id', id)
+    .eq('slug', slug)
     .eq('is_active', true)
     .single();
 
@@ -30,11 +30,11 @@ async function fetchBusiness(id: string): Promise<BusinessRow | null> {
 }
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
-  const { id } = await params;
-  const business = await fetchBusiness(id);
-  const canonical = business ? `${SITE_URL}/${business.slug}` : `${SITE_URL}/business/${id}`;
+  const { slug } = await params;
+  const business = await fetchBusiness(slug);
+  const canonical = `${SITE_URL}/${slug}`;
 
   if (!business) {
     return {
@@ -53,7 +53,6 @@ export async function generateMetadata(
     title: `${business.name} | Book Appointment`,
     description,
     alternates: { canonical },
-    robots: { index: false, follow: true },
     openGraph: {
       title: `${business.name} | Book Appointment`,
       description,
@@ -70,6 +69,6 @@ export async function generateMetadata(
   };
 }
 
-export default function BusinessLayout({ children }: { children: React.ReactNode }) {
+export default function BusinessSlugLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

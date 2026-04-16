@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Secure Checkout | BookOurSpot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#eae7e7",
+                      "on-tertiary-container": "#fff4f5",
+                      "tertiary-fixed": "#ffd9df",
+                      "surface-container": "#f0eded",
+                      "surface": "#fcf9f8",
+                      "tertiary-fixed-dim": "#f4b6c1",
+                      "secondary-fixed-dim": "#e4b5ff",
+                      "on-secondary-fixed": "#2f004b",
+                      "on-primary-fixed-variant": "#004e5c",
+                      "primary-fixed": "#acecff",
+                      "secondary-fixed": "#f4d9ff",
+                      "primary-fixed-dim": "#7cd3ea",
+                      "primary": "#006273",
+                      "tertiary-container": "#96636d",
+                      "outline": "#6e797c",
+                      "on-secondary-fixed-variant": "#6a1b9a",
+                      "inverse-primary": "#7cd3ea",
+                      "on-primary-fixed": "#001f26",
+                      "secondary": "#843ab4",
+                      "secondary-container": "#cc80fd",
+                      "surface-dim": "#dcd9d9",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "tertiary": "#7b4b55",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#e5e2e1",
+                      "inverse-on-surface": "#f3f0ef",
+                      "on-tertiary-fixed-variant": "#663a43",
+                      "inverse-surface": "#313030",
+                      "on-background": "#1c1b1b",
+                      "background": "#fcf9f8",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-container": "#580087",
+                      "outline-variant": "#bec8cc",
+                      "on-primary-container": "#ebfaff",
+                      "on-tertiary-fixed": "#330f19",
+                      "surface-tint": "#00687a",
+                      "on-error-container": "#93000a",
+                      "primary-container": "#107c91",
+                      "on-surface-variant": "#3e484c",
+                      "surface-container-lowest": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#f6f3f2",
+                      "on-surface": "#1c1b1b",
+                      "surface-container-highest": "#e5e2e1",
+                      "surface-bright": "#fcf9f8"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Inter"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- TopAppBar Shell -->
+<header class="bg-white/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md fixed top-0 w-full z-50 shadow-[0_8px_32px_rgba(28,27,27,0.04)]">
+<div class="flex items-center px-6 py-4 w-full">
+<button class="active:scale-95 duration-200 hover:opacity-70 transition-opacity mr-4 text-[#006273] dark:text-[#107c91]" data-icon="arrow_back">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-[#1c1b1b] dark:text-[#fcf9f8] text-lg font-bold font-['Inter'] tracking-tight">Secure Checkout</h1>
+</div>
+</header>
+<main class="pt-24 pb-40 px-6 max-w-2xl mx-auto">
+<!-- Booking Summary Card -->
+<section class="mb-8">
+<h2 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4 px-1">Booking Summary</h2>
+<div class="bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110 duration-500"></div>
+<div class="flex items-start gap-5 relative z-10">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Luxury salon interior" class="w-full h-full object-cover" data-alt="Modern high-end salon interior with sleek black styling chairs and warm minimalist lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ1UBr2iBY_oQZ0AsvExTz6Po8ptS-Eo5y4ZjbrfckAEIK3KgFwNioGsVjbCRoFIul72Ns1PMsLIZMHzZliXYx3Aec_p680oHmI1xWdX5gJVJCBokCP3FAPzWDmbwUn9BpMkTJXElpFBLneyUi7ssNTdd0iy6ImNMe872YISKpOxN145xOdh-FZ5F0iUBuKBm6P9MdXIF-4J_YvTjcnXJNk518n7Ueyf40r-niWxU7JKmQHJfuZPjrHiULdAYSYsHH5Bfb7mXAdJ8k"/>
+</div>
+<div class="flex-1">
+<h3 class="text-xl font-bold text-on-surface leading-tight">Signature Haircut</h3>
+<p class="text-on-surface-variant text-sm mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">person</span>
+                            Master Stylist Marcus
+                        </p>
+<div class="flex flex-wrap gap-x-4 gap-y-1 mt-3">
+<div class="flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/5 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                Fri, 27 Oct
+                            </div>
+<div class="flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/5 px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                10:30 AM
+                            </div>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-5 border-t border-surface-container flex items-start gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">location_on</span>
+<div>
+<p class="text-sm font-semibold text-on-surface">The Sanctuary, Kuala Lumpur</p>
+<p class="text-xs text-on-surface-variant">Level 3, Pavilion Bukit Jalil, KL</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Loyalty Program -->
+<section class="mb-8">
+<div class="bg-secondary-fixed/20 p-5 rounded-xl flex items-center justify-between border border-secondary-fixed/30">
+<div class="flex items-center gap-3">
+<div class="bg-secondary text-on-secondary w-10 h-10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-secondary-fixed">Use 500 Loyalty Points</p>
+<p class="text-xs text-on-secondary-fixed-variant">Save RM 5.00 on this booking</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+</section>
+<!-- Payment Methods -->
+<section class="mb-8">
+<h2 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4 px-1">Payment Method</h2>
+<div class="space-y-3">
+<!-- GrabPay -->
+<label class="flex items-center p-4 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-bright transition-colors group">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary/20" name="payment" type="radio"/>
+<div class="ml-4 flex-1 flex items-center justify-between">
+<span class="font-semibold">GrabPay</span>
+<div class="h-6 w-12 bg-white rounded border border-surface-container-highest flex items-center justify-center overflow-hidden">
+<span class="text-[10px] font-black text-[#00B14F]">Grab</span>
+</div>
+</div>
+</label>
+<!-- Touch 'n Go -->
+<label class="flex items-center p-4 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-bright transition-colors group">
+<input checked="" class="w-5 h-5 text-primary border-outline focus:ring-primary/20" name="payment" type="radio"/>
+<div class="ml-4 flex-1 flex items-center justify-between">
+<span class="font-semibold">Touch 'n Go eWallet</span>
+<div class="h-6 w-12 bg-white rounded border border-surface-container-highest flex items-center justify-center overflow-hidden">
+<span class="text-[10px] font-black text-[#005BAA]">TNG</span>
+</div>
+</div>
+</label>
+<!-- FPX -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden border border-transparent focus-within:border-primary/20">
+<label class="flex items-center p-4 cursor-pointer hover:bg-surface-bright transition-colors">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary/20" name="payment" type="radio"/>
+<div class="ml-4 flex-1 flex items-center justify-between">
+<span class="font-semibold">FPX Online Banking</span>
+<span class="material-symbols-outlined text-on-surface-variant">account_balance</span>
+</div>
+</label>
+<div class="px-12 pb-4">
+<select class="w-full bg-surface-container-low border-none rounded-lg text-sm py-2 px-3 focus:ring-1 focus:ring-primary">
+<option>Select your bank</option>
+<option>Maybank2u</option>
+<option>CIMB Clicks</option>
+<option>Public Bank</option>
+<option>RHB Now</option>
+</select>
+</div>
+</div>
+<!-- Card -->
+<label class="flex items-center p-4 bg-surface-container-lowest rounded-xl cursor-pointer hover:bg-surface-bright transition-colors group">
+<input class="w-5 h-5 text-primary border-outline focus:ring-primary/20" name="payment" type="radio"/>
+<div class="ml-4 flex-1 flex items-center justify-between">
+<span class="font-semibold">Credit / Debit Card</span>
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-on-surface-variant">credit_card</span>
+</div>
+</div>
+</label>
+</div>
+</section>
+<!-- Price Breakdown -->
+<section class="mb-12">
+<h2 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-4 px-1">Payment Details</h2>
+<div class="bg-surface-container-low p-6 rounded-xl space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Subtotal</span>
+<span class="font-medium">RM 118.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface-variant">Service Tax (6% SST)</span>
+<span class="font-medium">RM 7.00</span>
+</div>
+<div class="flex justify-between text-sm text-secondary font-medium">
+<span>Loyalty Discount</span>
+<span>- RM 5.00</span>
+</div>
+<div class="pt-4 border-t border-outline-variant flex justify-between items-baseline">
+<span class="text-lg font-bold">Total Amount</span>
+<div class="text-right">
+<span class="text-2xl font-extrabold text-primary tracking-tight">RM 120.00</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Action -->
+<footer class="fixed bottom-0 w-full bg-surface-bright/90 backdrop-blur-xl z-50 p-6 shadow-[0_-12px_40px_rgba(0,0,0,0.06)]">
+<div class="max-w-2xl mx-auto">
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-full text-lg shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform duration-200">
+                Pay RM 120.00
+            </button>
+<p class="text-center text-[11px] text-on-surface-variant mt-4 leading-relaxed">
+                By paying, you agree to the <a class="underline decoration-primary/30 underline-offset-2" href="#">Terms of Service</a> and <a class="underline decoration-primary/30 underline-offset-2" href="#">Privacy Policy</a>
+</p>
+</div>
+</footer>
+</body></html>

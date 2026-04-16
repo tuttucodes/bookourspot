@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState, useMemo } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { format, addDays } from 'date-fns';
-import { Clock, Check, ChevronRight, Loader2 } from 'lucide-react';
+import { Clock, Check, ChevronRight, Loader2, Sun, Sunset, Moon } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { getBusiness, getServices, getAvailableSlots, bookAppointment } from '@/lib/api';
@@ -11,6 +11,15 @@ import { generateTimeSlots, formatTime } from '@/lib/slots';
 import type { Business, Service, TimeSlot } from '@/lib/types';
 
 type Step = 'service' | 'date' | 'time' | 'confirm';
+
+type SlotPeriod = 'Morning' | 'Afternoon' | 'Evening';
+
+function getSlotPeriod(time: string): SlotPeriod {
+  const hour = Number(time.split(':')[0] || 0);
+  if (hour < 12) return 'Morning';
+  if (hour < 17) return 'Afternoon';
+  return 'Evening';
+}
 
 function BookingFlow() {
   const { id: businessId } = useParams<{ id: string }>();
@@ -45,6 +54,17 @@ function BookingFlow() {
     const today = new Date();
     return Array.from({ length: 14 }, (_, i) => addDays(today, i));
   }, []);
+
+  const groupedTimeSlots = useMemo(() => {
+    return timeSlots.reduce<Record<SlotPeriod, TimeSlot[]>>(
+      (acc, slot) => {
+        const period = getSlotPeriod(slot.start);
+        acc[period].push(slot);
+        return acc;
+      },
+      { Morning: [], Afternoon: [], Evening: [] }
+    );
+  }, [timeSlots]);
 
   // Fetch business and services
   useEffect(() => {
@@ -188,7 +208,7 @@ function BookingFlow() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-10">
+    <div className="min-h-screen bg-[#fcf9f8] pb-10">
       <Header title="Book Appointment" showBack />
 
       <div className="max-w-lg mx-auto px-4 pt-5">
@@ -225,7 +245,10 @@ function BookingFlow() {
         </div>
 
         {/* Business name */}
-        <p className="text-sm text-gray-500 mb-4">{business.name}</p>
+        <div className="mb-4 rounded-2xl bg-[#f0eded] p-4">
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-gray-500">Booking at</p>
+          <p className="mt-1 text-base font-semibold text-gray-900">{business.name}</p>
+        </div>
 
         {/* Step 1: Service Selection */}
         {step === 'service' && (
@@ -302,10 +325,10 @@ function BookingFlow() {
                   <button
                     key={date.toISOString()}
                     onClick={() => handleSelectDate(date)}
-                    className={`flex-shrink-0 w-16 py-3 rounded-2xl flex flex-col items-center gap-1 transition-all active:scale-95 ${
+                    className={`flex-shrink-0 h-20 w-16 rounded-xl py-3 flex flex-col items-center gap-1 transition-all active:scale-95 ${
                       isSelected
-                        ? 'bg-violet-600 text-white shadow-lg shadow-violet-200'
-                        : 'bg-white border border-gray-100 text-gray-700 hover:border-violet-200'
+                        ? 'bg-[#006273] text-white shadow-lg shadow-[#006273]/20'
+                        : 'bg-white border border-gray-100 text-gray-700 hover:border-[#107c91]'
                     }`}
                   >
                     <span className={`text-[10px] font-medium uppercase ${isSelected ? 'text-violet-200' : 'text-gray-400'}`}>
@@ -358,25 +381,43 @@ function BookingFlow() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-2">
-                {timeSlots.map((slot) => {
-                  const isSelected =
-                    selectedSlot?.start === slot.start && selectedSlot?.end === slot.end;
+              <div className="space-y-6">
+                {([
+                  ['Morning', Sun],
+                  ['Afternoon', Sunset],
+                  ['Evening', Moon],
+                ] as const).map(([period, Icon]) => {
+                  const slots = groupedTimeSlots[period];
+                  if (slots.length === 0) return null;
                   return (
-                    <button
-                      key={slot.start}
-                      onClick={() => handleSelectSlot(slot)}
-                      disabled={!slot.available}
-                      className={`py-3 px-2 rounded-xl text-sm font-medium transition-all active:scale-95 ${
-                        !slot.available
-                          ? 'bg-gray-50 text-gray-300 border border-gray-100 cursor-not-allowed'
-                          : isSelected
-                          ? 'bg-violet-600 text-white shadow-md shadow-violet-200'
-                          : 'bg-white text-gray-700 border-2 border-violet-200 hover:border-violet-400'
-                      }`}
-                    >
-                      {formatTime(slot.start)}
-                    </button>
+                    <div key={period}>
+                      <div className="mb-3 flex items-center gap-2 text-gray-500">
+                        <Icon size={14} />
+                        <h4 className="text-xs font-semibold uppercase tracking-[0.08em]">{period}</h4>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {slots.map((slot) => {
+                          const isSelected =
+                            selectedSlot?.start === slot.start && selectedSlot?.end === slot.end;
+                          return (
+                            <button
+                              key={slot.start}
+                              onClick={() => handleSelectSlot(slot)}
+                              disabled={!slot.available}
+                              className={`rounded-lg px-2 py-3 text-sm font-medium transition-all active:scale-95 ${
+                                !slot.available
+                                  ? 'cursor-not-allowed border border-gray-100 bg-gray-50 text-gray-300'
+                                  : isSelected
+                                  ? 'bg-[#006273] text-white shadow-md shadow-[#006273]/20'
+                                  : 'border border-gray-200 bg-white text-gray-700 hover:border-[#107c91]'
+                              }`}
+                            >
+                              {formatTime(slot.start)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -422,9 +463,24 @@ function BookingFlow() {
               <div className="border-t border-gray-50" />
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Price</span>
-                <span className="text-base font-bold text-violet-600">
+                <span className="text-base font-bold text-[#006273]">
                   RM {selectedService.price.toFixed(2)}
                 </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="rounded-2xl border border-[#cfe9ee] bg-[#ebfaff] px-4 py-3">
+                <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#006273]">Payment</p>
+                <p className="mt-1 text-sm text-[#004e5c]">
+                  No online payment is required. Pay after you arrive by cash or card at the business.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-green-100 bg-green-50 px-4 py-3">
+                <p className="text-xs font-bold uppercase tracking-[0.08em] text-green-700">Cancellation Policy</p>
+                <p className="mt-1 text-sm text-green-700">
+                  100% free cancellation.
+                </p>
               </div>
             </div>
 
@@ -478,7 +534,7 @@ function BookingFlow() {
             <button
               onClick={handleConfirmBooking}
               disabled={submitting || !customerPhone.trim()}
-              className="w-full py-4 bg-violet-600 text-white font-semibold rounded-2xl hover:bg-violet-700 active:scale-[0.98] transition-all shadow-lg shadow-violet-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-gradient-to-r from-[#006273] to-[#107c91] text-white font-semibold rounded-2xl hover:opacity-95 active:scale-[0.98] transition-all shadow-lg shadow-[#006273]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting ? (
                 <>
@@ -491,7 +547,7 @@ function BookingFlow() {
             </button>
 
             <p className="text-xs text-center text-gray-400">
-              Pay at store &middot; RM {selectedService.price.toFixed(2)}
+              Pay in person by cash or card &middot; Free cancellation anytime
             </p>
           </div>
         )}

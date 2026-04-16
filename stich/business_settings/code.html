@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#3e484c",
+                    "tertiary-fixed": "#ffd9df",
+                    "secondary-container": "#cc80fd",
+                    "primary-fixed": "#acecff",
+                    "on-tertiary-fixed": "#330f19",
+                    "on-secondary-fixed-variant": "#6a1b9a",
+                    "error": "#ba1a1a",
+                    "primary": "#006273",
+                    "outline-variant": "#bec8cc",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed-dim": "#f4b6c1",
+                    "inverse-surface": "#313030",
+                    "background": "#fcf9f8",
+                    "on-tertiary-container": "#fff4f5",
+                    "surface-bright": "#fcf9f8",
+                    "primary-container": "#107c91",
+                    "tertiary-container": "#96636d",
+                    "on-primary-container": "#ebfaff",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#dcd9d9",
+                    "surface": "#fcf9f8",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#7cd3ea",
+                    "on-background": "#1c1b1b",
+                    "inverse-on-surface": "#f3f0ef",
+                    "surface-container": "#f0eded",
+                    "on-secondary-fixed": "#2f004b",
+                    "secondary-fixed-dim": "#e4b5ff",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#00687a",
+                    "on-surface": "#1c1b1b",
+                    "surface-container-highest": "#e5e2e1",
+                    "secondary": "#843ab4",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#001f26",
+                    "tertiary": "#7b4b55",
+                    "surface-container-high": "#eae7e7",
+                    "on-primary-fixed-variant": "#004e5c",
+                    "outline": "#6e797c",
+                    "surface-variant": "#e5e2e1",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#580087",
+                    "secondary-fixed": "#f4d9ff",
+                    "surface-container-low": "#f6f3f2",
+                    "on-tertiary-fixed-variant": "#663a43",
+                    "inverse-primary": "#7cd3ea"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased mb-24">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md shadow-[0_8px_32px_0_rgba(28,27,27,0.04)] flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity active:scale-95 transition-transform text-[#006273]">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold text-[#1c1b1b] dark:text-[#fcf9f8] font-['Inter'] tracking-tight">Business Settings</h1>
+</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-[#3e484c]">more_vert</span>
+</div>
+</nav>
+<main class="max-w-4xl mx-auto px-6 pt-24 space-y-12">
+<!-- Section 1: Business Profile (Bento Style) -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<div class="md:col-span-4 bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_32px_0_rgba(28,27,27,0.02)]">
+<img class="w-full h-64 object-cover" data-alt="Interior of a luxury minimalist beauty salon with warm lighting, organic textures, and marble surfaces" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4TF9AKnZMInqLOKrMugC530H9HsqP5m87iatYNyz1nm5qaMsuhLnVn8wkcpE_UAMoCAQBNvA11OwDWgWuQKm4svGPpPNw6IHgInlXBX7oi8_ywLEB94IdRGzCX4cSYXMa1P0VVv1uyga-XTwDcVFOnHkAzHOfEHRaKUO6DqSGYz5d0-CkNXt2f6080Gq_RJ4G9J8g9b2pBABImt7wBVpb54SVOcbG7ylOGvNi0RmBhqCWVA7iQcYIER1mDo4XR6DjGQ7p8SKkViDi"/>
+</div>
+<div class="md:col-span-8 flex flex-col justify-center space-y-4">
+<div class="space-y-1">
+<span class="text-[10px] uppercase tracking-[0.1em] font-bold text-primary">Establishment</span>
+<h2 class="text-3xl font-extrabold tracking-tight">The Sanctuary</h2>
+<div class="inline-flex items-center px-3 py-1 bg-secondary-fixed text-on-secondary-fixed rounded-full text-xs font-semibold">
+                        Beauty &amp; Wellness
+                    </div>
+</div>
+<p class="text-on-surface-variant leading-relaxed max-w-lg">
+                    A curated restorative digital and physical space dedicated to premium wellness experiences in the heart of Kuala Lumpur. We blend traditional techniques with modern spatial luxury.
+                </p>
+<div class="pt-4 flex gap-3">
+<button class="px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full font-semibold text-sm hover:opacity-90 transition-all active:scale-95">Edit Profile</button>
+<button class="px-6 py-2.5 bg-surface-container-highest text-primary rounded-full font-semibold text-sm hover:opacity-80 transition-all">View Public Page</button>
+</div>
+</div>
+</section>
+<!-- Section 2 & 3: Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Location & Contact -->
+<section class="bg-surface-container-low rounded-xl p-8 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold tracking-tight uppercase text-[12px] text-on-surface-variant">Location &amp; Contact</h3>
+<span class="material-symbols-outlined text-primary">location_on</span>
+</div>
+<div class="space-y-4">
+<div class="group">
+<label class="text-[10px] font-bold text-outline uppercase tracking-wider block mb-1">HQ Address</label>
+<p class="text-sm font-medium">Lot 10, Bukit Bintang Street, 55100 Kuala Lumpur, Malaysia</p>
+</div>
+<div class="group">
+<label class="text-[10px] font-bold text-outline uppercase tracking-wider block mb-1">Phone</label>
+<p class="text-sm font-medium">+60 3-1234 5678</p>
+</div>
+<div class="group">
+<label class="text-[10px] font-bold text-outline uppercase tracking-wider block mb-1">Email</label>
+<p class="text-sm font-medium">concierge@thesanctuary.my</p>
+</div>
+</div>
+<div class="h-32 rounded-lg overflow-hidden grayscale opacity-80 hover:grayscale-0 transition-all duration-500">
+<img class="w-full h-full object-cover" data-alt="Minimalist map representation of Kuala Lumpur city center with subtle landmarks and soft colors" data-location="Kuala Lumpur" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBA8I_XGBg4p-aCrCqK4mu7iAmFuRO1f4wDseZFAFyQosP7Nmc2uO5PIn6fLAOuK7hFOpJ_zD3MYui3GrlbMz1Ru3wUlzADtrwNXqdc-defNBnRL1EFQgOWkpsve1pcyPqRynhakQ4fit27Iccaa17oIbWCM2YsA50-cCT-VhTj0hM78xy6hvVQWda3ziQWr8x6Yqt_RpV_qYSXGfQOzJvp_H_ysMUbTsd9jsCkbgTPrkEupz6OnSjxr-sg292G-SxOQYXx4JllSdF-"/>
+</div>
+</section>
+<!-- Operating Hours -->
+<section class="bg-surface-container-low rounded-xl p-8 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-bold tracking-tight uppercase text-[12px] text-on-surface-variant">Operating Hours</h3>
+<span class="material-symbols-outlined text-primary">schedule</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center py-1">
+<span class="text-sm font-medium">Monday — Friday</span>
+<span class="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded">09:00 - 21:00</span>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="text-sm font-medium">Saturday</span>
+<span class="text-[10px] font-bold px-2 py-0.5 bg-primary/10 text-primary rounded">10:00 - 18:00</span>
+</div>
+<div class="flex justify-between items-center py-1 opacity-50">
+<span class="text-sm font-medium">Sunday</span>
+<span class="text-[10px] font-bold px-2 py-0.5 bg-error/10 text-error rounded uppercase">Closed</span>
+</div>
+</div>
+<button class="w-full py-2 text-xs font-bold text-primary uppercase tracking-widest border border-primary/20 rounded-full hover:bg-primary/5 transition-colors">Manage Schedule</button>
+</section>
+</div>
+<!-- Section 4: Payments & Payouts (Localized) -->
+<section class="space-y-6">
+<h3 class="text-lg font-bold tracking-tight uppercase text-[12px] text-on-surface-variant px-2">Payments &amp; Payouts</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- GrabPay -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+</div>
+<div class="h-2 w-2 bg-green-500 rounded-full"></div>
+</div>
+<div>
+<h4 class="font-bold text-sm">GrabPay</h4>
+<p class="text-xs text-on-surface-variant">Instant settlement enabled</p>
+</div>
+</div>
+<!-- Touch n Go -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-primary">qr_code_2</span>
+</div>
+<div class="h-2 w-2 bg-green-500 rounded-full"></div>
+</div>
+<div>
+<h4 class="font-bold text-sm">Touch 'n Go</h4>
+<p class="text-xs text-on-surface-variant">Active e-wallet merchant</p>
+</div>
+</div>
+<!-- Bank Transfer -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-primary">account_balance</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-sm">settings</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">FPX Transfer</h4>
+<p class="text-xs text-on-surface-variant">Maybank •••• 8829</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 5: Notifications -->
+<section class="bg-surface-container-high rounded-xl p-8">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+<h3 class="text-lg font-bold tracking-tight uppercase text-[12px] text-on-surface-variant">Notification Preferences</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-sm">Email Alerts</p>
+<p class="text-xs text-on-surface-variant">Receive detailed booking summaries via email</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-sm">SMS Alerts</p>
+<p class="text-xs text-on-surface-variant">Real-time text alerts for new walk-ins and bookings</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Advanced Footer Action -->
+<div class="flex justify-end gap-4 py-8">
+<button class="text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors">Discard Changes</button>
+<button class="px-8 py-3 bg-primary text-white rounded-full font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-all">Save All Settings</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-safe bg-[#fcf9f8]/80 dark:bg-[#1c1b1b]/80 backdrop-blur-md rounded-t-xl shadow-[0_-8px_32px_0_rgba(28,27,27,0.04)] z-50">
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#3e484c]/60 space-y-1 hover:text-[#006273] transition-colors active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#3e484c]/60 space-y-1 hover:text-[#006273] transition-colors active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Bookings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#3e484c] dark:text-[#3e484c]/60 space-y-1 hover:text-[#006273] transition-colors active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Clients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#006273] dark:text-[#107c91] space-y-1 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-['Inter'] text-[10px] uppercase tracking-[0.05em] font-bold">Settings</span>
+</a>
+</nav>
+</body></html>

@@ -185,17 +185,17 @@ export default function HomePageClient() {
             <Link
               key={shop.key}
               href={shop.href}
-              className="block rounded-2xl border border-gray-100 bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
+              className="block rounded-2xl border border-[#e5e2e1] bg-white p-3 shadow-sm hover:shadow-md hover:border-[#7cd3ea] transition-all"
             >
               <div className="flex gap-4">
-                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 flex items-center justify-center shrink-0">
-                  <Scissors size={24} className="text-violet-600" />
+                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[#ebfaff] to-[#acecff] flex items-center justify-center shrink-0">
+                  <Scissors size={24} className="text-[#006273]" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-gray-900 truncate">{shop.name}</h3>
-                    <span className="text-xs px-2 py-1 rounded-full bg-violet-50 text-violet-700 capitalize">
-                      {shop.category.replace('_', ' ')}
+                    <span className="text-xs px-2 py-1 rounded-full bg-[#f4d9ff] text-[#580087] capitalize">
+                      Featured
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">
@@ -215,17 +215,17 @@ export default function HomePageClient() {
           {businesses.slice(0, 6).map((biz) => (
             <Link
               key={biz.id}
-              href={`/business/${biz.id}`}
-              className="block rounded-2xl border border-gray-100 bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
+              href={`/${biz.slug}`}
+              className="block rounded-2xl border border-[#e5e2e1] bg-white p-3 shadow-sm hover:shadow-md hover:border-[#7cd3ea] transition-all"
             >
               <div className="flex gap-4">
-                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-violet-100 to-violet-200 flex items-center justify-center shrink-0">
-                  <Scissors size={24} className="text-violet-600" />
+                <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-[#ebfaff] to-[#acecff] flex items-center justify-center shrink-0">
+                  <Scissors size={24} className="text-[#006273]" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-gray-900 truncate">{biz.name}</h3>
-                    <span className="text-xs px-2 py-1 rounded-full bg-violet-50 text-violet-700 capitalize">
+                    <span className="text-xs px-2 py-1 rounded-full bg-[#f4d9ff] text-[#580087] capitalize">
                       {biz.category.replace('_', ' ')}
                     </span>
                   </div>

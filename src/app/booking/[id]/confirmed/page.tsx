@@ -135,11 +135,18 @@ export default function BookingConfirmedPage() {
           </div>
         </div>
 
-        {/* Pay at Store Note */}
-        <div className="mt-4 bg-violet-50 rounded-xl px-4 py-3 text-center">
-          <p className="text-sm font-medium text-violet-700">
-            Pay at store &mdash; RM {service.price.toFixed(2)}
-          </p>
+        {/* Payment & cancellation notes */}
+        <div className="mt-4 space-y-3">
+          <div className="rounded-xl bg-violet-50 px-4 py-3 text-center">
+            <p className="text-sm font-medium text-violet-700">
+              Pay after you arrive by cash or card &mdash; RM {service.price.toFixed(2)}
+            </p>
+          </div>
+          <div className="rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-center">
+            <p className="text-sm font-medium text-green-700">
+              100% free cancellation policy
+            </p>
+          </div>
         </div>
 
         {/* Action Buttons */}

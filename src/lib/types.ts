@@ -28,6 +28,7 @@ export interface User {
 export interface Business {
   id: string;
   owner_id: string;
+  slug: string;
   name: string;
   description: string | null;
   category: BusinessCategory;

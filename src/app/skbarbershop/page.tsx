@@ -294,83 +294,52 @@ export default function SKBarbershopPage() {
     <main className="min-h-screen bg-[#fcf9f8] text-[#1c1b1b] pb-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-6">
-        <div className="rounded-3xl overflow-hidden border border-[#e5e2e1] bg-white shadow-sm">
-          <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="bg-gradient-to-r from-[#006273] via-[#107c91] to-[#7cd3ea] p-6 sm:p-10 text-white">
-              <p className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]">
-                Cyberjaya Featured Barbershop
-              </p>
-              <h1 className="mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight">
-                {displayName}
-              </h1>
-              <p className="mt-3 text-sm sm:text-base text-white/90 max-w-3xl">{displayDescription}</p>
-              <div className="mt-5 flex flex-wrap gap-2 text-sm">
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">
-                  <Star size={14} className="text-yellow-300" fill="currentColor" />
-                  {STATIC_PROFILE.ratingAverage} ({STATIC_PROFILE.ratingCount} reviews)
-                </span>
-                <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.category}</span>
-                <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.priceRange}</span>
-              </div>
-            </div>
-            <div className="relative min-h-[260px] bg-[#f6f3f2]">
-              <Image
-                src={SK_BARBERSHOP_IMAGES.hero}
-                alt="SK Barbershop interior with premium barber chairs"
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 40vw"
-                priority
-              />
+      <section className="app-content pt-8 pb-5">
+        <div className="rounded-3xl border border-[#e5e2e1] bg-white shadow-sm">
+          <div className="rounded-3xl bg-gradient-to-r from-[#006273] via-[#107c91] to-[#7cd3ea] p-6 sm:p-10 text-white">
+            <p className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]">
+              Cyberjaya Featured Barbershop
+            </p>
+            <h1 className="mt-4 text-3xl sm:text-5xl font-extrabold tracking-tight">{displayName}</h1>
+            <p className="mt-3 max-w-3xl text-sm sm:text-base text-white/90">{displayDescription}</p>
+            <div className="mt-5 flex flex-wrap gap-2 text-sm">
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">
+                <Star size={14} className="text-yellow-300" fill="currentColor" />
+                {STATIC_PROFILE.ratingAverage} ({STATIC_PROFILE.ratingCount} reviews)
+              </span>
+              <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.category}</span>
+              <span className="rounded-full bg-white/15 px-3 py-1.5 backdrop-blur">{STATIC_PROFILE.priceRange}</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
-        <div className="rounded-2xl border border-[#e5e2e1] bg-white p-5 sm:p-6">
-          <div className="flex items-end justify-between gap-3">
+      <section className="app-content pb-6">
+        <div className="rounded-2xl border border-[#e5e2e1] bg-white p-4 sm:p-5">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Inside SK Barbershop</h2>
-              <p className="mt-1 text-sm text-[#3e484c]">
-                Real photos of the Cyberjaya shop so customers know exactly what to expect.
-              </p>
+              <h2 className="text-lg font-bold tracking-tight sm:text-xl">Real shop photos</h2>
+              <p className="mt-0.5 text-sm text-[#3e484c]">Swipe on mobile — same layout as our venue profile.</p>
             </div>
             <span className="rounded-full bg-[#ebfaff] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#006273]">
-              Photo gallery
+              Gallery
             </span>
           </div>
-
-          <div className="mt-5 grid gap-3 md:grid-cols-[1.3fr_0.7fr]">
-            <div className="relative min-h-[320px] overflow-hidden rounded-2xl bg-[#f6f3f2]">
-              <Image
-                src={SK_BARBERSHOP_IMAGES.gallery[0].src}
-                alt={SK_BARBERSHOP_IMAGES.gallery[0].alt}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 60vw"
-              />
-            </div>
-            <div className="grid gap-3">
-              {SK_BARBERSHOP_IMAGES.gallery.slice(1).map((photo) => (
-                <div key={photo.src} className="relative min-h-[154px] overflow-hidden rounded-2xl bg-[#f6f3f2]">
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 30vw"
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="-mx-1 flex gap-3 overflow-x-auto pb-1 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible">
+            {SK_BARBERSHOP_IMAGES.gallery.map((photo) => (
+              <div
+                key={photo.src}
+                className="relative h-40 w-[72%] shrink-0 overflow-hidden rounded-2xl bg-[#f6f3f2] sm:h-44 sm:w-auto"
+              >
+                <Image src={photo.src} alt={photo.alt} fill className="object-cover" sizes="(max-width: 640px) 72vw, 33vw" />
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8 grid lg:grid-cols-3 gap-4">
-        <article className="lg:col-span-2 rounded-2xl border border-[#e5e2e1] bg-white p-5 sm:p-6">
+      <section className="app-content pb-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_min(22rem,100%)] lg:items-start">
+        <article className="min-w-0 rounded-2xl border border-[#e5e2e1] bg-white p-5 sm:p-6">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Services & Prices</h2>
           <p className="text-sm text-[#3e484c] mt-1">
             Real-time active services from BookOurSpot business profile.
@@ -406,6 +375,14 @@ export default function SKBarbershopPage() {
 
         <article className="rounded-2xl border border-[#e5e2e1] bg-white p-5 sm:p-6">
           <h2 className="text-xl font-bold tracking-tight">Location & Contact</h2>
+          {business?.id ? (
+            <Link
+              href="/skbarbershop/book"
+              className="mt-3 flex w-full items-center justify-center rounded-full bg-[#006273] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#004e5c]"
+            >
+              Book with calendar view
+            </Link>
+          ) : null}
           <p className="mt-3 text-sm text-[#3e484c] inline-flex items-start gap-2">
             <MapPin size={16} className="mt-0.5 text-[#006273]" /> {displayAddress}
           </p>
@@ -423,7 +400,7 @@ export default function SKBarbershopPage() {
         </article>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-8 grid lg:grid-cols-3 gap-4">
+      <section className="app-content pb-8 grid gap-4 md:grid-cols-3">
         <article className="rounded-2xl border border-[#e5e2e1] bg-white p-5">
           <h2 className="text-xl font-bold tracking-tight inline-flex items-center gap-2">
             <Clock3 size={18} className="text-[#006273]" /> Opening Hours
@@ -462,7 +439,7 @@ export default function SKBarbershopPage() {
         </article>
       </section>
 
-      <section id="book-now" className="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
+      <section id="book-now" className="app-content pb-14">
         <article className="rounded-3xl border border-[#e5e2e1] bg-white p-5 sm:p-8">
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Book an Appointment</h2>
           <p className="mt-1 text-sm text-[#3e484c]">

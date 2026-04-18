@@ -22,5 +22,63 @@
     "src/app/api/webhooks/twilio/route.ts": {
       "maxDuration": 15
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard" },
+    { "source": "/bookings/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/bookings/:path*" },
+    { "source": "/services/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/services/:path*" },
+    { "source": "/staff/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/staff/:path*" },
+    { "source": "/clients/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/clients/:path*" },
+    { "source": "/analytics/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/analytics/:path*" },
+    { "source": "/settings/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/settings/:path*" },
+    { "source": "/onboarding/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/onboarding/:path*" },
+    { "source": "/pos/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/pos/:path*" },
+    { "source": "/receipts/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/dashboard/receipts/:path*" },
+    { "source": "/apply/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/merchant-apply/:path*" },
+    { "source": "/pending/:path*", "has": [{ "type": "host", "value": "merchant.bookourspot.com" }], "destination": "/pending-review/:path*" },
+
+    { "source": "/", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard" },
+    { "source": "/bookings/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/bookings/:path*" },
+    { "source": "/services/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/services/:path*" },
+    { "source": "/staff/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/staff/:path*" },
+    { "source": "/clients/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/clients/:path*" },
+    { "source": "/analytics/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/analytics/:path*" },
+    { "source": "/settings/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/settings/:path*" },
+    { "source": "/onboarding/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/onboarding/:path*" },
+    { "source": "/pos/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/pos/:path*" },
+    { "source": "/receipts/:path*", "has": [{ "type": "host", "value": "business.bookourspot.com" }], "destination": "/dashboard/receipts/:path*" },
+
+    { "source": "/", "has": [{ "type": "host", "value": "admin.bookourspot.com" }], "destination": "/admin" },
+    { "source": "/applications/:path*", "has": [{ "type": "host", "value": "admin.bookourspot.com" }], "destination": "/admin/applications/:path*" },
+    { "source": "/merchants/:path*", "has": [{ "type": "host", "value": "admin.bookourspot.com" }], "destination": "/admin/merchants/:path*" },
+    { "source": "/customers/:path*", "has": [{ "type": "host", "value": "admin.bookourspot.com" }], "destination": "/admin/customers/:path*" },
+    { "source": "/support/:path*", "has": [{ "type": "host", "value": "admin.bookourspot.com" }], "destination": "/admin/support/:path*" },
+    { "source": "/settings/:path*", "has": [{ "type": "host", "value": "admin.bookourspot.com" }], "destination": "/admin/settings/:path*" }
+  ],
+  "redirects": [
+    {
+      "source": "/dashboard/:path*",
+      "has": [{ "type": "host", "value": "www.bookourspot.com" }],
+      "destination": "https://merchant.bookourspot.com/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/dashboard/:path*",
+      "has": [{ "type": "host", "value": "bookourspot.com" }],
+      "destination": "https://merchant.bookourspot.com/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/admin/:path*",
+      "has": [{ "type": "host", "value": "www.bookourspot.com" }],
+      "destination": "https://admin.bookourspot.com/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/admin/:path*",
+      "has": [{ "type": "host", "value": "bookourspot.com" }],
+      "destination": "https://admin.bookourspot.com/:path*",
+      "permanent": false
+    }
+  ]
 }

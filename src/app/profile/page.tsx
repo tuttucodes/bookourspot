@@ -219,35 +219,85 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Role-specific Links */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          {profile.role === 'merchant' ? (
-            <Link
-              href="/dashboard"
-              className="flex items-center justify-between px-4 py-3.5 hover:bg-gray-50 transition-colors"
+        {/* Mode switcher — user can jump between customer and merchant views */}
+        {profile.role === 'merchant' ? (
+          <div className="rounded-3xl bg-brand-gradient p-5 text-white shadow-ambient">
+            <p className="type-label text-white/80">You are on</p>
+            <p className="mt-1 text-lg font-bold">Customer mode</p>
+            <p className="mt-1 text-sm text-white/85">
+              Switch to your business dashboard to manage bookings, services and POS.
+            </p>
+            <a
+              href="https://merchant.bookourspot.com/dashboard"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#006273]"
             >
-              <div className="flex items-center gap-3">
-                <LayoutDashboard size={18} className="text-violet-600" />
-                <span className="text-sm font-medium text-gray-900">
-                  Merchant Dashboard
-                </span>
-              </div>
-              <ChevronRight size={18} className="text-gray-400" />
-            </Link>
-          ) : (
+              <LayoutDashboard size={14} /> Open merchant mode
+              <ChevronRight size={14} />
+            </a>
+          </div>
+        ) : profile.role === 'pending_merchant' ? (
+          <div className="rounded-3xl bg-[#fef3c7] p-5 text-[#92400e]">
+            <p className="type-label">Application in review</p>
+            <p className="mt-1 text-lg font-bold">Merchant mode pending</p>
+            <p className="mt-1 text-sm">
+              Your merchant application is with our team. You will get an email when it is approved.
+            </p>
             <Link
-              href="/bookings"
-              className="flex items-center justify-between px-4 py-3.5 hover:bg-gray-50 transition-colors"
+              href="/pending-review"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold underline underline-offset-2"
             >
-              <div className="flex items-center gap-3">
-                <Calendar size={18} className="text-violet-600" />
-                <span className="text-sm font-medium text-gray-900">
-                  My Bookings
-                </span>
-              </div>
-              <ChevronRight size={18} className="text-gray-400" />
+              View application status
+              <ChevronRight size={14} />
             </Link>
-          )}
+          </div>
+        ) : (
+          <div className="rounded-3xl bg-white p-5">
+            <p className="type-label text-[#006273]">Own a business?</p>
+            <p className="mt-1 text-lg font-bold text-[#1c1b1b]">List your spot</p>
+            <p className="mt-1 text-sm text-[#3e484c]">
+              Accept online bookings, manage staff, run POS and track revenue.
+            </p>
+            <a
+              href="https://merchant.bookourspot.com/signup?role=merchant"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand-gradient px-4 py-2 text-sm font-semibold text-white"
+            >
+              Apply to list <ChevronRight size={14} />
+            </a>
+          </div>
+        )}
+
+        {/* Quick links */}
+        <div className="bg-white rounded-2xl overflow-hidden divide-y divide-[#f0eded]">
+          <Link
+            href="/bookings"
+            className="flex items-center justify-between px-4 py-3.5 hover:bg-[#f6f3f2] transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Calendar size={18} className="text-[#006273]" />
+              <span className="text-sm font-medium text-[#1c1b1b]">My bookings</span>
+            </div>
+            <ChevronRight size={18} className="text-[#6e797c]" />
+          </Link>
+          <Link
+            href="/loyalty"
+            className="flex items-center justify-between px-4 py-3.5 hover:bg-[#f6f3f2] transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <LayoutDashboard size={18} className="text-[#006273]" />
+              <span className="text-sm font-medium text-[#1c1b1b]">Loyalty &amp; perks</span>
+            </div>
+            <ChevronRight size={18} className="text-[#6e797c]" />
+          </Link>
+          <Link
+            href="/support"
+            className="flex items-center justify-between px-4 py-3.5 hover:bg-[#f6f3f2] transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <Calendar size={18} className="text-[#006273]" />
+              <span className="text-sm font-medium text-[#1c1b1b]">Support</span>
+            </div>
+            <ChevronRight size={18} className="text-[#6e797c]" />
+          </Link>
         </div>
 
         {/* Sign Out */}

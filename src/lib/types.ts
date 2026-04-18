@@ -40,6 +40,12 @@ export interface Business {
   image_url: string | null;
   working_hours: WorkingHours;
   is_active: boolean;
+  country?: string;
+  legal_name?: string | null;
+  trading_name?: string | null;
+  primary_reg_number?: string | null;
+  business_type?: 'sole_prop' | 'sdn_bhd' | 'llp' | 'other' | null;
+  verification_status?: 'pending' | 'approved' | 'rejected' | 'suspended';
   created_at: string;
   updated_at: string;
 }

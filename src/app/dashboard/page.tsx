@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, CalendarDays, CheckCircle, DollarSign, Clock, Plus, List, TrendingUp, Bell, UserPlus, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { goToCustomerHome } from '@/lib/navigation';
 import {
   getMyBusiness,
   getDashboardStats,
@@ -38,7 +39,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.push('/');
+      goToCustomerHome();
       return;
     }
 

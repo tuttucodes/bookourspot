@@ -11,6 +11,7 @@ import { BottomNav } from '@/components/layout/BottomNav';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import type { Business, BusinessCategory, WorkingHours } from '@/lib/types';
+import { goToCustomerHome } from '@/lib/navigation';
 
 const DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 
@@ -44,7 +45,7 @@ export default function MerchantSettingsPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.push('/');
+      goToCustomerHome();
       return;
     }
 

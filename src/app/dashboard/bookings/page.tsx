@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Calendar, Clock, Phone, Plus, X } from 'lucide-react';
 import { format, addDays, subDays } from 'date-fns';
 import { useAuth } from '@/hooks/useAuth';
+import { goToCustomerHome } from '@/lib/navigation';
 import {
   getMyBusiness,
   getBusinessAppointments,
@@ -58,7 +59,7 @@ export default function MerchantBookingsPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.push('/');
+      goToCustomerHome();
       return;
     }
 

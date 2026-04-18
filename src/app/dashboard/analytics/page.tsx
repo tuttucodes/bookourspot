@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Button } from '@/components/ui/Button';
 import type { Appointment, Business } from '@/lib/types';
+import { goToCustomerHome } from '@/lib/navigation';
 
 type CustomerRow = {
   user: { id: string }[] | null;
@@ -29,7 +30,7 @@ export default function MerchantAnalyticsPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.push('/');
+      goToCustomerHome();
       return;
     }
 

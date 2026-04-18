@@ -11,6 +11,7 @@ import { BottomNav } from '@/components/layout/BottomNav';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import type { Business, StaffMember, StaffStatus } from '@/lib/types';
+import { goToCustomerHome } from '@/lib/navigation';
 
 const STATUS_STYLES: Record<StaffStatus, string> = {
   available: 'bg-green-50 text-green-600',
@@ -52,7 +53,7 @@ export default function MerchantStaffPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.push('/');
+      goToCustomerHome();
       return;
     }
 

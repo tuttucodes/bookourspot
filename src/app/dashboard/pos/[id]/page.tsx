@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { formatTime } from '@/lib/slots';
 import type { Appointment, Service } from '@/lib/types';
+import { goToCustomerHome } from '@/lib/navigation';
 
 type LineItem = {
   service_id: string | null;
@@ -57,7 +58,7 @@ export default function PosCheckoutPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.replace('/');
+      goToCustomerHome();
     }
   }, [authLoading, profile, router]);
 

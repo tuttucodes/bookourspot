@@ -8,6 +8,7 @@ import { getMyBusiness, getBusinessCustomers } from '@/lib/api';
 import { Header } from '@/components/layout/Header';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Button } from '@/components/ui/Button';
+import { goToCustomerHome } from '@/lib/navigation';
 
 type CustomerRow = {
   user: { id: string; name: string; email: string; phone: string | null }[] | null;
@@ -37,7 +38,7 @@ export default function MerchantClientsPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.push('/');
+      goToCustomerHome();
       return;
     }
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Pencil, Trash2, Clock, DollarSign, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { goToCustomerHome } from '@/lib/navigation';
 import {
   getMyBusiness,
   getServices,
@@ -48,7 +49,7 @@ export default function MerchantServicesPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.push('/');
+      goToCustomerHome();
       return;
     }
 

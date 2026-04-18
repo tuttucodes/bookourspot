@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { formatTime } from '@/lib/slots';
 import type { Appointment, Business, Service, Transaction, User } from '@/lib/types';
+import { goToCustomerHome } from '@/lib/navigation';
 
 type LineItem = {
   service_id: string | null;
@@ -55,7 +56,7 @@ export default function ReceiptPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.replace('/');
+      goToCustomerHome();
     }
   }, [authLoading, profile, router]);
 

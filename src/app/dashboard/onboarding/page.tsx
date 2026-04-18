@@ -9,6 +9,7 @@ import { DEFAULT_WORKING_HOURS, BUSINESS_CATEGORIES, DAYS_OF_WEEK } from '@/lib/
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import type { WorkingHours, BusinessCategory } from '@/lib/types';
+import { goToCustomerHome } from '@/lib/navigation';
 
 interface ServiceEntry {
   name: string;
@@ -45,7 +46,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!profile || profile.role !== 'merchant') {
-      router.push('/');
+      goToCustomerHome();
       return;
     }
   }, [profile, authLoading, router]);

@@ -1,9 +1,13 @@
 import 'server-only';
 
-type RequiredEnv = {
+type TwilioEnv = {
   twilioSid: string;
   twilioToken: string;
   twilioWhatsAppFrom: string;
+  twilioContentSidConfirmation?: string;
+};
+
+type ResendEnv = {
   resendApiKey: string;
   emailFrom: string;
 };
@@ -21,24 +25,26 @@ export function getServerSupabaseServiceConfig() {
   return { url, serviceRoleKey };
 }
 
-export function getRequiredNotificationEnv(): RequiredEnv {
+export function getTwilioEnv(): TwilioEnv | null {
   const twilioSid = process.env.TWILIO_ACCOUNT_SID;
   const twilioToken = process.env.TWILIO_AUTH_TOKEN;
   const twilioWhatsAppFrom = process.env.TWILIO_WHATSAPP_FROM;
-  const resendApiKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.RESEND_FROM_EMAIL;
 
-  if (!twilioSid || !twilioToken || !twilioWhatsAppFrom || !resendApiKey || !emailFrom) {
-    throw new Error(
-      'Missing notification environment variables. Check TWILIO_* and RESEND_* values.'
-    );
-  }
+  if (!twilioSid || !twilioToken || !twilioWhatsAppFrom) return null;
 
   return {
     twilioSid,
     twilioToken,
     twilioWhatsAppFrom,
-    resendApiKey,
-    emailFrom,
+    twilioContentSidConfirmation: process.env.TWILIO_CONTENT_SID_CONFIRMATION || undefined,
   };
+}
+
+export function getResendEnv(): ResendEnv | null {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const emailFrom = process.env.RESEND_FROM_EMAIL;
+
+  if (!resendApiKey || !emailFrom) return null;
+
+  return { resendApiKey, emailFrom };
 }

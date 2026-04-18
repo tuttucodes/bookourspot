@@ -14,6 +14,13 @@ function SignupForm() {
   const searchParams = useSearchParams();
   const { authUser, loading: authLoading } = useAuth();
 
+  // Detect business subdomain — on that host, force merchant signup.
+  const [isMerchantHost, setIsMerchantHost] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setIsMerchantHost(window.location.hostname.toLowerCase().startsWith('business.'));
+  }, []);
+
   const preselectedRole = searchParams.get('role');
 
   const [name, setName] = useState('');
@@ -25,11 +32,16 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Force merchant role on business.* subdomain
+  useEffect(() => {
+    if (isMerchantHost && role !== 'merchant') setRole('merchant');
+  }, [isMerchantHost, role]);
+
   useEffect(() => {
     if (!authLoading && authUser) {
-      router.replace('/');
+      router.replace(isMerchantHost ? '/dashboard' : '/');
     }
-  }, [authUser, authLoading, router]);
+  }, [authUser, authLoading, router, isMerchantHost]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,7 +55,7 @@ function SignupForm() {
     setLoading(true);
     try {
       await signUp(email, password, name, role);
-      router.replace(role === 'merchant' ? '/dashboard/onboarding' : '/');
+      router.replace(role === 'merchant' ? '/merchant-apply' : '/');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to create account';
       setError(message);
@@ -55,7 +67,7 @@ function SignupForm() {
   async function handleGoogle() {
     setError('');
     try {
-      const afterAuth = role === 'merchant' ? '/dashboard/onboarding' : '/';
+      const afterAuth = role === 'merchant' ? '/merchant-apply' : '/';
       const site = getPublicSiteUrl() || window.location.origin;
       await signInWithGoogle(
         `${site}/auth/callback?redirect=${encodeURIComponent(afterAuth)}`,
@@ -85,7 +97,9 @@ function SignupForm() {
               Book<span className="text-gray-900">Our</span>Spot
             </h1>
           </Link>
-          <p className="mt-2 text-gray-500 text-sm">Create your account</p>
+          <p className="mt-2 text-gray-500 text-sm">
+            {isMerchantHost ? 'List your business on BookOurSpot' : 'Create your account'}
+          </p>
         </div>
 
         {/* Card */}
@@ -167,36 +181,38 @@ function SignupForm() {
               minLength={6}
             />
 
-            {/* Role toggle */}
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-700">I want to</label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setRole('customer')}
-                  className={`px-4 py-3 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
-                    role === 'customer'
-                      ? 'border-violet-600 bg-violet-50 text-violet-700 shadow-sm'
-                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
-                  }`}
-                >
-                  <span className="block text-lg mb-0.5">🔍</span>
-                  Book services
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole('merchant')}
-                  className={`px-4 py-3 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
-                    role === 'merchant'
-                      ? 'border-violet-600 bg-violet-50 text-violet-700 shadow-sm'
-                      : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
-                  }`}
-                >
-                  <span className="block text-lg mb-0.5">🏪</span>
-                  List my business
-                </button>
+            {/* Role toggle — hidden on merchant subdomain (role is forced to merchant) */}
+            {!isMerchantHost && (
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-700">I want to</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setRole('customer')}
+                    className={`px-4 py-3 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
+                      role === 'customer'
+                        ? 'border-violet-600 bg-violet-50 text-violet-700 shadow-sm'
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="block text-lg mb-0.5">🔍</span>
+                    Book services
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRole('merchant')}
+                    className={`px-4 py-3 rounded-xl text-sm font-medium border-2 transition-all duration-200 ${
+                      role === 'merchant'
+                        ? 'border-violet-600 bg-violet-50 text-violet-700 shadow-sm'
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="block text-lg mb-0.5">🏪</span>
+                    List my business
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <Button type="submit" size="lg" className="w-full mt-2" loading={loading}>
               Create Account

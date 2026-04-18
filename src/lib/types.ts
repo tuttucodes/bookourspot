@@ -1,4 +1,4 @@
-export type UserRole = 'customer' | 'merchant';
+export type UserRole = 'customer' | 'merchant' | 'pending_merchant' | 'admin' | 'superadmin';
 
 export type AppointmentStatus = 'booked' | 'cancelled' | 'completed';
 

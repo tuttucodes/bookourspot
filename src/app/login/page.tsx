@@ -14,8 +14,17 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const { authUser, loading: authLoading } = useAuth();
 
-  const redirect = searchParams.get('redirect') || '/';
-  const role = searchParams.get('role');
+  // Detect business subdomain once on mount
+  const [isMerchantHost, setIsMerchantHost] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setIsMerchantHost(window.location.hostname.toLowerCase().startsWith('business.'));
+  }, []);
+
+  const roleParam = searchParams.get('role');
+  const effectiveRole = roleParam || (isMerchantHost ? 'merchant' : null);
+  const defaultRedirect = isMerchantHost ? '/dashboard' : '/';
+  const redirect = searchParams.get('redirect') || defaultRedirect;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -81,16 +90,23 @@ function LoginForm() {
               Book<span className="text-gray-900">Our</span>Spot
             </h1>
           </Link>
-          <p className="mt-2 text-gray-500 text-sm">Sign in to your account</p>
+          <p className="mt-2 text-gray-500 text-sm">
+            {isMerchantHost
+              ? 'Merchant sign in — access your business dashboard'
+              : 'Sign in to your account'}
+          </p>
         </div>
 
         {/* Merchant prompt */}
-        {role === 'merchant' && (
+        {effectiveRole === 'merchant' && (
           <div className="mb-6 rounded-2xl bg-violet-100 border border-violet-200 p-4 text-center transition-all duration-300">
             <p className="text-sm text-violet-800">
-              Want to list your business?{' '}
-              <Link href="/signup?role=merchant" className="font-semibold underline underline-offset-2 hover:text-violet-900">
-                Create a merchant account
+              Don&apos;t have a business account yet?{' '}
+              <Link
+                href="/signup?role=merchant"
+                className="font-semibold underline underline-offset-2 hover:text-violet-900"
+              >
+                List your business
               </Link>
             </p>
           </div>
@@ -175,7 +191,7 @@ function LoginForm() {
         <p className="mt-6 text-center text-sm text-gray-500">
           Don&apos;t have an account?{' '}
           <Link
-            href={role ? `/signup?role=${role}` : '/signup'}
+            href={effectiveRole ? `/signup?role=${effectiveRole}` : '/signup'}
             className="font-semibold text-violet-600 hover:text-violet-700 transition-colors"
           >
             Sign up

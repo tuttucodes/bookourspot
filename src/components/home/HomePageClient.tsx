@@ -11,7 +11,6 @@ import {
   Car,
   Sparkles,
   ChevronRight,
-  Download,
   ShieldCheck,
   Clock3,
   Smartphone,
@@ -192,9 +191,6 @@ export default function HomePageClient() {
             <Link href="/explore" className="inline-flex items-center gap-2 rounded-full bg-[#006273] px-4 py-2 text-sm font-semibold text-white">
               Explore now <ArrowRight size={14} />
             </Link>
-            <button className="inline-flex items-center gap-2 rounded-full bg-[#f4d9ff] px-4 py-2 text-sm font-semibold text-[#580087]">
-              <Download size={14} /> Get app
-            </button>
           </div>
         </div>
       </section>

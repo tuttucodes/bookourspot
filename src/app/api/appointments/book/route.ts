@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { sendBookingNotifications } from '@/lib/notifications';
+import { getServiceSupabaseClient } from '@/lib/supabase/service';
+import { sendBookingConfirmedNotifications } from '@/lib/notifications';
 
 type BookingBody = {
   business_id?: string;
@@ -13,6 +14,26 @@ type BookingBody = {
   customer_phone?: string;
   customer_email?: string;
 };
+
+type AppointmentUserRow = {
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+} | null;
+
+type AppointmentBusinessRow = {
+  name?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  owner_id?: string | null;
+  owner_whatsapp?: string | null;
+} | null;
+
+type AppointmentServiceRow = {
+  name?: string | null;
+  price?: number | null;
+  duration_minutes?: number | null;
+} | null;
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient();
@@ -55,43 +76,54 @@ export async function POST(request: Request) {
     );
   }
 
-  const servicePrice = Number((appointment.service as { price?: number } | null)?.price);
-  if (!Number.isNaN(servicePrice)) {
-    const { error: txError } = await supabase.from('transactions').insert({
-      appointment_id: appointment.id,
-      amount: servicePrice,
-      payment_method: 'cash',
-      status: 'pending',
-    });
+  const appointmentUser = appointment.user as AppointmentUserRow;
+  const appointmentBusiness = appointment.business as AppointmentBusinessRow;
+  const appointmentService = appointment.service as AppointmentServiceRow;
 
-    if (txError) {
-      await supabase.from('appointments').delete().eq('id', appointment.id);
-      return NextResponse.json({ error: txError.message }, { status: 400 });
-    }
+  // Enrich owner contact via service role (businesses.owner_id -> users.email/name).
+  // Customer-scope RLS cannot read arbitrary user rows.
+  let ownerEmail: string | null = null;
+  let ownerName: string | null = null;
+  if (appointmentBusiness?.owner_id) {
+    const svc = getServiceSupabaseClient();
+    const { data: owner } = await svc
+      .from('users')
+      .select('email, name')
+      .eq('id', appointmentBusiness.owner_id)
+      .maybeSingle();
+    ownerEmail = owner?.email ?? null;
+    ownerName = owner?.name ?? null;
   }
 
-  const appointmentUser = appointment.user as { name?: string; email?: string; phone?: string | null } | null;
-  const appointmentBusiness = appointment.business as { name?: string; owner_whatsapp?: string | null } | null;
-  const appointmentService = appointment.service as { name?: string; price?: number } | null;
   const customerName = body.customer_name || appointmentUser?.name || 'Customer';
   const customerPhone = body.customer_phone || appointmentUser?.phone || null;
   const customerEmail = body.customer_email || appointmentUser?.email || null;
 
-  const notificationResult = await sendBookingNotifications({
+  const notifications = await sendBookingConfirmedNotifications({
+    appointmentId: appointment.id,
     customerName,
     customerPhone,
     customerEmail,
     businessName: appointmentBusiness?.name || 'BookOurSpot Business',
-    ownerWhatsApp: appointmentBusiness?.owner_whatsapp || null,
+    businessAddress: appointmentBusiness?.address ?? null,
+    businessPhone: appointmentBusiness?.phone ?? null,
+    ownerEmail,
+    ownerName,
+    ownerWhatsApp: appointmentBusiness?.owner_whatsapp ?? null,
     serviceName: appointmentService?.name || 'Service',
-    servicePrice: Number(appointmentService?.price || 0),
+    servicePrice: Number(appointmentService?.price ?? 0),
+    durationMinutes: appointmentService?.duration_minutes ?? undefined,
     date: appointment.date,
     startTime: appointment.start_time,
-    appointmentId: appointment.id,
   });
 
   return NextResponse.json({
     data: appointment,
-    notifications: notificationResult,
+    notifications: {
+      customer_email: notifications.customerEmail?.status ?? null,
+      customer_whatsapp: notifications.customerWhatsApp?.status ?? null,
+      owner_email: notifications.ownerEmail?.status ?? null,
+      owner_whatsapp: notifications.ownerWhatsApp?.status ?? null,
+    },
   });
 }

@@ -2,7 +2,7 @@
 
 ```
 www.bookourspot.com        -> customer UX
-business.bookourspot.com   -> merchant UX (dashboard, POS, receipts)
+merchant.bookourspot.com   -> merchant UX (dashboard, POS, receipts)
 admin.bookourspot.com      -> internal BookOurSpot team (apps, support, merchants)
 ```
 
@@ -78,7 +78,7 @@ Proxy rewrites these to `/admin/*` internally (see `src/proxy.ts`).
 ## 5. Merchant application flow (public)
 
 ```
-Visitor on business.bookourspot.com
+Visitor on merchant.bookourspot.com
   └─ Sign up (Google or email) with role=merchant
        └─ /merchant-apply (also: business.*/apply via proxy)
              4-step wizard:
@@ -171,7 +171,7 @@ Services seeded: Haircut (RM 25), Beard Trim (RM 15), Haircut + Beard (RM 35),
 
 **Log in**:
 ```
-https://business.bookourspot.com/login
+https://merchant.bookourspot.com/login
   email: rahulbabuk05@gmail.com
   password: Book@123
 ```
@@ -233,9 +233,9 @@ All RPCs use `security definer` + `auth.uid()` role check. All tables have RLS.
   update public.users set role = 'admin' where email = 'your@email.com';
   ```
 - [ ] Smoke test: `admin.bookourspot.com` → redirects to /login (if not signed in) → sign in with promoted user → land on admin overview
-- [ ] Smoke test: fresh Gmail → `business.bookourspot.com/signup` → Google sign-in → /merchant-apply → submit → /pending-review
+- [ ] Smoke test: fresh Gmail → `merchant.bookourspot.com/signup` → Google sign-in → /merchant-apply → submit → /pending-review
 - [ ] In admin inbox: see pending app → open → approve → verify public.businesses row created
-- [ ] SK Barbershop: log in at `business.bookourspot.com` with `rahulbabuk05@gmail.com / Book@123` → dashboard works, POS works
+- [ ] SK Barbershop: log in at `merchant.bookourspot.com` with `rahulbabuk05@gmail.com / Book@123` → dashboard works, POS works
 - [ ] Change SK Barbershop password from default (see §8)
 
 ---

@@ -18,7 +18,7 @@ export type OwnerNewBookingProps = {
   dateHuman: string;
   timeHuman: string;
   durationMinutes?: number;
-  appointmentId: string;
+  bookingToken: string;
   dashboardUrl?: string;
 };
 
@@ -33,7 +33,7 @@ export default function OwnerNewBooking({
   dateHuman,
   timeHuman,
   durationMinutes,
-  appointmentId,
+  bookingToken,
   dashboardUrl,
 }: OwnerNewBookingProps) {
   return (
@@ -55,7 +55,7 @@ export default function OwnerNewBooking({
       <DetailRow label="Time" value={timeHuman} />
       {durationMinutes ? <DetailRow label="Duration" value={`${durationMinutes} min`} /> : null}
       <DetailRow label="Amount" value={`RM ${servicePrice.toFixed(2)}`} />
-      <DetailRow label="Booking ID" value={appointmentId.slice(0, 8)} />
+      <DetailRow label="Booking ID" value={bookingToken} />
 
       {dashboardUrl ? (
         <>

@@ -18,7 +18,7 @@ export type AppointmentReminderProps = {
   serviceName: string;
   dateHuman: string;
   timeHuman: string;
-  appointmentId: string;
+  bookingToken: string;
   window: ReminderWindow;
   manageUrl?: string;
 };
@@ -52,7 +52,7 @@ export default function AppointmentReminder({
   serviceName,
   dateHuman,
   timeHuman,
-  appointmentId,
+  bookingToken,
   window,
   manageUrl,
 }: AppointmentReminderProps) {
@@ -70,7 +70,7 @@ export default function AppointmentReminder({
       <DetailRow label="Service" value={serviceName} />
       <DetailRow label="Date" value={dateHuman} />
       <DetailRow label="Time" value={timeHuman} />
-      <DetailRow label="Booking ID" value={appointmentId.slice(0, 8)} />
+      <DetailRow label="Booking ID" value={bookingToken} />
 
       {manageUrl ? (
         <>

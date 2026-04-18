@@ -1,11 +1,11 @@
-# Subdomain Setup — business.bookourspot.com
+# Subdomain Setup — merchant.bookourspot.com
 
 Split customer UX from merchant UX via subdomain. Single codebase, single Vercel
 project, one Supabase — zero duplication. Follow in order.
 
 ```
 www.bookourspot.com        →  customer (explore, book, profile)
-business.bookourspot.com   →  merchant (dashboard, POS, receipts, staff, analytics)
+merchant.bookourspot.com   →  merchant (dashboard, POS, receipts, staff, analytics)
 ```
 
 ---
@@ -22,7 +22,7 @@ business.bookourspot.com   →  merchant (dashboard, POS, receipts, staff, analy
 
 Verify:
 ```bash
-dig business.bookourspot.com CNAME +short
+dig merchant.bookourspot.com CNAME +short
 # -> cname.vercel-dns.com.
 ```
 
@@ -31,7 +31,7 @@ dig business.bookourspot.com CNAME +short
 ## 2. Vercel domain
 
 1. Vercel dashboard → your project → **Settings** → **Domains**
-2. **Add** → `business.bookourspot.com`
+2. **Add** → `merchant.bookourspot.com`
 3. Vercel auto-provisions SSL (~1 min). Status should flip to **Valid**.
 4. Leave production branch mapping on `main` (both hosts point to same build).
 
@@ -52,9 +52,9 @@ https://www.bookourspot.com
 ```
 https://www.bookourspot.com/auth/callback
 https://bookourspot.com/auth/callback
-https://business.bookourspot.com/auth/callback
+https://merchant.bookourspot.com/auth/callback
 http://localhost:3000/auth/callback
-http://business.localhost:3000/auth/callback
+http://merchant.localhost:3000/auth/callback
 ```
 
 ---
@@ -67,7 +67,7 @@ Google Cloud Console → your OAuth 2.0 Client ID → **Edit**:
 ```
 https://www.bookourspot.com
 https://bookourspot.com
-https://business.bookourspot.com
+https://merchant.bookourspot.com
 http://localhost:3000
 ```
 
@@ -88,7 +88,7 @@ on `redirectTo` param set by our client code.
 signing in on `www.*` = signed in on `business.*` and vice versa.
 
 On localhost the domain attribute is omitted so cookies stay scoped to
-`localhost` (or `business.localhost`) without extra setup.
+`localhost` (or `merchant.localhost`) without extra setup.
 
 ---
 
@@ -96,13 +96,13 @@ On localhost the domain attribute is omitted so cookies stay scoped to
 
 Add to `/etc/hosts`:
 ```
-127.0.0.1 business.localhost
+127.0.0.1 merchant.localhost
 ```
 
 Then:
 ```bash
 npm run dev
-# visit http://business.localhost:3000 → rewrites to /dashboard
+# visit http://merchant.localhost:3000 → rewrites to /dashboard
 ```
 
 Chrome and Safari treat `*.localhost` as loopback by default — no hosts edit
@@ -116,19 +116,19 @@ Defined in `src/proxy.ts`. Rewrites apply only when host is `business.*`:
 
 | Visitor URL                              | Internally renders                  |
 | ---------------------------------------- | ----------------------------------- |
-| `business.bookourspot.com/`              | `/dashboard`                        |
-| `business.bookourspot.com/bookings`      | `/dashboard/bookings`               |
-| `business.bookourspot.com/services`      | `/dashboard/services`               |
-| `business.bookourspot.com/staff`         | `/dashboard/staff`                  |
-| `business.bookourspot.com/clients`       | `/dashboard/clients`                |
-| `business.bookourspot.com/analytics`     | `/dashboard/analytics`              |
-| `business.bookourspot.com/settings`      | `/dashboard/settings`               |
-| `business.bookourspot.com/onboarding`    | `/dashboard/onboarding`             |
-| `business.bookourspot.com/pos/:id`       | `/dashboard/pos/:id`                |
-| `business.bookourspot.com/receipts/:id`  | `/dashboard/receipts/:id`           |
-| `business.bookourspot.com/login`         | `/login` (merchant-branded UI)      |
-| `business.bookourspot.com/signup`        | `/signup` (merchant-branded UI)     |
-| `business.bookourspot.com/api/*`         | `/api/*` (shared)                   |
+| `merchant.bookourspot.com/`              | `/dashboard`                        |
+| `merchant.bookourspot.com/bookings`      | `/dashboard/bookings`               |
+| `merchant.bookourspot.com/services`      | `/dashboard/services`               |
+| `merchant.bookourspot.com/staff`         | `/dashboard/staff`                  |
+| `merchant.bookourspot.com/clients`       | `/dashboard/clients`                |
+| `merchant.bookourspot.com/analytics`     | `/dashboard/analytics`              |
+| `merchant.bookourspot.com/settings`      | `/dashboard/settings`               |
+| `merchant.bookourspot.com/onboarding`    | `/dashboard/onboarding`             |
+| `merchant.bookourspot.com/pos/:id`       | `/dashboard/pos/:id`                |
+| `merchant.bookourspot.com/receipts/:id`  | `/dashboard/receipts/:id`           |
+| `merchant.bookourspot.com/login`         | `/login` (merchant-branded UI)      |
+| `merchant.bookourspot.com/signup`        | `/signup` (merchant-branded UI)     |
+| `merchant.bookourspot.com/api/*`         | `/api/*` (shared)                   |
 
 On `www.bookourspot.com`, merchant URLs (`/dashboard/*`) 301-redirect to the
 business subdomain — merchants typing the wrong host still land correctly.
@@ -173,13 +173,13 @@ Applied via migration `20260418_pos_and_staff_linking`:
 ## 10. Action checklist (what you do)
 
 - [ ] Cloudflare → add CNAME `business` → `cname.vercel-dns.com` (DNS only)
-- [ ] Vercel → Domains → add `business.bookourspot.com`
+- [ ] Vercel → Domains → add `merchant.bookourspot.com`
 - [ ] Supabase → Auth → add 3 new redirect URLs (see §3)
 - [ ] Google Cloud → OAuth → add 3 JS origins (see §4)
 - [ ] Vercel → env vars → ensure all from `docs/notifications-setup.md §7` are
       set for Production + Preview
 - [ ] Deploy
-- [ ] Smoke test: visit `https://business.bookourspot.com` → redirected to
+- [ ] Smoke test: visit `https://merchant.bookourspot.com` → redirected to
       `/login` (merchant-branded) → sign in → land on dashboard
 - [ ] Smoke test: book an appointment on `www.*` → switch tab to `business.*`
       → appointment shows up without re-login

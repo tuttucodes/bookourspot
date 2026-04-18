@@ -24,6 +24,7 @@ const WINDOWS: Array<{ label: ReminderWindow; minutes: number }> = [
 
 type AppointmentRow = {
   id: string;
+  booking_token: string | null;
   date: string;
   start_time: string;
   status: string;
@@ -84,7 +85,7 @@ export async function GET(request: Request) {
   const { data, error } = await db
     .from('appointments')
     .select(
-      'id, date, start_time, status, business:businesses(name, address, phone, owner_whatsapp, owner_id), service:services(name, price, duration_minutes), user:users(name, email, phone)'
+      'id, booking_token, date, start_time, status, business:businesses(name, address, phone, owner_whatsapp, owner_id), service:services(name, price, duration_minutes), user:users(name, email, phone)'
     )
     .eq('status', 'booked')
     .in('date', [today, tomorrow]);
@@ -114,6 +115,7 @@ export async function GET(request: Request) {
 
       const summary = await sendReminderNotifications({
         appointmentId: appt.id,
+        bookingToken: appt.booking_token || `BOS-${appt.id.slice(0, 8).toUpperCase()}`,
         customerName,
         customerEmail,
         customerPhone,

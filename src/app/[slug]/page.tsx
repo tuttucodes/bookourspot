@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Phone, Clock, BadgeCheck, Scissors, Car, Sparkles, SlidersHorizontal } from 'lucide-react';
@@ -13,11 +13,11 @@ import { SK_BARBERSHOP_IMAGES } from '@/lib/sk-barbershop';
 const DAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 const CATEGORY_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
-  salon: { icon: <Scissors size={16} />, color: 'bg-pink-100 text-pink-600' },
-  barbershop: { icon: <Scissors size={16} />, color: 'bg-blue-100 text-blue-600' },
-  car_wash: { icon: <Car size={16} />, color: 'bg-green-100 text-green-600' },
-  spa: { icon: <Sparkles size={16} />, color: 'bg-purple-100 text-purple-600' },
-  other: { icon: <SlidersHorizontal size={16} />, color: 'bg-gray-100 text-gray-600' },
+  salon: { icon: <Scissors size={16} />, color: 'bg-[#f4d9ff] text-[#580087]' },
+  barbershop: { icon: <Scissors size={16} />, color: 'bg-[#f4d9ff] text-[#580087]' },
+  car_wash: { icon: <Car size={16} />, color: 'bg-[#ffd9df] text-[#330f19]' },
+  spa: { icon: <Sparkles size={16} />, color: 'bg-[#f4d9ff] text-[#580087]' },
+  other: { icon: <SlidersHorizontal size={16} />, color: 'bg-[#f0eded] text-[#1c1b1b]' },
 };
 
 function formatTime(time: string) {
@@ -27,14 +27,44 @@ function formatTime(time: string) {
   return `${hour}:${m.toString().padStart(2, '0')} ${period}`;
 }
 
+// Reserved top-level paths that should never be resolved as business slugs.
+// If the deploy lags behind the code and a real top-level route isn't live yet,
+// this guard prevents the "business not found" false negative by sending the
+// visitor to the correct page.
+const RESERVED_SLUGS = new Set([
+  'support',
+  'loyalty',
+  'stories',
+  'explore',
+  'bookings',
+  'profile',
+  'login',
+  'signup',
+  'logout',
+  'dashboard',
+  'admin',
+  'api',
+  'auth',
+  'merchant-apply',
+  'pending-review',
+  'for-business',
+  'business',
+  'booking',
+]);
+
 export default function BusinessSlugPage() {
   const { slug } = useParams<{ slug: string }>();
+  const router = useRouter();
   const [business, setBusiness] = useState<Business | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!slug) return;
+    if (RESERVED_SLUGS.has(slug.toLowerCase())) {
+      router.replace(`/${slug.toLowerCase()}`);
+      return;
+    }
     let isCancelled = false;
 
     async function loadBusinessDetails() {
@@ -58,7 +88,7 @@ export default function BusinessSlugPage() {
     return () => {
       isCancelled = true;
     };
-  }, [slug]);
+  }, [slug, router]);
 
   if (loading) {
     return (
@@ -92,7 +122,7 @@ export default function BusinessSlugPage() {
 
   const catConfig = CATEGORY_CONFIG[business.category] || CATEGORY_CONFIG.other;
   const workingHours = business.working_hours as WorkingHours | null;
-  const isSkBarbershop = business.slug === 'skbarbershop';
+  const isSkBarbershop = ['skbarbershop', 'sk-barbershop'].includes(business.slug);
   const localBusinessSchema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -136,7 +166,7 @@ export default function BusinessSlugPage() {
                 unoptimized={!business.image_url.startsWith('/')}
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-violet-500 to-fuchsia-500" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#006273] via-[#107c91] to-[#00687a]" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">

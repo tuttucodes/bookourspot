@@ -232,6 +232,30 @@ export default function BookingsPage() {
                       </Button>
                     </div>
                   )}
+
+                  {activeTab === 'past' && booking.status === 'completed' && booking.business && (
+                    <div className="flex gap-3 border-t border-gray-100 bg-[#f6f3f2] px-4 py-3 md:px-5">
+                      <Button
+                        size="sm"
+                        className="flex-1 rounded-full bg-gradient-to-r from-[#006273] to-[#107c91] text-white hover:opacity-95"
+                        onClick={() => {
+                          const slug = (booking.business as { slug?: string })?.slug;
+                          const target = slug ? `/${slug}` : `/business/${booking.business_id}`;
+                          router.push(target);
+                        }}
+                      >
+                        Rebook
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 rounded-full border-[#e5e2e1] text-[#1c1b1b] hover:bg-white"
+                        onClick={() => router.push(`/booking/${booking.id}/confirmed`)}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

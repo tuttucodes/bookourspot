@@ -1,24 +1,87 @@
 @import "tailwindcss";
 
+/* ============================================================
+   BookOurSpot design tokens — "The Curated Sanctuary"
+   Reference: stich/slate_silk/DESIGN.md + stich/*/code.html
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #111827;
+  /* Core surface */
+  --color-bg: #fcf9f8;              /* background (warm off-white) */
+  --color-on-bg: #1c1b1b;           /* charcoal, never pure black */
+  --color-on-bg-variant: #3e484c;   /* muted slate */
+
+  /* Surface hierarchy */
+  --color-surface: #fcf9f8;
+  --color-surface-low: #f6f3f2;
+  --color-surface: #f0eded;
+  --color-surface-high: #eae7e7;
+  --color-surface-highest: #e5e2e1;
+  --color-surface-lowest: #ffffff;
+
+  /* Brand accents */
+  --color-primary: #006273;
+  --color-primary-container: #107c91;
+  --color-on-primary: #ffffff;
+  --color-secondary-container: #f4d9ff;
+  --color-on-secondary-container: #580087;
+  --color-tertiary: #7b4b55;
+  --color-tertiary-container: #ffd9df;
+  --color-on-tertiary-container: #330f19;
+
+  /* Utility */
+  --color-outline: #6e797c;
+  --color-outline-variant: #bec8cc;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+
+  /* Legacy aliases for existing utility uses */
+  --background: var(--color-bg);
+  --foreground: var(--color-on-bg);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-on-bg);
+  --color-brand: var(--color-primary);
+  --color-brand-accent: var(--color-primary-container);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html, body {
+  background: var(--color-bg);
+  color: var(--color-on-bg);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
 }
 
+/* Type helpers reflecting the DESIGN.md scale. */
+.type-display {
+  font-size: 2.5rem;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.type-headline {
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.type-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Layout primitives */
 .app-shell {
   min-height: 100vh;
   width: 100%;
@@ -62,4 +125,26 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Signature primary gradient for CTAs (DESIGN.md §2) */
+.bg-brand-gradient {
+  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+}
+
+/* Glassmorphic header */
+.bg-surface-glass {
+  background-color: color-mix(in srgb, var(--color-bg) 80%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Ambient soft shadow per DESIGN.md */
+.shadow-ambient {
+  box-shadow: 0 8px 32px 0 color-mix(in srgb, var(--color-on-bg) 4%, transparent);
+}
+
+/* Hide print-only elements in screen mode */
+@media print {
+  .no-print { display: none !important; }
 }

@@ -15,7 +15,12 @@ import { updateSession } from '@/lib/supabase/middleware';
 // Files live under src/app/dashboard/* and src/app/admin/* respectively.
 // ============================================================================
 
+// Primary merchant subdomain is merchant.*. `business.*` is kept as an alias
+// in case any bookmarks/emails still reference it.
 const MERCHANT_HOSTS = new Set<string>([
+  'merchant.bookourspot.com',
+  'merchant.localhost',
+  'merchant.localhost:3000',
   'business.bookourspot.com',
   'business.localhost',
   'business.localhost:3000',
@@ -168,7 +173,7 @@ export async function proxy(request: NextRequest) {
   if (isProductionCustomerHost(host)) {
     if (pathname.startsWith('/dashboard')) {
       const cleanPath = pathname.replace(/^\/dashboard/, '') || '/';
-      return NextResponse.redirect(new URL(cleanPath + search, 'https://business.bookourspot.com'));
+      return NextResponse.redirect(new URL(cleanPath + search, 'https://merchant.bookourspot.com'));
     }
     if (pathname.startsWith('/admin')) {
       const cleanPath = pathname.replace(/^\/admin/, '') || '/';

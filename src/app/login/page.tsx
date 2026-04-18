@@ -18,7 +18,7 @@ function LoginForm() {
   const [isMerchantHost, setIsMerchantHost] = useState(false);
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    setIsMerchantHost(window.location.hostname.toLowerCase().startsWith('business.'));
+    setIsMerchantHost(['merchant.', 'business.'].some((p) => window.location.hostname.toLowerCase().startsWith(p)));
   }, []);
 
   const roleParam = searchParams.get('role');

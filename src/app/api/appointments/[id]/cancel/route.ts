@@ -111,6 +111,7 @@ export async function POST(request: Request, ctx: Ctx) {
 
   const notifications = await sendBookingCancelledNotifications({
     appointmentId: updated.id,
+    bookingToken: (updated as { booking_token?: string }).booking_token || `BOS-${updated.id.slice(0, 8).toUpperCase()}`,
     customerName: appointmentUser?.name || 'Customer',
     customerEmail: appointmentUser?.email ?? null,
     customerPhone: appointmentUser?.phone ?? null,

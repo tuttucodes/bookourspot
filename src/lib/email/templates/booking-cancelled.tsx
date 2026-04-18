@@ -14,7 +14,7 @@ export type BookingCancelledProps = {
   serviceName: string;
   dateHuman: string;
   timeHuman: string;
-  appointmentId: string;
+  bookingToken: string;
   cancelledBy: 'customer' | 'merchant';
   reason?: string;
   rebookUrl?: string;
@@ -26,7 +26,7 @@ export default function BookingCancelled({
   serviceName,
   dateHuman,
   timeHuman,
-  appointmentId,
+  bookingToken,
   cancelledBy,
   reason,
   rebookUrl,
@@ -46,7 +46,7 @@ export default function BookingCancelled({
       <DetailRow label="Service" value={serviceName} />
       <DetailRow label="Date" value={dateHuman} />
       <DetailRow label="Time" value={timeHuman} />
-      <DetailRow label="Booking ID" value={appointmentId.slice(0, 8)} />
+      <DetailRow label="Booking token" value={<span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{bookingToken}</span>} />
 
       {reason ? (
         <>

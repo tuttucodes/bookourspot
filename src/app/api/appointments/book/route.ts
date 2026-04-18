@@ -101,6 +101,7 @@ export async function POST(request: Request) {
 
   const notifications = await sendBookingConfirmedNotifications({
     appointmentId: appointment.id,
+    bookingToken: (appointment as { booking_token?: string }).booking_token || `BOS-${appointment.id.slice(0, 8).toUpperCase()}`,
     customerName,
     customerPhone,
     customerEmail,

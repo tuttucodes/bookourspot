@@ -60,14 +60,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#7c3aed",
+  themeColor: "#006273",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.className} h-full`}>
-      <body className="min-h-full bg-gray-50">
-        <main className="app-shell relative bg-[#fcf9f8]">
+      <body className="min-h-full bg-[#fcf9f8] text-[#1c1b1b]">
+        <main className="app-shell relative">
           {children}
         </main>
       </body>

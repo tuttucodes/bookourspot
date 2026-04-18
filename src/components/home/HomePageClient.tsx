@@ -53,17 +53,17 @@ const TRENDING_STORIES = [
   {
     title: 'Fresh fades in KL',
     description: 'Barbershops with clean fades, quick evening slots, and dependable walk-in energy.',
-    href: '/explore?category=barbershop',
+    href: '/stories/fresh-fades-kl',
   },
   {
     title: 'Weekend spa reset',
     description: 'Massage and facial spots that feel premium without making discovery feel hard.',
-    href: '/explore?category=spa',
+    href: '/stories/weekend-spa-reset',
   },
   {
     title: 'After-work glam',
     description: 'Salon picks with same-day availability for fast post-office appointments.',
-    href: '/explore?category=salon',
+    href: '/stories/after-work-glam',
   },
 ];
 

@@ -45,6 +45,7 @@ function exploreUrl(): string {
 
 type BookingContext = {
   appointmentId: string;
+  bookingToken: string;
   customerName: string;
   customerEmail?: string | null;
   customerPhone?: string | null;
@@ -95,7 +96,7 @@ export async function sendBookingConfirmedNotifications(
           dateHuman,
           timeHuman,
           durationMinutes: ctx.durationMinutes,
-          appointmentId: ctx.appointmentId,
+          bookingToken: ctx.bookingToken,
           manageUrl,
         }),
       })
@@ -118,7 +119,7 @@ export async function sendBookingConfirmedNotifications(
           dateHuman,
           timeHuman,
           durationMinutes: ctx.durationMinutes,
-          appointmentId: ctx.appointmentId,
+          bookingToken: ctx.bookingToken,
           dashboardUrl: merchantDashboardUrl(),
         }),
       })
@@ -145,7 +146,7 @@ export async function sendBookingConfirmedNotifications(
               },
             }
           : {
-              body: `Hi ${ctx.customerName}, your booking is confirmed.\n\n${ctx.businessName}\n${ctx.serviceName}\n${dateHuman} at ${timeHuman}\nAmount: RM ${ctx.servicePrice.toFixed(2)} (pay at store)\nBooking ID: ${ctx.appointmentId.slice(0, 8)}`,
+              body: `Hi ${ctx.customerName}, your booking is confirmed.\n\n${ctx.businessName}\n${ctx.serviceName}\n${dateHuman} at ${timeHuman}\nAmount: RM ${ctx.servicePrice.toFixed(2)} (pay at store)\nBooking token: ${ctx.bookingToken}`,
             }),
       })
     : Promise.resolve(null);
@@ -196,7 +197,7 @@ export async function sendBookingCancelledNotifications(
           serviceName: ctx.serviceName,
           dateHuman,
           timeHuman,
-          appointmentId: ctx.appointmentId,
+          bookingToken: ctx.bookingToken,
           cancelledBy: ctx.cancelledBy,
           reason: ctx.reason ?? undefined,
           rebookUrl,
@@ -289,7 +290,7 @@ export async function sendReminderNotifications(
           serviceName: ctx.serviceName,
           dateHuman,
           timeHuman,
-          appointmentId: ctx.appointmentId,
+          bookingToken: ctx.bookingToken,
           window: ctx.window,
           manageUrl,
         }),
@@ -346,6 +347,7 @@ export async function sendBookingNotifications(input: {
 }) {
   const summary = await sendBookingConfirmedNotifications({
     appointmentId: input.appointmentId,
+    bookingToken: `BOS-${input.appointmentId.slice(0, 8).toUpperCase()}`,
     customerName: input.customerName,
     customerEmail: input.customerEmail,
     customerPhone: input.customerPhone,

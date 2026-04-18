@@ -18,7 +18,7 @@ export type BookingConfirmedProps = {
   dateHuman: string; // "Tue, Apr 22, 2026"
   timeHuman: string; // "10:30 AM"
   durationMinutes?: number;
-  appointmentId: string;
+  bookingToken: string;
   manageUrl?: string;
 };
 
@@ -32,7 +32,7 @@ export default function BookingConfirmed({
   dateHuman,
   timeHuman,
   durationMinutes,
-  appointmentId,
+  bookingToken,
   manageUrl,
 }: BookingConfirmedProps) {
   return (
@@ -52,13 +52,13 @@ export default function BookingConfirmed({
         <DetailRow label="Duration" value={`${durationMinutes} min`} />
       ) : null}
       <DetailRow label="Amount" value={`RM ${servicePrice.toFixed(2)} (pay at store)`} />
-      <DetailRow label="Booking ID" value={appointmentId.slice(0, 8)} />
+      <DetailRow label="Booking token" value={<span style={{ fontFamily: 'monospace', fontSize: '15px' }}>{bookingToken}</span>} />
       {businessPhone ? <DetailRow label="Business phone" value={businessPhone} /> : null}
 
       {manageUrl ? (
         <>
           <Divider />
-          <ActionLink href={manageUrl} label="View or cancel booking" />
+          <ActionLink href={manageUrl} label="View in my bookings" />
         </>
       ) : null}
 

@@ -133,10 +133,15 @@ export async function proxy(request: NextRequest) {
     }
     const rewritten = rewritePath(pathname, ADMIN_CLEAN_REWRITES, '/admin');
     if (rewritten) {
+      // Let updateSession see the rewritten path so /admin protection kicks in
+      // for unauth visitors even when the URL pathname is still `/`.
+      const sessionResp = await updateSession(request, { logicalPath: rewritten });
+      // If updateSession wants to redirect (unauth), honor that redirect.
+      if (sessionResp.headers.has('location')) return sessionResp;
+
       const url = request.nextUrl.clone();
       url.pathname = rewritten;
       const rewriteResp = NextResponse.rewrite(url);
-      const sessionResp = await updateSession(request);
       sessionResp.cookies.getAll().forEach((c) => {
         rewriteResp.cookies.set(c.name, c.value, c);
       });
@@ -154,10 +159,13 @@ export async function proxy(request: NextRequest) {
     }
     const rewritten = rewritePath(pathname, MERCHANT_CLEAN_REWRITES, '/dashboard');
     if (rewritten) {
+      const sessionResp = await updateSession(request, { logicalPath: rewritten });
+      // Honor auth redirect (e.g. unauth -> /login) before applying the rewrite.
+      if (sessionResp.headers.has('location')) return sessionResp;
+
       const url = request.nextUrl.clone();
       url.pathname = rewritten;
       const rewriteResp = NextResponse.rewrite(url);
-      const sessionResp = await updateSession(request);
       sessionResp.cookies.getAll().forEach((c) => {
         rewriteResp.cookies.set(c.name, c.value, c);
       });

@@ -42,6 +42,13 @@ export async function signInWithGoogle(
     provider: 'google',
     options: {
       redirectTo: redirectTo || fallback,
+      // Force Google account picker every time. Without prompt=select_account,
+      // Google auto-selects the last-used account, which surprises users who
+      // just signed out expecting to pick a different identity.
+      queryParams: {
+        prompt: 'select_account',
+        access_type: 'offline',
+      },
       ...(userMetadata && Object.keys(userMetadata).length > 0
         ? { data: userMetadata }
         : {}),
@@ -103,14 +110,28 @@ export async function getBusinessBySlug(slug: string) {
 }
 
 export async function getMyBusiness() {
-  const { data: { user } } = await supabase().auth.getUser();
+  const sb = supabase();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return null;
-  const { data } = await supabase()
+
+  // First: business they legally own.
+  const owned = await sb
     .from('businesses')
     .select('*')
     .eq('owner_id', user.id)
-    .single();
-  return data as Business | null;
+    .maybeSingle();
+  if (owned.data) return owned.data as Business;
+
+  // Fallback: business they collaborate on (e.g. co-manager / staff-level access).
+  const { data: collab } = await sb
+    .from('business_collaborators')
+    .select('business:businesses(*)')
+    .eq('user_id', user.id)
+    .limit(1)
+    .maybeSingle();
+  const collabBiz = (collab?.business ?? null) as Business | Business[] | null;
+  if (Array.isArray(collabBiz)) return (collabBiz[0] ?? null) as Business | null;
+  return collabBiz;
 }
 
 export async function createBusiness(business: Partial<Business>) {
@@ -304,19 +325,35 @@ export async function getDashboardStats(businessId: string) {
   const sb = supabase();
   const today = new Date().toISOString().split('T')[0];
 
-  const [totalRes, todayRes, completedRes, appointmentIds] = await Promise.all([
-    sb.from('appointments').select('id', { count: 'exact', head: true }).eq('business_id', businessId),
-    sb.from('appointments').select('id', { count: 'exact', head: true }).eq('business_id', businessId).eq('date', today).eq('status', 'booked'),
-    sb.from('appointments').select('id', { count: 'exact', head: true }).eq('business_id', businessId).eq('status', 'completed'),
-    sb.from('appointments').select('id').eq('business_id', businessId),
+  // Revenue pulls directly via transactions.business_id (backfilled by
+  // migration 20260419190000). Avoids the old pattern of fetching every
+  // appointment id and passing them as an IN list — that scaled linearly with
+  // booking history and was the main cause of slow dashboards.
+  const [totalRes, todayRes, completedRes, revenueRes] = await Promise.all([
+    sb
+      .from('appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', businessId),
+    sb
+      .from('appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', businessId)
+      .eq('date', today)
+      .eq('status', 'booked'),
+    sb
+      .from('appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', businessId)
+      .eq('status', 'completed'),
+    sb
+      .from('transactions')
+      .select('amount')
+      .eq('business_id', businessId)
+      .eq('status', 'completed'),
   ]);
 
-  const ids = appointmentIds.data?.map(a => a.id) || [];
-  let totalRevenue = 0;
-  if (ids.length > 0) {
-    const { data: txns } = await sb.from('transactions').select('amount').eq('status', 'completed').in('appointment_id', ids);
-    totalRevenue = txns?.reduce((sum, t) => sum + Number(t.amount), 0) || 0;
-  }
+  const totalRevenue =
+    revenueRes.data?.reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
   return {
     totalBookings: totalRes.count || 0,

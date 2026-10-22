@@ -11,7 +11,7 @@ import {
   DownloadSimple
 } from '@phosphor-icons/react';
 import TicketStub from './TicketStub';
-import { getStoredPasses, refreshFromSupabase } from '../utils/passRegistry';
+import { getStoredPasses, refreshFromSupabase, clearStoredPasses } from '../utils/passRegistry';
 import { downloadPassPdf } from '../utils/pdfGenerator';
 import { playTap, playSuccessChime } from '../utils/audioTheme';
 
@@ -83,6 +83,22 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
           </div>
 
           <div className="flex items-center gap-2">
+            {passes.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Reset local wallet passes for fresh demo booking?')) {
+                    clearStoredPasses();
+                    setPasses([]);
+                  }
+                }}
+                title="Reset local passes"
+                className="p-2 rounded-full bg-white/5 hover:bg-red-950/40 border border-white/10 hover:border-red-500/40 text-zinc-400 hover:text-red-300 transition-colors cursor-pointer text-xs"
+              >
+                Reset
+              </button>
+            )}
+
             <button
               type="button"
               onClick={handleSyncCloud}
@@ -113,7 +129,7 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
               <div className="space-y-1">
                 <p className="text-xl font-bold text-white">No passes allocated yet</p>
                 <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-                  Lock your admission passes for A Little Halloween Affair or other featured events to generate your scannable entry QR cards.
+                  Reserve your admission for A Little Halloween Affair to generate your scannable entry QR pass.
                 </p>
               </div>
               <button
@@ -124,7 +140,7 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
                 }}
                 className="inline-flex items-center gap-2 py-3 px-6 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold uppercase tracking-wider transition-transform active:scale-95 cursor-pointer shadow-xl"
               >
-                <span>Browse & Book Passes</span>
+                <span>Book A Little Halloween Affair (₹1,500)</span>
                 <ArrowRight size={14} weight="bold" />
               </button>
             </div>

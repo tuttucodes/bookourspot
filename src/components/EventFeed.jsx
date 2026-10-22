@@ -11,39 +11,48 @@ import {
   MusicNotes,
   Moon,
   ForkKnife,
-  Ticket
+  Ticket,
+  Clock,
+  ShieldCheck,
+  Martini,
+  Bell,
+  LockSimple
 } from '@phosphor-icons/react';
+import { COMING_SOON_EVENTS } from '../data/eventsData';
+import { playTap } from '../utils/audioTheme';
 
 export default function EventFeed({
   events,
   onSelectEvent,
   onBookEvent,
   onOpenAuth,
+  onOpenProfile,
   onOpenHostPortal,
   currentUser,
   bookmarkedIds,
   onToggleBookmark
 }) {
-  const [activeFilter, setActiveFilter] = useState('Tomorrow'); // 'Tomorrow' | 'This weekend' | 'All'
   const [selectedCity, setSelectedCity] = useState('CHENNAI · SOUTH');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
-  const [heroIndex, setHeroIndex] = useState(0);
+  const [notifiedEvents, setNotifiedEvents] = useState([]);
 
   const cities = ['CHENNAI · SOUTH', 'BANGALORE · INDIRANAGAR', 'MUMBAI · BANDRA'];
 
-  // Marquee events for top hero carousel
-  const heroEvents = events.filter(e => e.isFeatured);
-  const currentHero = heroEvents[heroIndex] || events[0];
+  // Spotlight Event is exclusively "a little halloween affair"
+  const halloweenEvent = events.find(e => e.id === 'halloween-affair') || events[0];
 
-  const filteredEvents = events.filter(e => {
-    if (activeFilter === 'All') return true;
-    return e.filterBucket === activeFilter;
-  });
+  const handleNotifyMe = (eventId, eventTitle) => {
+    playTap();
+    if (!notifiedEvents.includes(eventId)) {
+      setNotifiedEvents(prev => [...prev, eventId]);
+      alert(`You're on the priority guestlist! We'll notify you on WhatsApp the moment passes drop for "${eventTitle}".`);
+    }
+  };
 
   return (
     <div className="w-full max-w-lg mx-auto pb-28 pt-2 px-4 sm:px-5 space-y-6 text-[#F3EFE0] font-sans">
       
-      {/* TOP BAR (1:1 with IMG_4050.PNG) */}
+      {/* TOP BAR */}
       <header className="flex items-center justify-between py-2 relative z-30">
         
         {/* Left Home circular button */}
@@ -55,7 +64,7 @@ export default function EventFeed({
           <House size={20} weight="fill" />
         </button>
 
-        {/* Center: Title & Location Switcher (IMG_4050.PNG) */}
+        {/* Center: Title & Location Switcher */}
         <div className="relative text-center">
           <h2 className="text-lg font-bold text-white tracking-tight leading-tight">
             Events
@@ -91,7 +100,7 @@ export default function EventFeed({
           )}
         </div>
 
-        {/* Right: User Profile Avatar (IMG_4050.PNG) */}
+        {/* Right: User Profile Avatar & Gate Host Link */}
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -102,135 +111,234 @@ export default function EventFeed({
             Hosts
           </button>
 
-          <button
-            type="button"
-            onClick={onOpenAuth}
-            className="w-11 h-11 rounded-full bg-[#8E8EA0] hover:opacity-90 flex items-center justify-center text-white transition-opacity cursor-pointer overflow-hidden shadow-sm"
-          >
-            {currentUser ? (
-              <span className="font-bold text-xs text-black">
-                {currentUser.name?.[0]?.toUpperCase() || 'U'}
+          {currentUser ? (
+            <button
+              type="button"
+              onClick={onOpenProfile}
+              className="h-10 px-3 rounded-full bg-[#1F1D2C] hover:bg-[#282638] border border-white/15 flex items-center gap-2 text-white transition-all cursor-pointer shadow-md"
+            >
+              <div className="w-6 h-6 rounded-full bg-[#FF521B] text-black font-black text-[11px] flex items-center justify-center">
+                {currentUser.name?.[0]?.toUpperCase() || 'R'}
+              </div>
+              <span className="text-xs font-semibold max-w-[80px] truncate hidden sm:inline">
+                {currentUser.name?.split(' ')[0] || 'Profile'}
               </span>
-            ) : (
-              <User size={22} weight="fill" className="text-zinc-800" />
-            )}
-          </button>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenAuth}
+              className="h-10 px-3.5 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95"
+            >
+              <User size={15} weight="bold" />
+              <span>Login</span>
+            </button>
+          )}
         </div>
       </header>
 
-      {/* HERO FEATURED BANNER CAROUSEL (1:1 with IMG_4050.PNG) */}
-      <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-zinc-950 shadow-2xl group">
+      {/* HERO SPOTLIGHT BANNER: A LITTLE HALLOWEEN AFFAIR */}
+      <div className="relative rounded-3xl overflow-hidden border border-white/15 bg-zinc-950 shadow-2xl group">
         <div 
-          onClick={() => onSelectEvent(currentHero)}
-          className="relative h-[360px] sm:h-[400px] w-full cursor-pointer"
+          onClick={() => onSelectEvent(halloweenEvent)}
+          className="relative h-[380px] sm:h-[420px] w-full cursor-pointer"
         >
           <img 
-            src={currentHero.coverImage} 
-            alt={currentHero.title}
-            className="w-full h-full object-cover object-center filter contrast-[1.05] transition-transform duration-700 group-hover:scale-[1.02]"
+            src={halloweenEvent.coverImage} 
+            alt={halloweenEvent.title}
+            className="w-full h-full object-cover object-center filter contrast-[1.05] transition-transform duration-700 group-hover:scale-[1.02]" 
           />
-          {/* Subtle bottom gradient to highlight the button */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+          {/* Vignette Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40" />
 
-          {/* Centered White Pill CTA button & Dots (IMG_4050.PNG) */}
-          <div className="absolute bottom-5 left-0 right-0 flex flex-col items-center gap-2.5 z-10">
+          {/* Top Tag Badges */}
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+            <span className="px-3 py-1 rounded-full bg-[#FF521B]/90 backdrop-blur-md text-black text-[10px] font-mono font-black uppercase tracking-wider shadow-lg flex items-center gap-1">
+              <span>🎃</span>
+              <span>Exclusive Spotlight · Chennai</span>
+            </span>
+
+            {/* Bookmark button */}
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                if (onBookEvent) {
-                  onBookEvent(currentHero);
-                } else {
-                  onSelectEvent(currentHero);
-                }
+                onToggleBookmark(halloweenEvent.id);
               }}
-              className="py-2.5 px-6 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-2xl transition-transform active:scale-95 cursor-pointer"
+              className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-transform active:scale-90"
+            >
+              <BookmarkSimple 
+                size={18} 
+                weight={bookmarkedIds.includes(halloweenEvent.id) ? "fill" : "regular"} 
+                className={bookmarkedIds.includes(halloweenEvent.id) ? "text-[#FFA947]" : "text-white"}
+              />
+            </button>
+          </div>
+
+          {/* Bottom Content & Direct Action */}
+          <div className="absolute bottom-5 left-4 right-4 text-center z-10 space-y-3">
+            
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md">
+                {halloweenEvent.title}
+              </h1>
+              <p className="text-xs text-zinc-300 font-sans max-w-xs mx-auto drop-shadow">
+                {halloweenEvent.subtitle}
+              </p>
+              <div className="flex items-center justify-center gap-2 pt-1 text-[11px] font-mono text-[#FFA947]">
+                <span>Fri, 23 Oct · 7:00 PM</span>
+                <span>•</span>
+                <span className="text-white font-bold">₹1,500 Onwards</span>
+              </div>
+            </div>
+
+            {/* Direct Book Tickets Pill CTA */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onBookEvent) onBookEvent(halloweenEvent);
+              }}
+              className="py-3 px-8 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-wider inline-flex items-center gap-1.5 shadow-2xl transition-transform active:scale-95 cursor-pointer"
             >
               <span>Book tickets</span>
               <CaretRight size={14} weight="bold" />
             </button>
-
-            {/* Pagination dots (― · · ·) */}
-            <div className="flex items-center gap-1.5 pt-0.5">
-              {heroEvents.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setHeroIndex(i);
-                  }}
-                  className={`h-1 rounded-full transition-all cursor-pointer ${
-                    heroIndex === i ? 'w-5 bg-white' : 'w-1.5 bg-white/40'
-                  }`}
-                />
-              ))}
-            </div>
           </div>
+
         </div>
       </div>
 
-      {/* FEATURED EVENTS HORIZONTAL CAROUSEL (1:1 with IMG_4050.PNG) */}
-      <section className="space-y-3.5 text-left">
-        <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-          Featured events
-        </h3>
+      {/* CURATED HIGHLIGHTS: SPOTLIGHT EXPERIENCE CARD */}
+      <section className="space-y-3 text-left">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+            Curated Tonight in Chennai
+          </h3>
+          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold uppercase tracking-wider">
+            Guestlist Open
+          </span>
+        </div>
 
-        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-4 px-4">
-          {events.map((e) => {
-            const isBookmarked = bookmarkedIds.includes(e.id);
+        <div 
+          onClick={() => onSelectEvent(halloweenEvent)}
+          className="p-5 rounded-3xl bg-gradient-to-br from-[#1C182A] via-[#14121F] to-[#0D0C14] border border-white/15 space-y-4 cursor-pointer group shadow-xl transition-all hover:border-white/30"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1 min-w-0 flex-1">
+              <span className="text-xs font-bold text-[#FFA947] uppercase tracking-wider font-mono flex items-center gap-1.5">
+                <Moon size={14} weight="fill" />
+                Secret House Party · South Sanctuary
+              </span>
+              <h4 className="text-xl font-black text-white group-hover:text-zinc-100 transition-colors">
+                a little halloween affair
+              </h4>
+              <p className="text-xs text-zinc-300 leading-relaxed font-sans pt-0.5">
+                Candlelight, costumes, live sound, bespoke mixology & house punch. Strictly non-transferable admission bound to legal name.
+              </p>
+            </div>
+          </div>
+
+          {/* Key Inclusions Pills */}
+          <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-300 font-mono">
+            <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2">
+              <Martini size={15} className="text-[#FFA947] shrink-0" />
+              <span className="truncate">Open Craft Cocktail Bar</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2">
+              <ShieldCheck size={15} className="text-emerald-400 shrink-0" />
+              <span className="truncate">21+ Govt Photo ID Entry</span>
+            </div>
+          </div>
+
+          {/* Action Row */}
+          <div className="pt-1 flex items-center justify-between border-t border-white/10">
+            <div>
+              <span className="text-[10px] text-zinc-400 font-mono uppercase block">Admission</span>
+              <span className="text-base font-extrabold text-white font-mono">₹1,500</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onBookEvent) onBookEvent(halloweenEvent);
+              }}
+              className="py-2.5 px-6 rounded-full bg-[#FF521B] hover:bg-[#ff6420] text-black font-extrabold text-xs uppercase tracking-wider transition-transform active:scale-95 cursor-pointer shadow-lg"
+            >
+              Book Pass →
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* MORE EVENTS COMING SOON (REPLACED OTHER EVENTS AS REQUESTED) */}
+      <section className="space-y-4 text-left pt-2">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <Sparkle size={16} weight="fill" className="text-[#FFA947]" />
+            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+              More Experiences Coming Soon
+            </h3>
+          </div>
+          <p className="text-xs text-zinc-400 font-sans">
+            We drop secret dining pop-ups, house salons, and late-night social spots across Chennai every week.
+          </p>
+        </div>
+
+        {/* Coming Soon Teaser Grid */}
+        <div className="space-y-3.5">
+          {COMING_SOON_EVENTS.map((item) => {
+            const isNotified = notifiedEvents.includes(item.id);
             return (
               <div
-                key={e.id}
-                onClick={() => onSelectEvent(e)}
-                className="w-64 sm:w-72 shrink-0 rounded-2xl overflow-hidden bg-transparent cursor-pointer group flex flex-col"
+                key={item.id}
+                className="relative rounded-2xl overflow-hidden bg-[#13121C] border border-white/10 hover:border-white/20 transition-all p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 shadow-md group"
               >
-                {/* Poster Frame (3:4 ratio) */}
-                <div className="relative h-72 sm:h-80 w-full rounded-2xl overflow-hidden bg-zinc-950 border border-white/10 shadow-lg">
-                  <img 
-                    src={e.thumbnail || e.coverImage} 
-                    alt={e.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                {/* Left Thumbnail + Details */}
+                <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-black/60 shrink-0 border border-white/10">
+                    <img 
+                      src={item.coverImage} 
+                      alt={item.title} 
+                      className="w-full h-full object-cover filter contrast-[1.05] group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-black/30" />
+                  </div>
 
-                  {/* Bookmark Button in Top Right (IMG_4050.PNG) */}
-                  <button
-                    type="button"
-                    onClick={(evt) => {
-                      evt.stopPropagation();
-                      onToggleBookmark(e.id);
-                    }}
-                    className={`absolute top-3 right-3 w-9 h-9 rounded-xl backdrop-blur-md flex items-center justify-center transition-all ${
-                      isBookmarked 
-                        ? 'bg-[#FF521B] text-black shadow-md' 
-                        : 'bg-black/50 hover:bg-black/80 text-white border border-white/20'
-                    }`}
-                  >
-                    <BookmarkSimple size={18} weight={isBookmarked ? 'fill' : 'bold'} />
-                  </button>
+                  <div className="space-y-1 min-w-0 flex-1 text-left">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="px-2 py-0.5 rounded-full bg-white/10 text-zinc-300 text-[9px] font-mono font-bold uppercase tracking-wider">
+                        {item.category}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-[#FFA947]/15 text-[#FFA947] border border-[#FFA947]/30 text-[9px] font-mono font-bold uppercase tracking-wider">
+                        {item.badge}
+                      </span>
+                    </div>
 
-                  {/* Pricing Badge */}
-                  <div className="absolute bottom-3 right-3 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-sm border border-white/15 text-[11px] font-mono font-bold text-white">
-                    {e.priceLabel}
+                    <h4 className="text-sm sm:text-base font-bold text-white truncate">
+                      {item.title}
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 truncate font-sans">
+                      {item.venue} · {item.dateLabel}
+                    </p>
                   </div>
                 </div>
 
-                {/* Card Details Outside/Below Poster (IMG_4050.PNG) */}
-                <div className="pt-3 space-y-1 text-left">
-                  {/* Pink Location Pin (IMG_4050.PNG) */}
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#E23670] truncate uppercase tracking-wider">
-                    <MapPin size={13} weight="fill" />
-                    <span className="truncate">{e.venue?.shortName || e.venue?.name}</span>
-                  </div>
-
-                  <h4 className="text-base font-bold text-white truncate">
-                    {e.title}
-                  </h4>
-
-                  <p className="text-xs text-zinc-400 font-medium truncate">
-                    {e.dateSubtitle || e.dates}
-                  </p>
+                {/* Right Notify Me Button */}
+                <div className="shrink-0 w-full sm:w-auto text-right">
+                  <button
+                    type="button"
+                    onClick={() => handleNotifyMe(item.id, item.title)}
+                    className={`w-full sm:w-auto py-2 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 ${
+                      isNotified 
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
+                        : 'bg-white/10 hover:bg-white/15 text-white border border-white/15'
+                    }`}
+                  >
+                    <Bell size={13} weight={isNotified ? 'fill' : 'bold'} />
+                    <span>{isNotified ? 'Notified ✓' : 'Notify Me'}</span>
+                  </button>
                 </div>
               </div>
             );
@@ -238,158 +346,10 @@ export default function EventFeed({
         </div>
       </section>
 
-      {/* FIND SOMETHING FOR (1:1 with IMG_4051.PNG) */}
-      <section className="space-y-4 text-left pt-2">
-        <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-          Find something for
-        </h3>
-
-        {/* Filter Chips Pills (IMG_4051.PNG) */}
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <button
-            type="button"
-            onClick={() => setActiveFilter('Tomorrow')}
-            className={`py-2 px-5 rounded-full transition-all cursor-pointer ${
-              activeFilter === 'Tomorrow'
-                ? 'bg-[#252438] text-white border border-white/20 shadow-sm'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            Tomorrow
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveFilter('This weekend')}
-            className={`py-2 px-5 rounded-full transition-all cursor-pointer ${
-              activeFilter === 'This weekend'
-                ? 'bg-[#252438] text-white border border-white/20 shadow-sm'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            This weekend
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveFilter('All')}
-            className={`py-2 px-4 rounded-full transition-all flex items-center gap-1 cursor-pointer ${
-              activeFilter === 'All'
-                ? 'bg-[#252438] text-white border border-white/20'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            <span>Date</span>
-            <CaretDown size={12} weight="bold" />
-          </button>
-        </div>
-
-        {/* Horizontal Cards for Filter (IMG_4051.PNG) */}
-        <div className="flex gap-3.5 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-4 px-4">
-          {filteredEvents.map((e) => (
-            <div
-              key={e.id}
-              onClick={() => onSelectEvent(e)}
-              className="w-48 sm:w-56 shrink-0 rounded-2xl overflow-hidden bg-[#14131F] border border-white/10 hover:border-white/25 transition-all cursor-pointer group shadow-md"
-            >
-              <div className="relative h-48 w-full overflow-hidden bg-zinc-950">
-                <img 
-                  src={e.thumbnail || e.coverImage} 
-                  alt={e.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3 text-left">
-                  <h5 className="text-xs sm:text-sm font-bold text-white truncate">
-                    {e.title}
-                  </h5>
-                  <p className="text-[11px] text-zinc-400 truncate mt-0.5">
-                    {e.priceLabel}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* More for Tomorrow Button (IMG_4051.PNG) */}
-        <div className="pt-2 text-center">
-          <button
-            type="button"
-            onClick={() => setActiveFilter(activeFilter === 'Tomorrow' ? 'All' : 'Tomorrow')}
-            className="py-2.5 px-6 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-wider inline-flex items-center gap-1.5 shadow-lg transition-transform active:scale-95 cursor-pointer"
-          >
-            <span>More for {activeFilter}</span>
-            <CaretRight size={14} weight="bold" />
-          </button>
-        </div>
-      </section>
-
-      {/* YOUR GO-TO PICKS (1:1 with IMG_4051.PNG) */}
-      <section className="space-y-4 text-left pt-3">
-        <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-          Your go-to picks
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          
-          {/* Card 1: Nightlife & Halloween */}
-          <div 
-            onClick={() => onSelectEvent(events.find(e => e.id === 'halloween-affair') || events[0])}
-            className="relative h-64 rounded-3xl overflow-hidden border border-white/15 bg-gradient-to-br from-[#FF521B]/40 to-[#2A0845] p-5 flex flex-col justify-between cursor-pointer group shadow-xl"
-          >
-            <div className="relative z-10 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#FFA947] uppercase tracking-wider flex items-center gap-1">
-                <Moon size={14} weight="fill" />
-                Nightlife
-              </span>
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
-                <CaretRight size={16} weight="bold" />
-              </div>
-            </div>
-
-            <div className="relative z-10 space-y-1">
-              <h4 className="text-2xl font-black text-white leading-tight">
-                a little halloween affair
-              </h4>
-              <p className="text-xs text-zinc-300">
-                Friday, 23 Oct · Secret House Party · ₹1,500
-              </p>
-            </div>
-          </div>
-
-          {/* Card 2: Music Festivals */}
-          <div 
-            onClick={() => onSelectEvent(events.find(e => e.id === 'rolling-loud') || events[1])}
-            className="relative h-64 rounded-3xl overflow-hidden border border-white/15 bg-gradient-to-br from-[#3B1F8C] to-[#0A071E] p-5 flex flex-col justify-between cursor-pointer group shadow-xl"
-          >
-            <div className="relative z-10 flex items-center justify-between">
-              <span className="text-xs font-bold text-[#D3C7FF] uppercase tracking-wider flex items-center gap-1">
-                <MusicNotes size={14} weight="fill" />
-                Live Music
-              </span>
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
-                <CaretRight size={16} weight="bold" />
-              </div>
-            </div>
-
-            <div className="relative z-10 space-y-1">
-              <h4 className="text-2xl font-black text-white leading-tight">
-                Rolling Loud India
-              </h4>
-              <p className="text-xs text-zinc-300">
-                Madras Arena · From ₹3,999
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="text-center text-xs text-zinc-500 pt-6 pb-4 font-mono">
+      {/* FOOTER */}
+      <footer className="text-center text-xs text-zinc-500 pt-8 pb-4 font-mono space-y-1">
         <p className="font-semibold text-zinc-400">BookOurSpot · bookourspot.com</p>
-        <p className="text-[10px] text-zinc-600 mt-1">Curated Events, Dining & Nightlife Platform</p>
+        <p className="text-[10px] text-zinc-600">Curated Events, Dining & Nightlife in Chennai</p>
       </footer>
 
     </div>

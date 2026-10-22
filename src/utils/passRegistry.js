@@ -1,38 +1,28 @@
 // Persistent Pass Registry & Verification Engine with Supabase Cloud Backend
 import { syncPassesToSupabase, updateAdmissionInSupabase, fetchPassesFromSupabase } from './supabaseClient.js';
 
-const STORAGE_KEY = 'halloween_affair_passes_v1';
-
-const INITIAL_SAMPLE_PASS = {
-  id: 'BOS-7K9XM-P01',
-  eventId: 'halloween-affair',
-  eventTitle: 'a little halloween affair',
-  guestName: 'Rahul Babu',
-  guestPhone: '+91 90744 17293',
-  phone: '+91 90744 17293',
-  bookerName: 'Rahul Babu',
-  instagram: '@rahulbabu',
-  tierName: 'Solo House Pass',
-  price: 1950,
-  utr: '429381729012',
-  selectedDate: 'Fri, 23 Oct',
-  selectedTiming: '7:00 PM Till Late',
-  addons: ['Signature Mixology Pairing (2 Craft Cocktails)'],
-  issuedAt: new Date().toISOString(),
-  status: 'VALID'
-};
+const STORAGE_KEY = 'bookourspot_passes_v2';
 
 export function getStoredPasses() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([INITIAL_SAMPLE_PASS]));
-      return [INITIAL_SAMPLE_PASS];
+      return [];
     }
     return JSON.parse(raw);
   } catch (err) {
     console.error('Failed to read passes from storage:', err);
-    return [INITIAL_SAMPLE_PASS];
+    return [];
+  }
+}
+
+export function clearStoredPasses() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('halloween_affair_passes_v1');
+    window.dispatchEvent(new Event('pass_registry_updated'));
+  } catch (err) {
+    console.error('Failed to clear passes:', err);
   }
 }
 

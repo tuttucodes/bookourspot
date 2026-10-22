@@ -1,10 +1,11 @@
 import React from 'react';
-import { MicrophoneStage, MagnifyingGlass, Ticket } from '@phosphor-icons/react';
+import { MicrophoneStage, MagnifyingGlass, Ticket, User } from '@phosphor-icons/react';
 
 export default function Navbar({
   activeTab,
   onTabChange,
-  ticketCount = 0
+  ticketCount = 0,
+  currentUser = null
 }) {
   return (
     <div className="fixed bottom-5 left-0 right-0 z-40 flex justify-center pointer-events-none px-4">
@@ -16,13 +17,13 @@ export default function Navbar({
         <button
           type="button"
           onClick={() => onTabChange('EVENTS')}
-          className={`flex items-center gap-2 py-2 px-4 rounded-full text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 py-2 px-3.5 sm:px-4 rounded-full text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'EVENTS'
               ? 'bg-[#2D2A40] text-white shadow-md'
               : 'text-zinc-400 hover:text-white'
           }`}
         >
-          <MicrophoneStage size={18} weight={activeTab === 'EVENTS' ? 'fill' : 'regular'} />
+          <MicrophoneStage size={17} weight={activeTab === 'EVENTS' ? 'fill' : 'regular'} />
           <span>Events</span>
         </button>
 
@@ -30,13 +31,13 @@ export default function Navbar({
         <button
           type="button"
           onClick={() => onTabChange('SEARCH')}
-          className={`flex items-center gap-2 py-2 px-4 rounded-full text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 py-2 px-3.5 sm:px-4 rounded-full text-xs font-bold transition-all cursor-pointer ${
             activeTab === 'SEARCH'
               ? 'bg-[#2D2A40] text-white shadow-md'
               : 'text-zinc-400 hover:text-white'
           }`}
         >
-          <MagnifyingGlass size={18} weight={activeTab === 'SEARCH' ? 'bold' : 'regular'} />
+          <MagnifyingGlass size={17} weight={activeTab === 'SEARCH' ? 'bold' : 'regular'} />
           <span>Search</span>
         </button>
 
@@ -44,19 +45,39 @@ export default function Navbar({
         <button
           type="button"
           onClick={() => onTabChange('PASSES')}
-          className={`flex items-center gap-2 py-2 px-4 rounded-full text-xs font-bold transition-all cursor-pointer relative ${
+          className={`flex items-center gap-1.5 py-2 px-3.5 sm:px-4 rounded-full text-xs font-bold transition-all cursor-pointer relative ${
             activeTab === 'PASSES'
               ? 'bg-[#2D2A40] text-white shadow-md'
               : 'text-zinc-400 hover:text-white'
           }`}
         >
-          <Ticket size={18} weight={activeTab === 'PASSES' ? 'fill' : 'regular'} />
+          <Ticket size={17} weight={activeTab === 'PASSES' ? 'fill' : 'regular'} />
           <span>Passes</span>
           {ticketCount > 0 && (
             <span className="w-4 h-4 rounded-full bg-[#FF521B] text-black font-black text-[9px] flex items-center justify-center font-mono">
               {ticketCount}
             </span>
           )}
+        </button>
+
+        {/* Profile / Login Tab */}
+        <button
+          type="button"
+          onClick={() => onTabChange('PROFILE')}
+          className={`flex items-center gap-1.5 py-2 px-3.5 sm:px-4 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            activeTab === 'PROFILE'
+              ? 'bg-[#2D2A40] text-white shadow-md'
+              : 'text-zinc-400 hover:text-white'
+          }`}
+        >
+          {currentUser ? (
+            <div className="w-4 h-4 rounded-full bg-[#FF521B] text-black font-bold text-[9px] flex items-center justify-center font-mono">
+              {currentUser.name?.[0]?.toUpperCase() || 'U'}
+            </div>
+          ) : (
+            <User size={17} weight={activeTab === 'PROFILE' ? 'fill' : 'regular'} />
+          )}
+          <span>{currentUser ? 'Profile' : 'Login'}</span>
         </button>
       </nav>
     </div>

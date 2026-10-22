@@ -94,6 +94,15 @@ export default function RazorpayModal({
     }, 1200);
   };
 
+  const handleQuickDemoPay = () => {
+    setIsVerifying(true);
+    const demoUtr = '429381729012';
+    setTimeout(() => {
+      setIsVerifying(false);
+      onConfirmSuccess(demoUtr);
+    }, 700);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -217,6 +226,26 @@ export default function RazorpayModal({
                   </div>
                 </div>
 
+                {/* Quick Instant Approval Banner for Smooth Demo / Testing */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#431CB8]/30 via-[#2A1550]/40 to-black/60 border border-[#431CB8]/60 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+                  <div className="text-left text-xs space-y-0.5">
+                    <span className="font-extrabold text-white flex items-center gap-1.5 font-mono uppercase tracking-wide text-[11px]">
+                      <span className="text-[#FFA947]">⚡</span> Instant 1-Click Approval (Demo)
+                    </span>
+                    <p className="text-[11px] text-zinc-300">
+                      Simulate confirmed UPI transfer & instantly issue passes.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleQuickDemoPay}
+                    disabled={isVerifying}
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
+                  >
+                    {isVerifying ? 'Verifying…' : 'Approve & Issue Pass →'}
+                  </button>
+                </div>
+
                 {/* QR Code Presentation */}
                 <div className="p-4 rounded-2xl bg-black/50 border border-white/10 flex flex-col sm:flex-row items-center gap-4">
                   <div className="p-2.5 bg-white rounded-2xl shrink-0 shadow-xl">
@@ -258,9 +287,21 @@ export default function RazorpayModal({
                 {/* UTR Submission Field */}
                 <form onSubmit={handleVerifySubmit} className="space-y-2.5 pt-1">
                   <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <label htmlFor="razorpay_utr" className="font-semibold uppercase tracking-wider">
-                      12-Digit Bank Reference (UTR) *
-                    </label>
+                    <div className="flex items-center gap-2">
+                      <label htmlFor="razorpay_utr" className="font-semibold uppercase tracking-wider">
+                        12-Digit Bank Reference (UTR) *
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUtrNumber('429381729012');
+                          if (utrError) setUtrError('');
+                        }}
+                        className="text-[10px] text-[#FFA947] hover:underline font-mono"
+                      >
+                        (Auto-fill Test)
+                      </button>
+                    </div>
                     <span className="text-[10px] text-zinc-500 font-mono">
                       {utrNumber.length}/12 Digits
                     </span>

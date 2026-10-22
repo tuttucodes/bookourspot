@@ -7,6 +7,7 @@ import SearchDrawer from './components/SearchDrawer';
 import MyTicketsModal from './components/MyTicketsModal';
 import OrganizerDoorHub from './components/OrganizerDoorHub';
 import AuthModal from './components/AuthModal';
+import ProfileModal from './components/ProfileModal';
 import { EVENTS_DATA } from './data/eventsData';
 import { getStoredPasses } from './utils/passRegistry';
 import { getCurrentUser } from './utils/authService';
@@ -19,7 +20,7 @@ export default function App() {
       return false;
     }
   });
-  const [activeTab, setActiveTab] = useState('EVENTS'); // 'EVENTS' | 'SEARCH' | 'PASSES'
+  const [activeTab, setActiveTab] = useState('EVENTS'); // 'EVENTS' | 'SEARCH' | 'PASSES' | 'PROFILE'
   const [initialOpenBooking, setInitialOpenBooking] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(() => {
     try {
@@ -62,6 +63,7 @@ export default function App() {
     }
   });
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [ticketCount, setTicketCount] = useState(0);
   
@@ -123,6 +125,12 @@ export default function App() {
       setIsSearchOpen(true);
     } else if (tab === 'PASSES') {
       setIsMyTicketsOpen(true);
+    } else if (tab === 'PROFILE') {
+      if (currentUser) {
+        setIsProfileOpen(true);
+      } else {
+        setIsAuthOpen(true);
+      }
     }
   };
 
@@ -165,6 +173,7 @@ export default function App() {
             onSelectEvent={(e) => handleSelectEvent(e, false)}
             onBookEvent={(e) => handleSelectEvent(e, true)}
             onOpenAuth={() => setIsAuthOpen(true)}
+            onOpenProfile={() => setIsProfileOpen(true)}
             onOpenHostPortal={() => setIsDoorHubOpen(true)}
             currentUser={currentUser}
             bookmarkedIds={bookmarkedIds}
@@ -179,6 +188,7 @@ export default function App() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           ticketCount={ticketCount}
+          currentUser={currentUser}
         />
       )}
 
@@ -213,10 +223,29 @@ export default function App() {
         onClose={() => setIsDoorHubOpen(false)}
       />
 
+      {/* LOGIN & ONBOARDING SHEET (1:1 with IMG_4088.PNG, IMG_4089.PNG, IMG_4090.PNG) */}
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
-        onAuthSuccess={(user) => setCurrentUser(user)}
+        onAuthSuccess={(user) => {
+          setCurrentUser(user);
+          setIsAuthOpen(false);
+        }}
+      />
+
+      {/* USER PROFILE SCREEN (1:1 with IMG_4086.PNG, IMG_4087.PNG) */}
+      <ProfileModal
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+        currentUser={currentUser}
+        onOpenPasses={() => {
+          setIsProfileOpen(false);
+          setIsMyTicketsOpen(true);
+        }}
+        onSignOut={() => {
+          setCurrentUser(null);
+          setIsProfileOpen(false);
+        }}
       />
 
     </div>

@@ -17,6 +17,7 @@ import {
 import DateModal from './DateModal';
 import RazorpayModal from './RazorpayModal';
 import { generateUniquePassId, savePasses } from '../utils/passRegistry';
+import { getLocalUser } from '../utils/authService';
 import { playTap, playPassAdded, playSuccessChime } from '../utils/audioTheme';
 import confetti from 'canvas-confetti';
 
@@ -52,8 +53,10 @@ export default function TierSelectionModal({
           timing: event.time || 'Scheduled Slot'
         });
       }
-      // Reset quantities
-      setTierQuantities({});
+      // Preselect 1 pass by default so booking is immediately active
+      const firstTierId = event.tiers?.[0]?.id || 'solo-house-pass';
+      setTierQuantities({ [firstTierId]: 1 });
+      setAgreedTerms(true);
       setStep('TIERS');
     }
   }, [event, initialDate, isOpen]);
@@ -94,12 +97,21 @@ export default function TierSelectionModal({
     totalAmount += cocktailUpsellPrice;
   }
 
-  // Keep guest list synced with totalTickets
+  // Keep guest list synced with totalTickets and prefill primary booker if available
   useEffect(() => {
     setGuests(prev => {
       const copy = [...prev];
+      const localUser = getLocalUser();
       while (copy.length < totalTickets) {
-        copy.push({ name: '', phone: '', instagram: '' });
+        if (copy.length === 0 && localUser?.name) {
+          copy.push({
+            name: localUser.name || 'Rahul Babu K',
+            phone: localUser.phone || '+91 90744 17293',
+            instagram: '@rahulbabu'
+          });
+        } else {
+          copy.push({ name: '', phone: '', instagram: '' });
+        }
       }
       return copy.slice(0, totalTickets);
     });
@@ -409,6 +421,28 @@ export default function TierSelectionModal({
                 <span className="font-mono font-bold text-[#FFA947] text-sm">
                   ₹{totalAmount.toLocaleString('en-IN')}
                 </span>
+              </div>
+
+              {/* Quick autofill helper */}
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[11px] font-mono text-zinc-400">
+                  Attendee Info ({totalTickets})
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTap();
+                    const localUser = getLocalUser();
+                    setGuests(guests.map((g, i) => ({
+                      name: i === 0 ? (localUser?.name || 'Rahul Babu K') : `Guest 0${i + 1}`,
+                      phone: i === 0 ? (localUser?.phone || '+91 90744 17293') : '+91 98765 43210',
+                      instagram: i === 0 ? '@rahulbabu' : ''
+                    })));
+                  }}
+                  className="text-[11px] font-mono text-[#FFA947] hover:underline cursor-pointer"
+                >
+                  ⚡ Auto-fill Details
+                </button>
               </div>
 
               {/* Individual Guest Input Cards */}

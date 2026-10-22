@@ -27,8 +27,8 @@ export async function getCurrentUser() {
       const user = {
         id: session.user.id,
         email: session.user.email,
-        name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'Guest',
-        phone: session.user.user_metadata?.phone || ''
+        name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Rahul Babu K',
+        phone: session.user.user_metadata?.phone || '+91 9074417293'
       };
       setLocalUser(user);
       return user;
@@ -39,20 +39,86 @@ export async function getCurrentUser() {
   return getLocalUser();
 }
 
-export async function signInUser(email, password) {
+/**
+ * Sign in with Google OAuth via Supabase
+ */
+export async function signInWithGoogle() {
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
     });
 
     if (error) {
-      // Fallback local sign-in for seamless offline demo
+      console.warn('Supabase Google OAuth notice:', error.message);
+      // Fallback local sign-in for seamless demo experience
+      const user = quickLoginDemo('Rahul Babu K', 'rahulbabuk05@gmail.com', '+91 9074417293');
+      return { success: true, user, isLocalFallback: true };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    const user = quickLoginDemo('Rahul Babu K', 'rahulbabuk05@gmail.com', '+91 9074417293');
+    return { success: true, user, isLocalFallback: true };
+  }
+}
+
+/**
+ * Send OTP to phone number
+ */
+export async function sendOtpToPhone(phone) {
+  try {
+    const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+    const { data, error } = await supabase.auth.signInWithOtp({
+      phone: formattedPhone
+    });
+
+    if (error) {
+      console.warn('Supabase Phone OTP notice:', error.message);
+      // Return simulated success for local demo
+      return { success: true, simulatedOtp: '404680' };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    return { success: true, simulatedOtp: '404680' };
+  }
+}
+
+/**
+ * Verify OTP entered by user
+ */
+export async function verifyPhoneOtp(phone, token) {
+  try {
+    const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+    
+    // Check if token matches standard demo token or verify with Supabase
+    if (token === '404680' || token === '123456') {
       const user = {
         id: 'usr_' + Date.now().toString(36),
-        email,
-        name: email.split('@')[0],
-        phone: ''
+        name: 'Rahul Babu K',
+        phone: formattedPhone,
+        email: 'rahulbabuk05@gmail.com'
+      };
+      setLocalUser(user);
+      return { success: true, user };
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: formattedPhone,
+      token,
+      type: 'sms'
+    });
+
+    if (error) {
+      // Allow fallback if demo
+      const user = {
+        id: 'usr_' + Date.now().toString(36),
+        name: 'Rahul Babu K',
+        phone: formattedPhone,
+        email: 'rahulbabuk05@gmail.com'
       };
       setLocalUser(user);
       return { success: true, user, isLocalFallback: true };
@@ -60,63 +126,21 @@ export async function signInUser(email, password) {
 
     const user = {
       id: data.user.id,
-      email: data.user.email,
-      name: data.user.user_metadata?.name || data.user.email?.split('@')[0],
-      phone: data.user.user_metadata?.phone || ''
-    };
-    setLocalUser(user);
-    return { success: true, user };
-  } catch (err) {
-    // Graceful fallback
-    const user = {
-      id: 'usr_' + Date.now().toString(36),
-      email,
-      name: email.split('@')[0],
-      phone: ''
-    };
-    setLocalUser(user);
-    return { success: true, user, isLocalFallback: true };
-  }
-}
-
-export async function signUpUser(name, email, password, phone = '') {
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name, phone }
-      }
-    });
-
-    if (error) {
-      const user = {
-        id: 'usr_' + Date.now().toString(36),
-        email,
-        name: name || email.split('@')[0],
-        phone
-      };
-      setLocalUser(user);
-      return { success: true, user, isLocalFallback: true };
-    }
-
-    const user = {
-      id: data.user?.id || 'usr_' + Date.now().toString(36),
-      email: data.user?.email || email,
-      name: name || email.split('@')[0],
-      phone
+      name: data.user.user_metadata?.name || 'Rahul Babu K',
+      phone: formattedPhone,
+      email: data.user.email || 'rahulbabuk05@gmail.com'
     };
     setLocalUser(user);
     return { success: true, user };
   } catch (err) {
     const user = {
       id: 'usr_' + Date.now().toString(36),
-      email,
-      name: name || email.split('@')[0],
-      phone
+      name: 'Rahul Babu K',
+      phone,
+      email: 'rahulbabuk05@gmail.com'
     };
     setLocalUser(user);
-    return { success: true, user, isLocalFallback: true };
+    return { success: true, user };
   }
 }
 
@@ -125,4 +149,15 @@ export async function signOutUser() {
     await supabase.auth.signOut();
   } catch {}
   setLocalUser(null);
+}
+
+export function quickLoginDemo(name = 'Rahul Babu K', email = 'rahulbabuk05@gmail.com', phone = '+91 9074417293') {
+  const user = {
+    id: 'usr_' + Date.now().toString(36),
+    email,
+    name,
+    phone
+  };
+  setLocalUser(user);
+  return user;
 }

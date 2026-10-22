@@ -21,9 +21,11 @@ export default async function handler(request, response) {
     return response.status(503).json({ error: 'Secure checkout is being set up. Please try again shortly.' });
   }
   const checkoutScriptUrl = cleanHttpsUrl(process.env.YOUPI_CHECKOUT_SCRIPT_URL);
-  const merchantKey = process.env.YOUPI_MERCHANT_KEY;
+  // YouPI's script's `data-youpi-key` is the public merchant UUID/ID, not a secret.
+  // Keep the legacy variable as a migration fallback for already-configured installs.
+  const merchantId = process.env.YOUPI_MERCHANT_ID || process.env.YOUPI_MERCHANT_KEY;
   const webhookSecret = process.env.YOUPI_WEBHOOK_SECRET;
-  if (!checkoutScriptUrl || !merchantKey || !webhookSecret) {
+  if (!checkoutScriptUrl || !merchantId || !webhookSecret) {
     return response.status(503).json({ error: 'BookOutSpot UPI checkout is being connected. Please try again shortly.' });
   }
 
@@ -72,7 +74,7 @@ export default async function handler(request, response) {
       orderId: bookingId,
       amount: amount / 100,
       currency: 'INR',
-      merchantKey,
+      merchantId,
       checkoutScriptUrl,
       name: 'BookOutSpot'
     });

@@ -11,7 +11,7 @@ Status date: 22 October 2026. “Done” below refers to the current repository 
 - [x] Firebase sign-in UI supports phone OTP, email/password and Google.
 - [x] Profile name editing writes to Firebase Auth; paid ticket history is read from owner-scoped Supabase API.
 - [x] Checkout amount is set server-side; customer browser callbacks cannot issue tickets.
-- [x] YouPI webhook handler validates its HMAC signature, event delivery metadata, UTR, order, amount and booking state before idempotent pass fulfillment.
+- [x] YouPI webhook handler follows the sender's current contract: HMAC-SHA256 over exact raw JSON bytes in `X-Gateway-Signature`, delivery metadata in headers, plus UTR, order, amount and booking-state checks before idempotent pass fulfillment.
 - [x] Verified UTR is stored once with the paid booking for reconciliation; repeated delivery is idempotent.
 - [x] Search, tickets and login overlays have been refreshed with responsive glass sheets, dialog semantics, keyboard close, and honest booking status.
 - [x] Old Razorpay API routes have been removed; internal booking columns now use provider-neutral gateway names.
@@ -23,7 +23,7 @@ Status date: 22 October 2026. “Done” below refers to the current repository 
 - [ ] **Choose a payment risk posture.** YouPI's own maintainers describe the project as experimental and not certified, bank/NPCI-approved, audited or production-ready. It relies on bank-alert observers and needs manual reconciliation. The conservative option for launch is a bank/acquirer-approved payment provider. If YouPI remains the choice, get independent security and compliance review and confirm your bank permits this receiving-account use.
 - [ ] Deploy YouPI's persistent services and observer infrastructure. The static Vercel app does not host YouPI. Verify that `https://payments.bookourspot.com/youpi.js` serves the correct production merchant script.
 - [ ] Configure the YouPI merchant receiving VPA as `9074417293@pthdfc` in its merchant panel, verify the account-holder name, and ensure proceeds settle directly to your account.
-- [ ] Set Vercel Production `YOUPI_MERCHANT_KEY`, `YOUPI_WEBHOOK_SECRET` and `YOUPI_CHECKOUT_SCRIPT_URL`. Keep the webhook secret server-only.
+- [ ] Set Vercel Production `YOUPI_MERCHANT_ID` (the public merchant UUID), `YOUPI_WEBHOOK_SECRET` and `YOUPI_CHECKOUT_SCRIPT_URL`. Keep the webhook secret server-only.
 - [ ] Configure the YouPI success webhook to `https://www.bookourspot.com/api/youpi/webhook`; verify its webhook secret and signature version match the code.
 - [x] Applied `supabase/schema.sql` to the linked Supabase project; verified `bookings` and `booking_tickets` have RLS enabled, no anon/authenticated grants, all four `bos_*` RPCs exist and are restricted to `service_role`, and database advisors report no issues. Registered the applied schema as baseline migration `20261022194000` and committed the matching file under `supabase/migrations/` for reproducibility.
 - [x] Confirmed Vercel Production has `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and `FIREBASE_PROJECT_ID` (values were checked by name without exposing secrets).

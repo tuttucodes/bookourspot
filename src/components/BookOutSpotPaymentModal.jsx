@@ -4,14 +4,15 @@ import { firebaseAuth } from '../utils/firebaseClient';
 
 let scriptPromise;
 
-function loadYoupiCheckout(scriptUrl, merchantKey) {
+function loadYoupiCheckout(scriptUrl, merchantId) {
   if (window.Youpi?.pay) return Promise.resolve(true);
   if (scriptPromise) return scriptPromise;
   scriptPromise = new Promise((resolve) => {
     const script = document.createElement('script');
     script.src = scriptUrl;
     script.async = true;
-    script.dataset.youpiKey = merchantKey;
+    // YouPI's data-youpi-key field carries the public merchant ID.
+    script.dataset.youpiKey = merchantId;
     script.dataset.currency = 'INR';
     script.onload = () => resolve(Boolean(window.Youpi?.pay));
     script.onerror = () => resolve(false);
@@ -68,14 +69,16 @@ export default function BookOutSpotPaymentModal({
         body: JSON.stringify({ eventId, tierType, quantity, totalGuests, totalAmount, attendees })
       });
       const order = await orderResponse.json().catch(() => ({}));
-      if (!orderResponse.ok || !order.orderId || !order.checkoutScriptUrl || !order.merchantKey) {
+      if (!orderResponse.ok || !order.orderId || !order.checkoutScriptUrl || !order.merchantId) {
         throw new Error(order.error || 'BookOutSpot UPI checkout is unavailable right now.');
       }
-      if (!await loadYoupiCheckout(order.checkoutScriptUrl, order.merchantKey)) {
+      // Save the server-created booking before loading or opening the third-party
+      // checkout so a close, blocked script, or delayed webhook remains recoverable.
+      setPendingCheck({ bookingId: order.bookingId, idToken });
+      if (!await loadYoupiCheckout(order.checkoutScriptUrl, order.merchantId)) {
         throw new Error('BookOutSpot UPI checkout could not load. Please try again.');
       }
       setIsLoading(false);
-      setPendingCheck({ bookingId: order.bookingId, idToken });
       setStatus('awaiting');
       window.Youpi.pay({
         order_id: order.orderId,
@@ -83,8 +86,17 @@ export default function BookOutSpotPaymentModal({
         currency: 'INR',
         name: 'BookOutSpot',
         description: `${tierLabel} · ${totalGuests} ${totalGuests === 1 ? 'guest' : 'guests'}`,
+        customer: {
+          name: primaryName,
+          phone: primaryPhone
+        },
+        metadata: {
+          bookingId: order.bookingId,
+          eventId,
+          tierType,
+          quantity
+        },
         handler: async (gatewayResponse) => {
-          setPendingCheck({ bookingId: order.bookingId, idToken });
           if (gatewayResponse?.status !== 'SUCCESS') {
             setStatus('pending');
             setError('Payment is not confirmed yet. If you paid, don’t retry; check its status here in a moment.');
@@ -96,6 +108,22 @@ export default function BookOutSpotPaymentModal({
             setStatus('pending');
             setError(verificationError.message || 'Payment confirmation is still pending. Please do not pay again.');
           }
+        },
+        onFailed: () => {
+          setStatus('pending');
+          setError('The payment did not complete. If money left your account, check its status here before trying again.');
+        },
+        onExpired: () => {
+          setStatus('pending');
+          setError('This UPI session expired. If you completed a transfer, check its status before starting another payment.');
+        },
+        onSuspicious: () => {
+          setStatus('pending');
+          setError('BookOutSpot is reviewing this payment. Please do not pay again; check its status here shortly.');
+        },
+        onCancelled: () => {
+          setStatus('pending');
+          setError('Checkout was cancelled. If you already paid, check its status before trying again.');
         },
         onClose: () => {
           setStatus((current) => current === 'success' ? current : current === 'verifying' || current === 'awaiting' ? 'pending' : current);

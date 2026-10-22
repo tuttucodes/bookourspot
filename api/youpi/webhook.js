@@ -1,5 +1,9 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
 import { bookingRpc, getBookingByGatewayOrder, hasBookingDatabaseConfig } from '../_lib/bookings.js';
+import {
+  isYoupiDeliveryId,
+  verifyYoupiWebhookSignature,
+  validateYoupiSuccessEvent
+} from '../_lib/youpi-webhook.js';
 
 export const config = { api: { bodyParser: false } };
 
@@ -7,14 +11,6 @@ async function readRawBody(request) {
   const chunks = [];
   for await (const chunk of request) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   return Buffer.concat(chunks);
-}
-
-function validSignature(secret, timestamp, rawBody, supplied) {
-  const signature = String(supplied || '').replace(/^sha256=/i, '');
-  if (!/^[a-f0-9]{64}$/i.test(signature)) return false;
-  const expected = createHmac('sha256', secret).update(`${timestamp}.`).update(rawBody).digest();
-  const provided = Buffer.from(signature, 'hex');
-  return provided.length === expected.length && timingSafeEqual(provided, expected);
 }
 
 export default async function handler(request, response) {
@@ -25,27 +21,28 @@ export default async function handler(request, response) {
 
   try {
     const rawBody = await readRawBody(request);
-    const timestamp = request.headers['x-gateway-timestamp'];
+    const signature = request.headers['x-gateway-signature'];
     const deliveryId = request.headers['x-gateway-delivery-id'];
+    const timestamp = request.headers['x-gateway-timestamp'];
     const gatewayEvent = request.headers['x-gateway-event'];
     if (typeof timestamp !== 'string' || !/^\d{10,16}$/.test(timestamp)
-      || typeof deliveryId !== 'string' || !/^[0-9a-f-]{36}$/i.test(deliveryId)
-      || !validSignature(secret, timestamp, rawBody, request.headers['x-gateway-signature-v2'])) {
+      || !isYoupiDeliveryId(deliveryId)
+      || !verifyYoupiWebhookSignature(secret, rawBody, signature)) {
       return response.status(401).json({ error: 'Payment notification signature is invalid.' });
     }
 
     const event = JSON.parse(rawBody.toString('utf8'));
+    if (!event || typeof event !== 'object' || Array.isArray(event)
+      || typeof event.event !== 'string' || gatewayEvent !== event.event) {
+      return response.status(400).json({ error: 'Payment notification data is incomplete.' });
+    }
     if (event.event !== 'SUCCESS') return response.status(200).json({ received: true });
-    const orderId = typeof event.orderId === 'string' ? event.orderId : '';
-    const paymentId = typeof event.paymentId === 'string' ? event.paymentId : '';
-    const amountPaise = Number(event.amountPaise);
-    const utr = typeof event.utr === 'string' ? event.utr.trim() : '';
-    if (event.deliveryId !== deliveryId || String(event.timestamp) !== timestamp || gatewayEvent !== event.event
-      || !/^[0-9a-f-]{36}$/i.test(orderId) || !/^[0-9a-f-]{36}$/i.test(paymentId)
-      || !Number.isSafeInteger(amountPaise) || amountPaise < 150000 || !/^\d{12}$/.test(utr)) {
+    const payment = validateYoupiSuccessEvent(event);
+    if (!payment) {
       return response.status(400).json({ error: 'Payment notification data is incomplete.' });
     }
 
+    const { orderId, paymentId, amountPaise, utr } = payment;
     const booking = await getBookingByGatewayOrder(orderId);
     const expectedAmount = booking?.tier_type === 'DUO' ? booking.quantity * 280000 : booking?.quantity * 150000;
     if (!booking || booking.status === 'CANCELLED' || booking.event_id !== 'halloween-affair'

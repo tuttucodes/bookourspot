@@ -31,7 +31,8 @@ FIREBASE_PROJECT_ID=bookourspot-f311e
 FIREBASE_SERVICE_ACCOUNT_JSON=
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
-YOUPI_MERCHANT_KEY=
+# Public merchant UUID configured in the YouPI merchant dashboard (not a secret)
+YOUPI_MERCHANT_ID=
 YOUPI_WEBHOOK_SECRET=
 YOUPI_CHECKOUT_SCRIPT_URL=https://payments.bookourspot.com/youpi.js
 ```
@@ -44,7 +45,7 @@ Firebase Authentication must have Email/Password, Google and Phone enabled. Auth
 
 Apply the current [`supabase/schema.sql`](supabase/schema.sql) in the intended Supabase project before using booking and ticket APIs. It upgrades the prior solo-only schema and renames the legacy payment columns without deleting existing booking data. The Vercel API validates Firebase ID tokens and keeps booking reads scoped to the signed-in Firebase UID.
 
-The checkout API accepts the Halloween Entry option at ₹1,500 per guest or Couple / Duo at ₹2,800 per two guests. It computes the amount on the server, stores attendee records in Supabase, and only issues passes after a signed YouPI webhook is validated. The verified UTR is stored for transaction reconciliation. Other events are browseable but cannot be purchased.
+The checkout API accepts the Halloween Entry option at ₹1,500 per guest or Couple / Duo at ₹2,800 per two guests. It computes the amount on the server, stores attendee records in Supabase, and only issues passes after YouPI's raw-body HMAC webhook is validated, the INR/UPI amount matches, the bank reference is present, and the gateway reports a verified observation. The verified UTR is stored for transaction reconciliation. Other events are browseable but cannot be purchased.
 
 YouPI is a separate, persistent self-hosted gateway. It must be deployed at `payments.bookourspot.com`, configured with the merchant receiving account, and set to send its signed success webhook to `https://www.bookourspot.com/api/youpi/webhook`. The script and webhook must use the same merchant configuration and webhook secret. Production checkout stays unavailable until these external settings are supplied.
 

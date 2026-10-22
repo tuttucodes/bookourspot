@@ -25,10 +25,10 @@ Status date: 22 October 2026. “Done” below refers to the current repository 
 - [ ] Configure the YouPI merchant receiving VPA as `9074417293@pthdfc` in its merchant panel, verify the account-holder name, and ensure proceeds settle directly to your account.
 - [ ] Set Vercel Production `YOUPI_MERCHANT_KEY`, `YOUPI_WEBHOOK_SECRET` and `YOUPI_CHECKOUT_SCRIPT_URL`. Keep the webhook secret server-only.
 - [ ] Configure the YouPI success webhook to `https://www.bookourspot.com/api/youpi/webhook`; verify its webhook secret and signature version match the code.
-- [ ] Apply the current `supabase/schema.sql` in the intended Supabase project. Verify the migration succeeds and the booking tables/RPCs exist. This file preserves old rows while upgrading the gateway column names and enabling Duo.
+- [x] Applied `supabase/schema.sql` to the linked Supabase project; verified `bookings` and `booking_tickets` have RLS enabled, no anon/authenticated grants, all four `bos_*` RPCs exist and are restricted to `service_role`, and database advisors report no issues. Registered the applied schema as baseline migration `20261022194000` and committed the matching file under `supabase/migrations/` for reproducibility.
 - [x] Confirmed Vercel Production has `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and `FIREBASE_PROJECT_ID` (values were checked by name without exposing secrets).
 - [ ] Confirm Firebase Authentication Email/Password, Google and Phone providers; test sign-in on `www.bookourspot.com`, including Google's authorized domain/OAuth settings and phone reCAPTCHA/SMS.
-- [x] Build and deploy the current source to Vercel Production. Commit `b7197fa` is Ready and aliases `bookourspot.com` and `www.bookourspot.com` are attached.
+- [x] Build and deploy the current source to Vercel Production. Latest deployment `dpl_B42TVca9q6qH4mqhZJaymjt9RkTQ` is Ready and aliases `bookourspot.com` and `www.bookourspot.com` are attached. Node 24 is pinned; Vercel `NODE_OPTIONS=--experimental-require-module` is set in Production to allow its Node helper runtime to load Firebase Admin’s `jose` dependency. Verified live pages `/`, `/events`, `/events/halloween-affair` return HTTP 200; unauthenticated `/api/bookings` and `/api/youpi/status` return expected HTTP 401 instead of 500.
 - [ ] Complete a low-value controlled payment after YouPI is configured: solo and duo, webhook success, delayed/retried webhook, duplicate delivery, wrong amount, user booking history, pass download, and bank statement reconciliation. Check the received money in the destination bank account; a UI success state is not proof of settlement.
 - [ ] Add a real customer support contact and publish reviewed Terms, Privacy, cancellation/refund, event eligibility, and organiser/location disclosure before opening ticket sales.
 - [ ] Enforce the Halloween event’s fourth-year-only admission rule before payment or at an organiser-controlled check-in; the current UI discloses it, but does not validate student status.
@@ -44,9 +44,9 @@ Status date: 22 October 2026. “Done” below refers to the current repository 
 
 ## Release gates
 
-1. Schema applied and all required production env values verified (still pending).
+1. Booking schema and required Firebase/Supabase environment values are verified. YouPI production environment values remain absent; checkout must stay closed until its merchant script, key, webhook secret, and endpoint are deployed and verified.
 2. Gateway host and webhook signature validated against a real, low-value transaction and destination bank statement.
 3. Solo and Duo create exactly one booking and the correct number of valid passes; retries never double-issue.
 4. Auth, search, event details, tickets and profile are checked on 320px mobile, iPhone Safari and desktop.
 5. Customer support and reviewed legal/refund terms are visible before checkout.
-6. Current source is deployed and both custom domains respond over HTTPS; repeat a browser check after final auth/schema/gateway configuration.
+6. Current source is deployed and both custom domains respond over HTTPS; repeat a browser check after final auth/schema/gateway configuration. A live POST to `/api/youpi/create-order` currently returns HTTP 503 by design because YouPI merchant configuration is not present.

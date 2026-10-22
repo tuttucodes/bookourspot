@@ -89,11 +89,10 @@ export default function BookOutSpotPaymentModal({
             <p className="mt-1 text-sm text-zinc-400">{totalGuests} {totalGuests === 1 ? 'guest' : 'guests'} · {quantity} {quantity === 1 ? 'pass' : 'passes'}</p>
             <div className="my-5 border-t border-white/10" />
             <div className="flex items-end justify-between gap-3"><div><p className="text-sm text-zinc-300">Total to pay</p><p className="mt-1 text-xs text-zinc-500">UPI · INR</p></div><p className="font-mono text-3xl font-semibold tracking-tight text-white">{money(totalAmount)}</p></div>
-            <div className="mt-5 flex items-center gap-2 rounded-xl border border-white/[0.08] bg-black/20 px-3 py-2.5 text-xs text-zinc-400"><LockKeyhole size={14} className="shrink-0 text-violet-200" /> Passes are issued after we verify payment</div>
           </div>
           <div className="bos-payment-action">
             {stage === 'ready' && <>
-              <div className="rounded-2xl border border-violet-200/15 bg-violet-200/[0.05] p-4"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-200/10 text-violet-100"><Smartphone size={19} /></span><div><p className="text-sm font-semibold text-white">Personal UPI transfer</p><p className="mt-0.5 text-xs text-zinc-400">Google Pay · PhonePe · Paytm</p></div></div><p className="mt-4 text-xs leading-relaxed text-zinc-400">The QR is addressed to Rahul Babu. Confirm the payee and exact amount in your UPI app before paying. Then enter the UTR for manual review.</p></div>
+              <div className="rounded-2xl border border-violet-200/15 bg-violet-200/[0.05] p-4"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-200/10 text-violet-100"><Smartphone size={19} /></span><div><p className="text-sm font-semibold text-white">Payments by BookOutSpot</p><p className="mt-0.5 text-xs text-zinc-400">Google Pay · PhonePe · Paytm</p></div></div><p className="mt-4 text-xs leading-relaxed text-zinc-400">Pay the exact amount using any UPI app. After paying, enter the UTR so we can match the transfer.</p></div>
               <button type="button" disabled={loading} onClick={prepareOrder} className="bos-payment-button">{loading ? 'Preparing transfer…' : <>Continue to UPI transfer <ArrowRight size={17} /></>}</button>
             </>}
             {stage === 'pay' && order && <>
@@ -103,7 +102,7 @@ export default function BookOutSpotPaymentModal({
                   {qrImage ? <img src={qrImage} alt="UPI payment QR code" className="h-full w-full" /> : <span className="text-xs text-zinc-500">Preparing QR…</span>}
                 </div>
                 <p className="mt-4 text-sm text-zinc-300">Scan to pay <strong className="text-white">{money(order.amount || totalAmount)}</strong></p>
-                <p className="mt-1 text-xs text-zinc-500">Payee: {order.payeeName || 'Rahul Babu'} · Make sure the payee and amount match before confirming.</p>
+                <p className="mt-1 text-xs text-zinc-500">Verify the amount shown in your UPI app before confirming.</p>
                 <div className="mt-4 grid grid-cols-3 gap-2">
                   {upiApps.map((app) => <a key={app.label} href={app.href} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] px-2 text-xs font-semibold text-white active:bg-white/10">{app.label}</a>)}
                 </div>
@@ -124,8 +123,7 @@ export default function BookOutSpotPaymentModal({
             </div>}
             {stage === 'success' && <div className="rounded-2xl border border-emerald-200/20 bg-emerald-100/[0.06] p-5" role="status"><CheckCircle2 size={24} className="text-emerald-200" /><h3 className="mt-3 text-lg font-semibold text-white">Payment verified</h3><p className="mt-1 text-sm text-zinc-300">Your passes are ready in Tickets.</p></div>}
             {error && <p role="alert" className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm leading-relaxed text-rose-100">{error}</p>}
-            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-zinc-500"><LockKeyhole size={13} /> Manual bank review by BookOutSpot</p>
-            <p className="mt-2 text-center text-[11px] leading-relaxed text-zinc-600">This is a direct UPI transfer to the named account holder. Passes are issued only after the transfer appears in the receiving bank account.</p>
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-zinc-500"><LockKeyhole size={13} /> Payments by BookOutSpot</p>
           </div>
         </div>
       </section>

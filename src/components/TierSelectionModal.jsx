@@ -392,7 +392,7 @@ export default function TierSelectionModal({
                   Guest details
                 </h3>
                 <p className="text-xs text-zinc-400 font-sans">
-                  Add each attendee’s name and mobile number. Passes are issued after payment is verified.
+                  Add each attendee’s name and mobile number.
                 </p>
               </div>
 
@@ -437,6 +437,9 @@ export default function TierSelectionModal({
                           id={`guest-${idx}-phone`}
                           type="tel"
                           required
+                          pattern="(?:\+?91[\s-]?)?[6-9][0-9]{4}[\s-]?[0-9]{5}"
+                          title="Enter a valid 10-digit Indian mobile number, optionally with +91."
+                          maxLength={16}
                           value={guest.phone}
                           onChange={(e) => updateGuest(idx, 'phone', e.target.value)}
                           placeholder="+91 98765 43210"

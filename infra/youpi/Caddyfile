@@ -1,0 +1,4 @@
+payments.bookourspot.com {
+	encode zstd gzip
+	reverse_proxy gateway:7000
+}

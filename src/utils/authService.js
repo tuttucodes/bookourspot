@@ -1,10 +1,16 @@
 import {
-  createUserWithEmailAndPassword,
+  EmailAuthProvider,
   GoogleAuthProvider,
   RecaptchaVerifier,
+  linkWithPhoneNumber,
+  linkWithCredential,
+  linkWithPopup,
+  linkWithRedirect,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   updateProfile,
 } from 'firebase/auth';
@@ -27,6 +33,7 @@ function mapUser(user) {
     email: user.email || '',
     name: user.displayName || user.email?.split('@')[0] || '',
     phone: user.phoneNumber || '',
+    phoneVerified: Boolean(user.phoneNumber),
     photoURL: user.photoURL || '',
     emailVerified: user.emailVerified,
   } : null;
@@ -50,9 +57,24 @@ export async function signInWithGoogle() {
     const auth = requireFirebase();
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    const result = await signInWithPopup(auth, provider);
+    // Google establishes the identity; the app requires phone verification
+    // immediately afterward before profile access or booking is enabled.
+    const isAdminHost = window.location.hostname === 'admin.bookourspot.com';
+    const result = auth.currentUser?.phoneNumber
+      ? (isAdminHost ? await linkWithPopup(auth.currentUser, provider) : await linkWithRedirect(auth.currentUser, provider))
+      : (isAdminHost ? await signInWithPopup(auth, provider) : await signInWithRedirect(auth, provider));
+    if (!isAdminHost) return { success: true, redirecting: true };
     setLocalUser();
     return { success: true, user: mapUser(result.user) };
+  } catch (err) {
+    return { success: false, error: formatAuthError(err) };
+  }
+}
+
+export async function consumeGoogleRedirect() {
+  try {
+    const result = await getRedirectResult(requireFirebase());
+    return { success: true, user: result?.user ? mapUser(result.user) : null };
   } catch (err) {
     return { success: false, error: formatAuthError(err) };
   }
@@ -61,9 +83,17 @@ export async function signInWithGoogle() {
 export async function signInWithEmail(email, password, createAccount = false) {
   try {
     const auth = requireFirebase();
-    const credential = createAccount
-      ? await createUserWithEmailAndPassword(auth, email.trim(), password)
-      : await signInWithEmailAndPassword(auth, email.trim(), password);
+    let credential;
+    if (createAccount) {
+      if (!auth.currentUser?.phoneNumber) {
+        throw new Error('Verify your mobile number before creating an email sign-in.');
+      }
+      const emailCredential = EmailAuthProvider.credential(email.trim(), password);
+      credential = await linkWithCredential(auth.currentUser, emailCredential);
+    } else {
+      // This path only signs in an existing email/password user; it can never create one.
+      credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+    }
     setLocalUser();
     return { success: true, user: mapUser(credential.user) };
   } catch (err) {
@@ -95,7 +125,11 @@ export async function sendOtpToPhone(phone) {
     if (!phoneRecaptcha) {
       phoneRecaptcha = new RecaptchaVerifier(auth, 'firebase-recaptcha-container', { size: 'invisible' });
     }
-    phoneConfirmation = await signInWithPhoneNumber(auth, formattedPhone, phoneRecaptcha);
+    // Existing email/Google accounts must attach a verified phone to the same UID.
+    // New phone-first sign-ins continue to create/sign in through SMS.
+    phoneConfirmation = auth.currentUser
+      ? await linkWithPhoneNumber(auth.currentUser, formattedPhone, phoneRecaptcha)
+      : await signInWithPhoneNumber(auth, formattedPhone, phoneRecaptcha);
     return { success: true };
   } catch (err) {
     phoneRecaptcha?.clear();
@@ -134,6 +168,8 @@ function formatAuthError(error) {
   const messages = {
     'auth/invalid-credential': 'The email or password is incorrect.',
     'auth/email-already-in-use': 'An account already exists for this email. Sign in instead.',
+    'auth/credential-already-in-use': 'This mobile number is already linked to another account. Sign in with that account or contact support to merge your accounts.',
+    'auth/provider-already-linked': 'This sign-in method is already linked to your account.',
     'auth/weak-password': 'Choose a password with at least 6 characters.',
     'auth/invalid-email': 'Enter a valid email address.',
     'auth/popup-closed-by-user': 'Google sign-in was closed before it finished.',

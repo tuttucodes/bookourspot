@@ -5,14 +5,16 @@ import { ALL_EVENTS, EVENTS_DATA } from './data/eventsData';
 import { getCurrentUser } from './utils/authService';
 import { firebaseAuth } from './utils/firebaseClient';
 import { onAuthStateChanged } from 'firebase/auth';
+import AdminPaymentsPortal from './components/AdminPaymentsPortal';
 
 const EventDetail = lazy(() => import('./components/EventDetail'));
 const SearchDrawer = lazy(() => import('./components/SearchDrawer'));
 const MyTicketsModal = lazy(() => import('./components/MyTicketsModal'));
 const AuthModal = lazy(() => import('./components/AuthModal'));
 const ProfileModal = lazy(() => import('./components/ProfileModal'));
+const LegalPage = lazy(() => import('./components/LegalPage'));
 
-export default function App() {
+function EventApp() {
   const [activeTab, setActiveTab] = useState('EVENTS'); // 'EVENTS' | 'SEARCH' | 'PASSES' | 'PROFILE'
   const [initialOpenBooking, setInitialOpenBooking] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(() => {
@@ -35,6 +37,27 @@ export default function App() {
     return () => window.removeEventListener('popstate', syncFromLocation);
   }, []);
 
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMyTicketsOpen, setIsMyTicketsOpen] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('wallet') === '1' || params.get('passes') === '1';
+    } catch {
+      return false;
+    }
+  });
+  const [isAuthOpen, setIsAuthOpen] = useState(() => sessionStorage.getItem('bos_google_redirect_pending') === '1');
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [pendingBookingEvent, setPendingBookingEvent] = useState(() => {
+    try {
+      const id = sessionStorage.getItem('bos_pending_booking_event');
+      return id ? ALL_EVENTS.find((event) => event.id === id) || null : null;
+    } catch { return null; }
+  });
+  const [pendingOpenTickets, setPendingOpenTickets] = useState(false);
+  const [ticketCount, setTicketCount] = useState(0);
+
   useEffect(() => {
     let cancelled = false;
     if (!currentUser || !firebaseAuth?.currentUser) {
@@ -53,22 +76,6 @@ export default function App() {
       .catch(() => { if (!cancelled) setTicketCount(0); });
     return () => { cancelled = true; };
   }, [currentUser?.id]);
-
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMyTicketsOpen, setIsMyTicketsOpen] = useState(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('wallet') === '1' || params.get('passes') === '1';
-    } catch {
-      return false;
-    }
-  });
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [pendingBookingEvent, setPendingBookingEvent] = useState(null);
-  const [pendingOpenTickets, setPendingOpenTickets] = useState(false);
-  const [ticketCount, setTicketCount] = useState(0);
   
   // Bookmarked event IDs (Hotlist)
   const [bookmarkedIds, setBookmarkedIds] = useState(() => {
@@ -110,6 +117,7 @@ export default function App() {
 
   const handleStartBooking = (event) => {
     if (!currentUser) {
+      sessionStorage.setItem('bos_pending_booking_event', event.id);
       setPendingBookingEvent(event);
       setIsAuthOpen(true);
       return;
@@ -120,9 +128,9 @@ export default function App() {
   // Sync ticket count and user session
   useEffect(() => {
     const unsubscribeAuth = firebaseAuth
-      ? onAuthStateChanged(firebaseAuth, () => getCurrentUser().then(user => setCurrentUser(user)))
+      ? onAuthStateChanged(firebaseAuth, () => getCurrentUser().then(user => setCurrentUser(user?.phoneVerified ? user : null)))
       : undefined;
-    const handleAuthChange = () => getCurrentUser().then(user => setCurrentUser(user));
+    const handleAuthChange = () => getCurrentUser().then(user => setCurrentUser(user?.phoneVerified ? user : null));
     window.addEventListener('auth_state_changed', handleAuthChange);
 
     return () => {
@@ -227,8 +235,10 @@ export default function App() {
       {/* LOGIN & ONBOARDING SHEET (1:1 with IMG_4088.PNG, IMG_4089.PNG, IMG_4090.PNG) */}
       <AuthModal
         isOpen={isAuthOpen}
-        onClose={() => { setIsAuthOpen(false); setActiveTab('EVENTS'); setPendingBookingEvent(null); setPendingOpenTickets(false); }}
+        onClose={() => { sessionStorage.removeItem('bos_google_redirect_pending'); sessionStorage.removeItem('bos_pending_booking_event'); setIsAuthOpen(false); setActiveTab('EVENTS'); setPendingBookingEvent(null); setPendingOpenTickets(false); }}
         onAuthSuccess={(user) => {
+          sessionStorage.removeItem('bos_google_redirect_pending');
+          sessionStorage.removeItem('bos_pending_booking_event');
           setCurrentUser(user);
           setIsAuthOpen(false);
           if (pendingBookingEvent) {
@@ -263,4 +273,11 @@ export default function App() {
 
     </div>
   );
+}
+
+export default function App() {
+  if (window.location.hostname === 'admin.bookourspot.com') return <AdminPaymentsPortal />;
+  const legal = window.location.pathname.replace(/\/$/, '');
+  if (legal === '/terms' || legal === '/privacy') return <LegalPage kind={legal.slice(1)} />;
+  return <EventApp />;
 }

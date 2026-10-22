@@ -4,6 +4,7 @@ import {
   verifyYoupiWebhookSignature,
   validateYoupiSuccessEvent
 } from '../_lib/youpi-webhook.js';
+import { expectedBookingAmount } from '../_lib/booking-order.js';
 
 export const config = { api: { bodyParser: false } };
 
@@ -44,9 +45,9 @@ export default async function handler(request, response) {
 
     const { orderId, paymentId, amountPaise, utr } = payment;
     const booking = await getBookingByGatewayOrder(orderId);
-    const expectedAmount = booking?.tier_type === 'DUO' ? booking.quantity * 280000 : booking?.quantity * 150000;
+    const expectedAmount = expectedBookingAmount(booking);
     if (!booking || booking.status === 'CANCELLED' || booking.event_id !== 'halloween-affair'
-      || !['SOLO', 'DUO'].includes(booking.tier_type) || amountPaise !== booking.total_amount
+      || !['SOLO', 'DUO', 'MIXED'].includes(booking.tier_type) || expectedAmount === null || amountPaise !== booking.total_amount
       || amountPaise !== expectedAmount) {
       return response.status(409).json({ error: 'Payment does not match a pending BookOutSpot booking.' });
     }

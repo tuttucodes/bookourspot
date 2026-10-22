@@ -9,12 +9,13 @@ import {
   Moon, 
   ChatDots
 } from '@phosphor-icons/react';
-import { signInWithGoogle, signInWithEmail, sendOtpToPhone, verifyPhoneOtp } from '../utils/authService';
+import { signInWithGoogle, consumeGoogleRedirect, signInWithEmail, sendOtpToPhone, verifyPhoneOtp } from '../utils/authService';
+import { firebaseAuth } from '../utils/firebaseClient';
 import { playTap, playSuccessChime } from '../utils/audioTheme';
 import useModalAccessibility from '../hooks/useModalAccessibility';
 
-export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
-  const [step, setStep] = useState('PHONE'); // 'PHONE' | 'OTP'
+export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep = 'PHONE' }) {
+  const [step, setStep] = useState(initialStep); // PHONE | PHONE_REQUIRED | OTP | LINK_METHODS
   const [phone, setPhone] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [otpTimer, setOtpTimer] = useState(29);
@@ -25,9 +26,27 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [createAccount, setCreateAccount] = useState(false);
+  const [linkingPhone, setLinkingPhone] = useState(false);
 
   const otpInputsRef = useRef([]);
   const dialogRef = useRef(null);
+  const redirectConsumeStarted = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setStep(initialStep);
+    setErrorMsg('');
+    if (sessionStorage.getItem('bos_google_redirect_pending') === '1' && !redirectConsumeStarted.current) {
+      redirectConsumeStarted.current = true;
+      setIsLoading(true);
+      consumeGoogleRedirect().then((result) => {
+        sessionStorage.removeItem('bos_google_redirect_pending');
+        if (!result.success) { setErrorMsg(result.error); return; }
+        if (result.user?.phoneVerified) { finishAuth(result.user); return; }
+        if (result.user) { setLinkingPhone(true); setAuthMethod('phone'); setStep('PHONE_REQUIRED'); }
+      }).finally(() => setIsLoading(false));
+    }
+  }, [isOpen, initialStep]);
 
   // Rotating pin graphic slides (matching IMG_4088.PNG & IMG_4089.PNG)
   const pinSlides = [
@@ -72,11 +91,41 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     return () => clearInterval(timer);
   }, [step, otpTimer]);
 
-  useModalAccessibility(isOpen, dialogRef, onClose, { escape: !isLoading });
+  const closeAuth = () => {
+    // A provider login is not app access until the account has a verified phone.
+    if (linkingPhone) return;
+    if (step === 'LINK_METHODS') {
+      finishAuth();
+      return;
+    }
+    onClose();
+  };
+
+  useModalAccessibility(isOpen, dialogRef, closeAuth, { escape: !isLoading });
 
   if (!isOpen) return null;
 
   const currentPin = pinSlides[pinIndex];
+
+  const finishAuth = (user = firebaseAuth?.currentUser) => {
+    const mappedUser = user ? {
+      id: user.uid,
+      uid: user.uid,
+      email: user.email || '',
+      name: user.displayName || user.email?.split('@')[0] || '',
+      phone: user.phoneNumber || '',
+      phoneVerified: Boolean(user.phoneNumber),
+      photoURL: user.photoURL || '',
+      emailVerified: user.emailVerified,
+    } : null;
+    if (!mappedUser?.phoneVerified) {
+      setErrorMsg('Verify your mobile number before continuing.');
+      return;
+    }
+    setLinkingPhone(false);
+    onAuthSuccess?.(mappedUser);
+    onClose();
+  };
 
   const handlePhoneSubmit = async (e) => {
     e.preventDefault();
@@ -87,6 +136,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       return;
     }
     playTap();
+    const isExistingUnverifiedSession = Boolean(firebaseAuth?.currentUser && !firebaseAuth.currentUser.phoneNumber);
+    setLinkingPhone(isExistingUnverifiedSession);
     setIsLoading(true);
     const result = await sendOtpToPhone(cleanPhone);
     setIsLoading(false);
@@ -108,9 +159,15 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       setErrorMsg(result.error);
       return;
     }
+    if (!result.user?.phoneVerified) {
+      setLinkingPhone(true);
+      setStep('PHONE_REQUIRED');
+      setAuthMethod('phone');
+      setErrorMsg('Verify a mobile number to finish setting up your BookOutSpot account.');
+      return;
+    }
     playSuccessChime();
-    onAuthSuccess?.(result.user);
-    onClose();
+    finishAuth(result.user);
   };
 
   const handleOtpChange = (index, value) => {
@@ -160,11 +217,18 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     try {
       const res = await verifyPhoneOtp(phone, code);
       if (res.success) {
+        if (!res.user?.phoneVerified) {
+          setErrorMsg('We could not confirm a verified mobile number. Please try again.');
+          return;
+        }
         playSuccessChime();
-        if (onAuthSuccess) onAuthSuccess(res.user);
-        setTimeout(() => {
-          onClose();
-        }, 500);
+        if (linkingPhone) {
+          finishAuth(res.user);
+        } else {
+          setCreateAccount(true);
+          setStep('LINK_METHODS');
+          setErrorMsg('');
+        }
       } else {
         setErrorMsg(res.error || 'Invalid verification code. Please try again.');
       }
@@ -178,22 +242,28 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   const handleGoogleSignIn = async () => {
     playTap();
     setIsLoading(true);
+    if (window.location.hostname !== 'admin.bookourspot.com') sessionStorage.setItem('bos_google_redirect_pending', '1');
     const res = await signInWithGoogle();
+    if (res.success && res.redirecting) return;
+    sessionStorage.removeItem('bos_google_redirect_pending');
     setIsLoading(false);
-    if (res.success) {
-      playSuccessChime();
-      onAuthSuccess?.(res.user);
-      onClose();
+    if (res.success && res.user?.phoneVerified) { playSuccessChime(); finishAuth(res.user); return; }
+    if (res.success && res.user) {
+      setLinkingPhone(true);
+      setAuthMethod('phone');
+      setStep('PHONE_REQUIRED');
+      setErrorMsg('');
       return;
     }
     setErrorMsg(res.error || 'Google sign-in is unavailable right now.');
   };
 
   return createPortal(
-    <div className="bos-overlay bos-auth-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && step !== 'OTP') onClose(); }}>
+    <div className="bos-overlay bos-auth-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && step !== 'OTP' && step !== 'PHONE_REQUIRED') closeAuth(); }}>
       <div ref={dialogRef} tabIndex={-1} className="bos-sheet bos-auth-sheet" role="dialog" aria-modal="true" aria-labelledby="bos-auth-title">
+        <div id="firebase-recaptcha-container" className="absolute bottom-4 right-4 h-0 w-0 overflow-hidden" />
         
-        {step === 'PHONE' ? (
+        {step !== 'OTP' ? (
           <>
             {/* TOP BAR: Logo & Skip Button (1:1 with IMG_4088.PNG & IMG_4089.PNG) */}
             <div className="px-5 pt-4 pb-1 flex items-center justify-between z-10">
@@ -202,17 +272,17 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   BookOutSpot
                 </span>
               </div>
-              <button
+      {!linkingPhone && <button
                 type="button"
-                onClick={onClose}
+                onClick={() => step === 'LINK_METHODS' ? finishAuth() : closeAuth()}
                 className="py-1 px-3.5 rounded-full bg-white/10 hover:bg-white/15 text-zinc-300 hover:text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer"
               >
-                Skip
-              </button>
+                {step === 'LINK_METHODS' ? 'Continue' : 'Skip'}
+              </button>}
             </div>
 
             {/* HERO VISUAL: 3D Glowing Location Pin Carousel (1:1 with IMG_4088.PNG & IMG_4089.PNG) */}
-            <div className="relative h-48 w-full flex flex-col items-center justify-center overflow-hidden">
+            <div className={`relative w-full flex flex-col items-center justify-center overflow-hidden transition-[height] duration-300 ${step === 'PHONE' ? 'h-36 sm:h-40' : 'h-24'}`}>
               {/* Radial backdrop glow */}
               <div 
                 className="absolute w-44 h-44 rounded-full blur-3xl transition-all duration-700 opacity-60"
@@ -247,29 +317,40 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               </div>
             </div>
 
-            {/* BOTTOM SECTION: Phone input and Social sign-in (1:1 with IMG_4088.PNG) */}
+            {step === 'LINK_METHODS' ? (
+            <div className="p-6 bg-[#0E0D14] border-t border-white/10 rounded-t-[32px] space-y-4 text-center">
+              <div className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-emerald-400/15 text-emerald-300 text-xl">✓</div>
+              <h2 id="bos-auth-title" className="text-2xl font-black text-white tracking-tight">Mobile verified</h2>
+              <p className="mx-auto max-w-sm text-xs leading-relaxed text-zinc-400">Your account is ready. Link Google or email for another sign-in, or continue with your phone.</p>
+              <button type="button" onClick={handleGoogleSignIn} disabled={isLoading} className="w-full h-12 rounded-2xl bg-white hover:bg-zinc-100 text-black font-bold text-xs uppercase tracking-wider disabled:opacity-50">{isLoading ? 'Linking Google…' : 'Link Google account'}</button>
+              <form onSubmit={handleEmailSubmit} className="space-y-3 text-left">
+                <label className="sr-only" htmlFor="bos-auth-email">Email address</label>
+                <input id="bos-auth-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
+                <label className="sr-only" htmlFor="bos-auth-password">Password</label>
+                <input id="bos-auth-password" type="password" required minLength={6} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Create a password (6+ characters)" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
+                <button type="submit" disabled={isLoading} className="w-full h-12 rounded-2xl bg-[#2D2A3E] hover:bg-[#3D3954] disabled:opacity-40 text-white font-bold text-sm">{isLoading ? 'Linking email…' : 'Link email and password'}</button>
+              </form>
+              {errorMsg && <p role="alert" className="text-left text-xs text-rose-300">{errorMsg}</p>}
+              <button type="button" onClick={() => finishAuth()} className="w-full text-xs text-zinc-300 underline">Continue with phone only</button>
+            </div>
+            ) : (
             <div className="p-6 bg-[#0E0D14] border-t border-white/10 rounded-t-[32px] space-y-4 text-center">
               
               <h2 id="bos-auth-title" className="text-2xl font-black text-white tracking-tight leading-tight">
-                For all your going<br />out plans
+                {step === 'PHONE_REQUIRED' ? <>Verify your number<br />to finish signing in</> : <>Find your kind<br />of out.</>}
               </h2>
+              {step === 'PHONE_REQUIRED' ? <p className="mx-auto max-w-sm text-sm leading-relaxed text-zinc-400">One quick code keeps your bookings and guest passes tied to you.</p> : <p className="mx-auto max-w-sm text-sm leading-relaxed text-zinc-400">Sign in to book. Browse freely anytime.</p>}
 
               {/* LOG IN OR SIGN UP DIVIDER */}
               <div className="flex items-center gap-3 py-1">
                 <div className="flex-1 h-px bg-white/15" />
                 <span className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase">
-                  LOG IN OR SIGN UP
+                  {step === 'PHONE_REQUIRED' ? 'SECURE YOUR ACCOUNT' : 'A FEW SECONDS TO GET STARTED'}
                 </span>
                 <div className="flex-1 h-px bg-white/15" />
               </div>
 
-              <div className="flex rounded-xl bg-[#171622] p-1 text-xs font-semibold">
-                <button type="button" aria-pressed={authMethod === 'phone'} onClick={() => { setAuthMethod('phone'); setErrorMsg(''); }} className={`flex-1 rounded-lg py-2 ${authMethod === 'phone' ? 'bg-white/15 text-white' : 'text-zinc-400'}`}>Phone</button>
-                <button type="button" aria-pressed={authMethod === 'email'} onClick={() => { setAuthMethod('email'); setErrorMsg(''); }} className={`flex-1 rounded-lg py-2 ${authMethod === 'email' ? 'bg-white/15 text-white' : 'text-zinc-400'}`}>Email</button>
-              </div>
-
               {authMethod === 'phone' ? <form onSubmit={handlePhoneSubmit} className="space-y-3">
-                <div id="firebase-recaptcha-container" />
                 <div className="flex gap-2">
                   {/* Country Flag & Code Box */}
                   <div className="h-13 px-3.5 rounded-2xl bg-[#1A1824] border border-white/15 flex items-center gap-1.5 text-white text-sm font-semibold shrink-0" aria-label="Country code India, plus 91">
@@ -296,26 +377,25 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   disabled={isLoading || phone.length < 10}
                   className="w-full h-12 rounded-2xl bg-[#2D2A3E] hover:bg-[#3D3954] disabled:opacity-40 text-white font-bold text-sm tracking-wide transition-all active:scale-95 cursor-pointer flex items-center justify-center shadow-lg"
                 >
-                  {isLoading ? 'Sending Code…' : 'Continue'}
+                  {isLoading ? 'Sending code…' : step === 'PHONE_REQUIRED' ? 'Send verification code' : 'Continue with phone'}
                 </button>
               </form> : <form onSubmit={handleEmailSubmit} className="space-y-3 text-left">
                 <label className="sr-only" htmlFor="bos-auth-email">Email address</label><input id="bos-auth-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
                 <label className="sr-only" htmlFor="bos-auth-password">Password</label><input id="bos-auth-password" type="password" required minLength={6} autoComplete={createAccount ? 'new-password' : 'current-password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (6+ characters)" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
-                <button type="submit" disabled={isLoading} className="w-full h-12 rounded-2xl bg-[#2D2A3E] hover:bg-[#3D3954] disabled:opacity-40 text-white font-bold text-sm transition-all">{isLoading ? 'Please wait…' : createAccount ? 'Create account' : 'Sign in with email'}</button>
-                <button type="button" onClick={() => { setCreateAccount((value) => !value); setErrorMsg(''); }} className="w-full text-xs text-zinc-400 hover:text-white underline">{createAccount ? 'Already have an account? Sign in' : 'New here? Create an account'}</button>
+                <button type="submit" disabled={isLoading} className="w-full h-12 rounded-2xl bg-[#2D2A3E] hover:bg-[#3D3954] disabled:opacity-40 text-white font-bold text-sm transition-all">{isLoading ? 'Please wait…' : 'Sign in with email'}</button>
+                <button type="button" onClick={() => { setAuthMethod('phone'); setErrorMsg(''); }} className="w-full text-sm text-zinc-300 hover:text-white">Use your mobile number</button>
               </form>}
 
-              {/* OR DIVIDER */}
-              <div className="flex items-center gap-3 py-1">
+              {step !== 'PHONE_REQUIRED' && authMethod === 'phone' && <div className="flex items-center gap-3 py-1">
                 <div className="flex-1 h-px bg-white/10" />
                 <span className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">
                   OR
                 </span>
                 <div className="flex-1 h-px bg-white/10" />
-              </div>
+              </div>}
 
               {/* SOCIAL BUTTONS */}
-              <div className="space-y-2.5">
+              {step !== 'PHONE_REQUIRED' && authMethod === 'phone' && <div className="space-y-2.5">
                 
                 {/* 1. Continue with Google */}
                 <button
@@ -335,13 +415,16 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                 </button>
 
                 {errorMsg && <p role="alert" className="text-left text-xs text-rose-300">{errorMsg}</p>}
-              </div>
+              </div>}
 
-              {/* Legal Footer (IMG_4088.PNG) */}
-              <p className="text-[11px] text-zinc-500 pt-2 leading-relaxed font-sans">
-                Terms and privacy information will be available before ticket bookings open.
+              {step !== 'PHONE_REQUIRED' && authMethod === 'phone' && <button type="button" onClick={() => { setAuthMethod('email'); setCreateAccount(false); setErrorMsg(''); }} className="w-full py-1 text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+                Already have an account? <span className="text-violet-200 underline underline-offset-4">Sign in with email</span>
+              </button>}
+              <p className="text-[11px] text-zinc-500 pt-1 leading-relaxed font-sans">
+                {step === 'PHONE_REQUIRED' ? 'Phone verification is required before you can use your account or make a booking.' : <>By continuing, you agree to our <a className="text-violet-200 underline underline-offset-2" href="/terms" target="_blank" rel="noreferrer">Terms</a> and <a className="text-violet-200 underline underline-offset-2" href="/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>. Browsing does not require an account.</>}
               </p>
             </div>
+            )}
           </>
         ) : (
           /* STEP 2: OTP VERIFICATION (1:1 with IMG_4090.PNG) */
@@ -361,13 +444,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               </h2>
             </div>
 
-            {/* Instruction text (IMG_4090.PNG) */}
+            {/* Instruction text */}
             <div className="space-y-1">
               <p className="text-xs sm:text-sm text-zinc-300">
-                We have sent a verification code to
+                {linkingPhone ? 'Verify and link this mobile number to your account' : 'We have sent a verification code to'}
               </p>
               <p className="text-base font-bold text-white font-mono">
-                +91 {phone}
+                {phone ? `+91 ${phone}` : ''}
               </p>
             </div>
 
@@ -426,10 +509,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             <div className="text-center pt-2">
               <button
                 type="button"
-                onClick={() => setStep('PHONE')}
+                onClick={() => { if (!linkingPhone) setStep('PHONE'); }}
+                disabled={linkingPhone}
                 className="text-xs text-zinc-400 hover:text-white underline cursor-pointer"
               >
-                Back to login
+                {linkingPhone ? 'Phone verification is required to continue' : 'Back to login'}
               </button>
             </div>
 

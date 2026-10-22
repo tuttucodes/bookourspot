@@ -7,6 +7,9 @@
         "supportEmail": "rahulbabuk05@gmail.com",
         "authorizedRedirectUris": [
           "https://bookourspot-f311e.firebaseapp.com/__/auth/handler",
+          "https://www.bookourspot.com/__/auth/handler",
+          "https://bookourspot.com/__/auth/handler",
+          "https://admin.bookourspot.com/__/auth/handler",
           "http://localhost"
         ]
       }

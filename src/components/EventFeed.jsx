@@ -116,7 +116,7 @@ export default function EventFeed({
         </section>
 
         <section className="bos-bottom-note"><span className="bottom-note-number">02</span><div><span className="eyebrow">YOUR NEXT FAVOURITE MEMORY</span><h2>Go where the good<br />stories happen.</h2></div><span className="bottom-note-star">✳</span></section>
-        <footer className="bos-footer"><a className="bos-wordmark" href="/"><span className="wordmark-icon">b</span><span>BookOut<span className="wordmark-accent">Spot</span></span></a><span>Good plans, found. · Chennai</span><a href="mailto:hello@bookourspot.com">Get in touch <ArrowRight size={14} /></a></footer>
+        <footer className="bos-footer"><a className="bos-wordmark" href="/"><span className="wordmark-icon">b</span><span>BookOut<span className="wordmark-accent">Spot</span></span></a><span>Good plans, found. · Chennai</span><div className="flex items-center gap-4"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="mailto:hello@bookourspot.com">Get in touch <ArrowRight size={14} /></a></div></footer>
       </main>
     </div>
   );

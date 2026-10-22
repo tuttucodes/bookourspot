@@ -1,0 +1,29 @@
+services:
+  gateway:
+    environment:
+      YOUPI_MODE: production
+      YOUPI_ALLOW_LOCALHOST_MODE: "false"
+      CLOUDFLARE_DOMAIN: bookourspot.com
+      DEPLOYMENT_PREFIX: payments
+      BASE_PAYMENT_API_URL: http://localhost:6100
+      BASE_CHECKOUT_URL: https://payments.bookourspot.com
+      CHECKOUT_FRAME_ANCESTORS: https://bookourspot.com https://www.bookourspot.com
+    ports: []
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./infra/youpi/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+volumes:
+  caddy_data:
+  caddy_config:

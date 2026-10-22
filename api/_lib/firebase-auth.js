@@ -25,6 +25,10 @@ export async function getSignedInUser(request) {
   try {
     const decoded = await getAuth(getFirebaseAdminApp()).verifyIdToken(token, true);
     if (typeof decoded.uid !== 'string' || !decoded.uid) return null;
+    // A Firebase phone_number claim is present only after the user verified the
+    // number through Firebase Phone Auth. Enforce this on the server as well as
+    // the UI so callers cannot bypass the required-phone onboarding gate.
+    if (typeof decoded.phone_number !== 'string' || !/^\+[1-9]\d{7,14}$/.test(decoded.phone_number)) return null;
 
     // Keep the `id` alias used by the booking routes and SQL RPC payloads.
     return {
@@ -36,5 +40,19 @@ export async function getSignedInUser(request) {
     };
   } catch {
     return null;
+  }
+}
+
+// Use only from a server route that has already authenticated and authorized
+// its caller (the payment admin queue) to look up another user's contact data.
+export async function getFirebaseUserContact(uid) {
+  try {
+    const user = await getAuth(getFirebaseAdminApp()).getUser(uid);
+    return {
+      email: user.email || null,
+      phoneNumber: user.phoneNumber || null
+    };
+  } catch {
+    return { email: null, phoneNumber: null };
   }
 }

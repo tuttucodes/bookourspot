@@ -55,14 +55,12 @@ export default function TierSelectionModal({
     }
   }, [event, initialDate, isOpen]);
 
-  if (!isOpen || !event) return null;
-
   // Resolve tiers list
-  const tiers = event.tiers || [
+  const tiers = event?.tiers || [
     {
       id: 'general',
       name: 'General Admission',
-      price: event.price || 199,
+      price: event?.price || 199,
       bullets: [
         'Direct admission and guaranteed entry.',
         'Please carry a valid government photo ID.'
@@ -81,9 +79,21 @@ export default function TierSelectionModal({
       totalAmount += qty * tier.price;
       const guestsPerUnit = tier.guestsPerUnit || (tier.id.includes('duo') ? 2 : 1);
       totalTickets += qty * guestsPerUnit;
-      selectedTiersList.push({ ...tier, qty, guestsPerUnit });
+      selectedTiersList.push({
+        ...tier,
+        qty,
+        guestsPerUnit,
+        tierType: tier.id.includes('duo') ? 'DUO' : 'SOLO'
+      });
     }
   });
+  const ticketAssignments = selectedTiersList.flatMap((tier) => (
+    Array.from({ length: tier.qty * tier.guestsPerUnit }, () => ({
+      tierType: tier.tierType,
+      tierName: tier.name,
+      price: tier.price / tier.guestsPerUnit
+    }))
+  ));
 
   // Keep guest list synced with totalTickets and prefill primary booker if available
   useEffect(() => {
@@ -103,12 +113,16 @@ export default function TierSelectionModal({
       }
       return copy.slice(0, totalTickets);
     });
-  }, [totalTickets]);
+  }, [totalTickets, isOpen]);
+
+  if (!isOpen || !event) return null;
 
   const updateQuantity = (tierId, delta) => {
     setTierQuantities(prev => {
       const current = prev[tierId] || 0;
       const next = Math.max(0, Math.min(5, current + delta));
+      const selectedUnits = Object.values(prev).reduce((sum, value) => sum + value, 0);
+      if (next > current && selectedUnits >= 5) return prev;
       if (next > current) {
         playPassAdded();
       } else if (next < current) {
@@ -135,11 +149,6 @@ export default function TierSelectionModal({
   const handleProceedToPayment = (e) => {
     e.preventDefault();
     playTap();
-
-    if (selectedTiersList.length !== 1) {
-      alert('Please book one ticket type at a time.');
-      return;
-    }
 
     for (let i = 0; i < totalTickets; i++) {
       const g = guests[i];
@@ -171,7 +180,6 @@ export default function TierSelectionModal({
 
     const newPasses = [];
     const singlePassPrice = totalTickets > 0 ? Math.round(totalAmount / totalTickets) : 0;
-    const primaryTierName = selectedTiersList.length > 0 ? selectedTiersList[0].name : 'General Pass';
 
     for (let i = 0; i < totalTickets; i++) {
       const g = guests[i];
@@ -184,8 +192,9 @@ export default function TierSelectionModal({
         phone: issuedTickets[i].guestPhone || g.phone.trim(),
         bookerName: guests[0].name.trim(),
         instagram: '',
-        tierName: issuedTickets[i].tierName || primaryTierName,
-        price: Number(issuedTickets[i].price) || singlePassPrice,
+        tierName: issuedTickets[i].tierName || ticketAssignments[i]?.tierName || 'Event pass',
+        tierType: issuedTickets[i].tierType || ticketAssignments[i]?.tierType || 'SOLO',
+        price: Number(issuedTickets[i].price) || ticketAssignments[i]?.price || singlePassPrice,
         bookingId,
         utr: '',
         selectedDate: selectedDate?.label,
@@ -249,10 +258,11 @@ export default function TierSelectionModal({
         </header>
 
         {/* MAIN BODY */}
-        <main className="flex-1 w-full max-w-full sm:max-w-md mx-auto px-4 py-4 pb-32 space-y-5 text-left box-border">
+        <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-10 py-5 sm:py-8 pb-32 space-y-5 text-left box-border">
           
           {step === 'TIERS' ? (
             <>
+              <div className="mx-auto w-full max-w-2xl">
               {/* DATE / SLOT SUMMARY CARD WITH 'CHANGE' PILL BUTTON (IMG_4057.PNG) */}
               <div className="p-3.5 rounded-2xl bg-[#1c1c20] border border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0 flex-1 pr-2">
@@ -360,95 +370,89 @@ export default function TierSelectionModal({
                   );
                 })}
               </div>
+              <p className="pt-3 text-xs text-zinc-500">Mix Entry and Couple / Duo tickets in one order, up to five ticket groups total.</p>
+              </div>
             </>
           ) : (
-            /* STEP 2: GUEST DETAILS (Minimal, Luxury, Relaxed) */
-            <form onSubmit={handleProceedToPayment} className="space-y-6">
-              <div className="space-y-1 text-left">
+            <form onSubmit={handleProceedToPayment} className="guest-checkout">
+              <div className="guest-checkout-heading">
                 <h3 className="text-xl font-bold text-white tracking-tight">
-                  Guest Credentials
+                  Guest details
                 </h3>
                 <p className="text-xs text-zinc-400 font-sans">
-                  Add the name and mobile number for each attendee.
+                  Add each attendee’s name and mobile number. Passes are issued after payment is verified.
                 </p>
               </div>
 
-              {/* Order summary pill */}
-              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between text-xs">
-                <div>
-                  <span className="font-semibold text-white block">
-                    {totalTickets} {totalTickets === 1 ? 'Guest Pass' : 'Guest Passes'}
-                  </span>
-                  <span className="text-zinc-400 font-mono text-[11px]">
-                    {selectedDate?.label} · {selectedDate?.timing}
-                  </span>
-                </div>
-                <span className="font-mono font-bold text-[#FFA947] text-sm">
-                  ₹{totalAmount.toLocaleString('en-IN')}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[11px] font-mono text-zinc-400">
-                  Attendee Info ({totalTickets})
-                </span>
-              </div>
-
-              {/* Individual Guest Input Cards */}
-              <div className="space-y-4">
-                {guests.map((guest, idx) => (
-                  <div 
-                    key={idx} 
-                    className="p-4 rounded-2xl bg-[#141418] border border-white/10 space-y-3"
-                  >
+              <div className="guest-checkout-grid">
+                <section className="guest-attendee-column" aria-label="Attendee information">
+                  <div className="flex items-center justify-between gap-3 px-1">
+                    <span className="text-sm font-semibold text-white">Attendees</span>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-zinc-400">{totalTickets} {totalTickets === 1 ? 'person' : 'people'}</span>
+                  </div>
+                  <div className="space-y-3">
+                    {guests.map((guest, idx) => (
+                      <div key={idx} className="guest-card">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#FFA947] uppercase tracking-wider font-mono">
-                        Guest 0{idx + 1} {idx === 0 ? '· Primary Booker' : ''}
+                      <span className="text-xs font-semibold text-violet-200">
+                        {idx === 0 ? 'Primary attendee' : `Attendee ${String(idx + 1).padStart(2, '0')}`}
                       </span>
-                      <span className="text-[10px] text-zinc-500 font-mono">
-                        Event guest
-                      </span>
+                      <span className="text-[10px] text-zinc-500">{ticketAssignments[idx]?.tierName || 'Event guest'}{idx === 0 ? ' · Booking contact' : ''}</span>
                     </div>
 
                     <div className="space-y-2.5">
                       <div>
-                        <label className="text-[11px] font-medium text-zinc-400 block mb-1">
+                          <label htmlFor={`guest-${idx}-name`} className="text-[11px] font-medium text-zinc-400 block mb-1">
                           Full name
                         </label>
                         <input
+                          id={`guest-${idx}-name`}
                           type="text"
                           required
                           value={guest.name}
                           onChange={(e) => updateGuest(idx, 'name', e.target.value)}
                           placeholder="e.g. Rahul Sharma"
-                          className="w-full bg-[#0C0B12] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-600 focus:border-white/30 outline-none transition-colors"
+                          autoComplete={idx === 0 ? 'name' : 'off'}
+                          className="guest-input"
                         />
                       </div>
 
                       <div>
-                        <label className="text-[11px] font-medium text-zinc-400 block mb-1">
+                          <label htmlFor={`guest-${idx}-phone`} className="text-[11px] font-medium text-zinc-400 block mb-1">
                           Phone number
                         </label>
                         <input
+                          id={`guest-${idx}-phone`}
                           type="tel"
                           required
                           value={guest.phone}
                           onChange={(e) => updateGuest(idx, 'phone', e.target.value)}
                           placeholder="+91 98765 43210"
-                          className="w-full bg-[#0C0B12] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-zinc-600 font-mono focus:border-white/30 outline-none transition-colors"
+                          inputMode="tel"
+                          autoComplete={idx === 0 ? 'tel' : 'off'}
+                          className="guest-input"
                         />
                       </div>
 
                     </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </section>
 
-              {/* Admission Terms Checkbox */}
-              <label 
-                htmlFor="tier_terms"
-                className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5 cursor-pointer select-none"
-              >
+                <aside className="guest-order-column">
+                  <div className="guest-order-card">
+                    <p className="guest-order-eyebrow">YOUR ORDER</p>
+                    <div className="mt-3 flex items-start justify-between gap-3">
+                      <div><div className="space-y-1">{selectedTiersList.map((tier) => <p key={tier.id} className="font-semibold text-white">{tier.name} <span className="text-violet-200">× {tier.qty}</span></p>)}</div><p className="mt-2 text-xs leading-relaxed text-zinc-400">{selectedDate?.label} · {selectedDate?.timing}</p></div>
+                      <span className="shrink-0 rounded-full bg-violet-300/10 px-2.5 py-1 text-[10px] text-violet-200">{totalTickets} {totalTickets === 1 ? 'attendee' : 'attendees'}</span>
+                    </div>
+                    <div className="my-4 border-t border-white/10" />
+                    <div className="flex items-baseline justify-between"><span className="text-sm text-zinc-400">Total</span><span className="font-mono text-xl font-bold text-white">₹{totalAmount.toLocaleString('en-IN')}</span></div>
+                    <p className="mt-1 text-[11px] text-zinc-500">INR · Payments by BookOutSpot</p>
+                  </div>
+
+                  <label htmlFor="tier_terms" className="guest-terms">
                 <input
                   type="checkbox"
                   id="tier_terms"
@@ -456,23 +460,24 @@ export default function TierSelectionModal({
                   onChange={(e) => setAgreedTerms(e.target.checked)}
                   className="sr-only"
                 />
-                <div className="text-white mt-0.5 shrink-0">
-                  {agreedTerms ? <CheckSquare size={18} weight="fill" /> : <Square size={18} />}
-                </div>
+                    <div className="text-violet-200 mt-0.5 shrink-0">{agreedTerms ? <CheckSquare size={18} weight="fill" /> : <Square size={18} />}</div>
                 <span className="text-xs text-zinc-400 leading-relaxed">
-                  I confirm the event and attendee details above are correct.
+                  I confirm the attendee details are correct and understand this booking stays pending until payment is verified.
                 </span>
               </label>
+              <p className="-mt-2 text-[11px] leading-relaxed text-zinc-500">By continuing, you agree to our <a href="/terms" target="_blank" rel="noreferrer" className="text-violet-200 underline underline-offset-2">Terms</a> and <a href="/privacy" target="_blank" rel="noreferrer" className="text-violet-200 underline underline-offset-2">Privacy Policy</a>.</p>
 
-              {/* Proceed to UPI Gateway Button */}
               <button
                 type="submit"
                 disabled={!agreedTerms}
-                className="w-full py-4 px-6 rounded-full bg-white hover:bg-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed text-black font-extrabold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl cursor-pointer transition-transform active:scale-[0.98]"
+                className="guest-pay-button"
               >
-                <span>Proceed to Pay (₹{totalAmount.toLocaleString('en-IN')})</span>
+                <span>Continue to secure payment</span>
                 <ArrowRight size={18} weight="bold" />
               </button>
+                  <p className="text-center text-[11px] leading-relaxed text-zinc-500">You’ll review the payment amount before leaving this page.</p>
+                </aside>
+              </div>
             </form>
           )}
 
@@ -483,7 +488,7 @@ export default function TierSelectionModal({
           <div className="fixed bottom-0 left-0 right-0 z-40 p-4 flex justify-center pointer-events-none">
             <div className="w-full max-w-lg rounded-full bg-[#161522]/95 backdrop-blur-xl border border-white/15 p-2 px-5 flex items-center justify-between shadow-2xl pointer-events-auto">
               <div className="text-left">
-                <span className="text-[10px] uppercase text-zinc-400 font-mono block">Total ({totalTickets} {totalTickets === 1 ? 'ticket' : 'tickets'})</span>
+                <span className="text-[10px] uppercase text-zinc-400 font-mono block">Total · {totalTickets} {totalTickets === 1 ? 'attendee' : 'attendees'}</span>
                 <span className="text-lg sm:text-xl font-extrabold text-white font-mono">
                   ₹{totalAmount.toLocaleString('en-IN')}
                 </span>
@@ -492,7 +497,7 @@ export default function TierSelectionModal({
               <button
                 type="button"
                 onClick={handleContinueToGuests}
-                className="py-3 px-8 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-sm uppercase tracking-wider transition-transform active:scale-95 shadow-xl cursor-pointer"
+                className="py-3 px-8 rounded-full bg-white hover:bg-zinc-200 disabled:bg-violet-200/20 disabled:text-violet-100/70 disabled:cursor-not-allowed text-black font-extrabold text-sm uppercase tracking-wider transition-transform active:scale-95 shadow-xl cursor-pointer"
               >
                 Continue
               </button>
@@ -502,16 +507,25 @@ export default function TierSelectionModal({
 
       </div>
 
-      {/* RAZORPAY UPI GATEWAY MODAL */}
+      {/* BookOutSpot UPI gateway modal */}
       <BookOutSpotPaymentModal
         isOpen={isPaymentOpen}
         onClose={() => setIsPaymentOpen(false)}
         totalAmount={totalAmount}
         totalGuests={totalTickets}
-        tierLabel={selectedTiersList[0]?.name || 'General Pass'}
+        tierLabel={selectedTiersList.map((tier) => `${tier.name} × ${tier.qty}`).join(' · ') || 'Event pass'}
+        eventTitle={event.title}
         eventId={event.id}
-        tierType={selectedTiersList[0]?.id?.includes('duo') ? 'DUO' : 'SOLO'}
-        quantity={selectedTiersList[0]?.qty || 1}
+        tierType={selectedTiersList.length > 1 ? 'MIXED' : selectedTiersList[0]?.tierType || 'SOLO'}
+        quantity={selectedTiersList.reduce((sum, tier) => sum + tier.qty, 0) || 1}
+        items={selectedTiersList.map((tier) => ({
+          tierType: tier.tierType,
+          quantity: tier.qty,
+          attendees: ticketAssignments
+            .map((assignment, index) => ({ assignment, guest: guests[index] }))
+            .filter(({ assignment }) => assignment.tierType === tier.tierType)
+            .map(({ guest }) => ({ name: guest?.name || '', phone: guest?.phone || '' }))
+        }))}
         primaryName={guests[0]?.name || ''}
         primaryPhone={guests[0]?.phone || ''}
         attendees={guests.map(({ name, phone }) => ({ name: name.trim(), phone: phone.trim() }))}

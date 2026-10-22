@@ -93,8 +93,12 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
         setPendingCheckMessage('Your payment is confirmed and your passes are ready.');
       } else if (result.status === 'CANCELLED') {
         setPendingCheckMessage('This booking was cancelled. If money left your account, contact BookOutSpot support before paying again.');
+      } else if (result.paymentReviewStatus === 'SUBMITTED') {
+        setPendingCheckMessage('Your UTR is in the bank review queue. Don’t pay again; your passes will appear here after confirmation.');
+      } else if (result.paymentReviewStatus === 'REJECTED') {
+        setPendingCheckMessage('We could not match the submitted payment reference. Contact BookOutSpot support before making another payment.');
       } else {
-        setPendingCheckMessage('Payment is still being verified. Don’t pay again; check back shortly.');
+        setPendingCheckMessage('No UTR has been submitted for this booking yet. If you already paid, contact BookOutSpot support with your booking reference.');
       }
     } catch (error) {
       setPendingCheckMessage(error.message || 'Payment status is temporarily unavailable.');
@@ -135,10 +139,10 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
 
   return createPortal(
     <div className="bos-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <div ref={dialogRef} tabIndex={-1} className="bos-sheet bos-tickets-sheet" role="dialog" aria-modal="true" aria-labelledby="bos-tickets-title">
+      <div ref={dialogRef} tabIndex={-1} className="bos-sheet bos-tickets-sheet bos-passes-sheet" role="dialog" aria-modal="true" aria-labelledby="bos-tickets-title">
         
         {/* Masthead */}
-        <div className="bg-[#171624] border-b border-white/10 p-4 sm:p-5 flex items-center justify-between shrink-0">
+        <div className="bos-passes-header bg-[#171624] border-b border-white/10 p-4 sm:p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-[#431CB8] flex items-center justify-center text-white">
               <Ticket size={22} weight="fill" />
@@ -166,16 +170,15 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
         </div>
 
         {/* Content Area */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
+        <div className="bos-passes-content p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
           {loadError && <p role="alert" className="rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-xs text-amber-100">{loadError}</p>}
           {isLoading ? <div role="status" className="py-16 text-center text-sm text-zinc-400">Loading your tickets…</div> : passes.length === 0 && pendingBookings.length === 0 ? (
-            <div className="py-16 text-center space-y-4">
-              <Ticket size={48} className="mx-auto text-zinc-600 stroke-[1]" />
-              <div className="space-y-1">
-                <p className="text-xl font-bold text-white">No passes allocated yet</p>
-                <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-                  No paid bookings found yet. Your passes will appear here as soon as a payment is confirmed.
-                </p>
+            <div className="bos-passes-empty">
+              <span className="bos-passes-empty-icon"><Ticket size={24} weight="regular" /></span>
+              <div className="bos-passes-empty-copy">
+                <span className="bos-passes-eyebrow">YOUR NEXT NIGHT OUT</span>
+                <p className="bos-passes-empty-title">Your passes will live here.</p>
+                <p className="bos-passes-empty-description">Once a booking is paid and confirmed, its tickets and entry details will appear in this space.</p>
               </div>
               <button
                 type="button"
@@ -183,7 +186,7 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
                   onClose();
                   if (onBookNewPass) onBookNewPass();
                 }}
-                className="inline-flex items-center gap-2 py-3 px-6 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold uppercase tracking-wider transition-transform active:scale-95 cursor-pointer shadow-xl"
+                className="bos-passes-empty-cta inline-flex items-center gap-2 py-3 px-6 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold uppercase tracking-wider transition-transform active:scale-95 cursor-pointer shadow-xl"
               >
                 <span>Explore events</span>
                 <ArrowRight size={14} weight="bold" />
@@ -195,8 +198,8 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
               {pendingBookings.length > 0 && (
                 <section className="space-y-3" aria-labelledby="bos-pending-bookings-title">
                   <div>
-                    <h4 id="bos-pending-bookings-title" className="text-sm font-semibold text-white">Payment confirmation</h4>
-                    <p className="mt-1 text-xs text-zinc-400">Your passes appear after payment is verified. Please don’t pay twice.</p>
+                    <h4 id="bos-pending-bookings-title" className="text-sm font-semibold text-white">Payment review</h4>
+                    <p className="mt-1 text-xs text-zinc-400">We issue passes after matching your transfer in the bank statement. Please don’t pay twice.</p>
                   </div>
                   {pendingBookings.map((booking) => {
                     const event = ALL_EVENTS.find((item) => item.id === booking.eventId);
@@ -206,8 +209,11 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
                           <div>
                             <p className="text-sm font-semibold text-white">{event?.title || 'BookOutSpot event'}</p>
                             <p className="mt-1 text-xs text-zinc-400">
-                              {booking.tierType === 'DUO' ? 'Couple / Duo · 2 people' : 'Entry · 1 person'} · ₹{Number(booking.totalAmount).toLocaleString('en-IN')}
+                              {(booking.items || []).length > 1
+                                ? booking.items.map((item) => `${item.tierType === 'DUO' ? 'Couple / Duo' : 'Entry'} × ${item.quantity}`).join(' · ')
+                                : booking.tierType === 'DUO' ? 'Couple / Duo · 2 people' : 'Entry · 1 person'} · ₹{Number(booking.totalAmount).toLocaleString('en-IN')}
                             </p>
+                            {booking.reportedUtr && <p className="mt-2 font-mono text-[11px] text-amber-100/80">UTR {booking.reportedUtr} · {booking.paymentReviewStatus === 'REJECTED' ? 'needs support' : 'awaiting bank check'}</p>}
                           </div>
                           <button
                             type="button"
@@ -265,7 +271,7 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
         </div>
 
         {/* Footer */}
-        <div className="bg-[#171624] border-t border-white/10 px-5 py-3 flex items-center justify-between text-[11px] text-zinc-500 shrink-0">
+        <div className="bos-passes-footer bg-[#171624] border-t border-white/10 px-5 py-3 flex items-center justify-between text-[11px] text-zinc-500 shrink-0">
           <span>BookOutSpot · bookourspot.com</span>
           <span className="text-zinc-400">Your nights out, sorted</span>
         </div>

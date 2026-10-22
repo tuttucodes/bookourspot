@@ -65,7 +65,8 @@ test('fulfills an authenticated YouPI success webhook using the documented raw-b
     quantity: 1,
     total_amount: 150000,
     status: 'PENDING',
-    gateway_order_id: event.orderId
+    gateway_order_id: event.orderId,
+    booking_items: [{ tier_type: 'SOLO', quantity: 1, total_amount: 150000 }]
   };
   let fulfillArgs;
   process.env.YOUPI_WEBHOOK_SECRET = secret;
@@ -92,6 +93,61 @@ test('fulfills an authenticated YouPI success webhook using the documented raw-b
     assert.equal(fulfillArgs.p_payment_id, event.paymentId);
     assert.equal(fulfillArgs.p_amount, 150000);
     assert.equal(fulfillArgs.p_utr, '123456789012');
+  } finally {
+    globalThis.fetch = originalFetch;
+    for (const [key, value] of Object.entries(previousEnv)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});
+
+test('accepts the exact mixed Solo + Duo line total and fulfills it once as one booking', async () => {
+  const originalFetch = globalThis.fetch;
+  const previousEnv = {
+    YOUPI_WEBHOOK_SECRET: process.env.YOUPI_WEBHOOK_SECRET,
+    SUPABASE_URL: process.env.SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY
+  };
+  const event = createEvent({ amount: '4300.00', amountPaise: 430000 });
+  const expectedBooking = {
+    id: randomUUID(),
+    user_id: 'firebase-user-1',
+    event_id: 'halloween-affair',
+    tier_type: 'MIXED',
+    quantity: 2,
+    total_amount: 430000,
+    status: 'PENDING',
+    gateway_order_id: event.orderId,
+    booking_items: [
+      { tier_type: 'SOLO', quantity: 1, total_amount: 150000 },
+      { tier_type: 'DUO', quantity: 1, total_amount: 280000 }
+    ]
+  };
+  let fulfillArgs;
+  process.env.YOUPI_WEBHOOK_SECRET = secret;
+  process.env.SUPABASE_URL = 'https://supabase-test.example';
+  process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
+  globalThis.fetch = async (url, init = {}) => {
+    if (String(url).includes('/rest/v1/bookings?')) return new Response(JSON.stringify([expectedBooking]), { status: 200 });
+    if (String(url).endsWith('/rest/v1/rpc/bos_fulfill_booking')) {
+      fulfillArgs = JSON.parse(init.body);
+      return new Response(JSON.stringify({ status: 'PAID', tickets: [
+        { tierType: 'SOLO', tierName: 'Entry · 1 person' },
+        { tierType: 'DUO', tierName: 'Couple / Duo · 2 people' },
+        { tierType: 'DUO', tierName: 'Couple / Duo · 2 people' }
+      ] }), { status: 200 });
+    }
+    throw new Error(`Unexpected backend request: ${url}`);
+  };
+
+  try {
+    const response = createResponse();
+    await handler(createRequest(event), response);
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.body, { received: true });
+    assert.equal(fulfillArgs.p_booking_id, expectedBooking.id);
+    assert.equal(fulfillArgs.p_amount, 430000);
   } finally {
     globalThis.fetch = originalFetch;
     for (const [key, value] of Object.entries(previousEnv)) {

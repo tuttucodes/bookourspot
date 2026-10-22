@@ -31,7 +31,7 @@ Updated: 22 October 2026
 - [ ] Confirm customer-facing Terms and Privacy with the operator’s registered legal name, postal address, and grievance/support contact. Those legal identity details were not provided, so the published pages identify BookOutSpot and the support email but call out that missing detail.
 - [ ] Confirm the event organiser’s exact eligibility, cancellation/refund terms and invited-guest location communication. Current event copy says fourth-year students only, secret location, ₹1,500 solo / ₹2,800 duo.
 - [ ] Verify `hello@bookourspot.com` is monitored and establish a daily bank reconciliation / refund process.
-- [ ] Check the Namecheap DNS record for `payments.bookourspot.com`; the customer site no longer uses it. It was not changed because DNS target ownership was not independently verified.
+- [ ] Clean up `payments.bookourspot.com`: it now returns Cloudflare HTTP 403 after the old gateway was retired. Checkout on `www.bookourspot.com` is unaffected. Point that hostname to Vercel or remove the obsolete record in the DNS account; no Cloudflare/Namecheap API session is available in this workspace.
 
 ## Release status
 

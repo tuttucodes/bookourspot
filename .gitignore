@@ -4,8 +4,10 @@ dist-ssr
 *.local
 .env
 .env.*
+!/.env.example
 .DS_Store
 .vercel
 .agents
 skills-lock.json
+supabase/.temp/
 

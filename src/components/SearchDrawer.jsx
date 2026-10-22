@@ -1,121 +1,48 @@
-import React, { useState } from 'react';
-import { X, MagnifyingGlass, CaretRight, MapPin } from '@phosphor-icons/react';
+import React, { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ArrowUpRight, Clock3, MapPin, Search, Sparkles, X } from 'lucide-react';
+import useModalAccessibility from '../hooks/useModalAccessibility';
 
-export default function SearchDrawer({
-  isOpen,
-  onClose,
-  events,
-  onSelectEvent
-}) {
+export default function SearchDrawer({ isOpen, onClose, events = [], onSelectEvent }) {
   const [query, setQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All plans');
+  const dialogRef = useRef(null);
+
+  const categories = useMemo(() => ['All plans', ...new Set(events.map((event) => event.category).filter(Boolean))], [events]);
+  const filtered = useMemo(() => {
+    const term = query.trim().toLowerCase();
+    return events.filter((event) => {
+      const matchesCategory = selectedCategory === 'All plans' || event.category === selectedCategory;
+      const haystack = [event.title, event.subtitle, event.venue?.name, event.venue?.shortName, ...(event.tags || [])].filter(Boolean).join(' ').toLowerCase();
+      return matchesCategory && (!term || haystack.includes(term));
+    });
+  }, [events, query, selectedCategory]);
+
+  useModalAccessibility(isOpen, dialogRef, onClose);
 
   if (!isOpen) return null;
-
-  const categories = ['All', 'Nightlife', 'Dining', 'Music', 'Sports', 'Culture'];
-
-  const filtered = events.filter(e => {
-    const matchesCat = selectedCategory === 'All' || e.category === selectedCategory;
-    const q = query.toLowerCase();
-    const matchesText = !query || 
-      e.title.toLowerCase().includes(q) ||
-      e.subtitle.toLowerCase().includes(q) ||
-      e.venue?.name.toLowerCase().includes(q) ||
-      e.tags?.some(t => t.toLowerCase().includes(q));
-    return matchesCat && matchesText;
-  });
-
-  return (
-    <div 
-      className="fixed inset-0 z-50 flex flex-col justify-end bg-black/80 backdrop-blur-md animate-in fade-in"
-      onClick={onClose}
-    >
-      <div 
-        className="relative w-full max-w-lg mx-auto bg-[#111019] border-t border-white/15 rounded-t-[32px] p-5 pb-8 text-[#F3EFE0] shadow-2xl max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-300"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Drag handle */}
-        <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-3" />
-
-        {/* Top Header with Search input */}
-        <div className="flex items-center gap-3 pb-3 border-b border-white/10 shrink-0">
-          <div className="relative flex-1">
-            <MagnifyingGlass size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
-            <input
-              type="text"
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search events, artists, venues…"
-              className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white/10 border border-white/10 text-sm text-white placeholder-zinc-500 outline-none focus:border-[#FF521B] transition-colors"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close search"
-            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
-          >
-            <X size={18} weight="bold" />
-          </button>
+  return createPortal(
+    <div className="bos-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <section ref={dialogRef} tabIndex={-1} className="bos-sheet bos-search-sheet" role="dialog" aria-modal="true" aria-labelledby="bos-search-title">
+        <div className="bos-sheet-grab" />
+        <header className="bos-sheet-heading">
+          <div><span className="bos-modal-kicker"><Sparkles size={13} /> FIND YOUR NEXT PLAN</span><h2 id="bos-search-title">Search the city</h2><p>Discover events, places and nights worth going out for.</p></div>
+          <button type="button" className="bos-icon-button" onClick={onClose} aria-label="Close search"><X size={19} /></button>
+        </header>
+        <label className="bos-search-field"><Search size={19} /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Try Halloween, dining, live music…" aria-label="Search events" /></label>
+        <div className="bos-filter-row" role="group" aria-label="Filter by event category">
+          {categories.map((category) => <button key={category} type="button" aria-pressed={selectedCategory === category} onClick={() => setSelectedCategory(category)} className={selectedCategory === category ? 'bos-filter-chip active' : 'bos-filter-chip'}>{category}</button>)}
         </div>
-
-        {/* Categories Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-3 shrink-0">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                selectedCategory === cat
-                  ? 'bg-white text-black'
-                  : 'bg-white/5 hover:bg-white/10 text-zinc-400'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        <div className="bos-search-results" aria-live="polite">
+          <div className="bos-results-label">{query ? `${filtered.length} MATCHING PLANS` : 'PICKED FOR YOU'}</div>
+          {filtered.length ? filtered.map((event) => <button className="bos-search-result" key={event.id} type="button" onClick={() => { onSelectEvent(event); onClose(); }}>
+            <img src={event.thumbnail || event.coverImage} alt="" />
+            <span className="bos-result-copy"><strong>{event.title}</strong><span>{event.subtitle}</span><small><MapPin size={12} /> {event.venue?.shortName || event.venue?.name || event.venue}</small></span>
+            <span className="bos-result-action">{event.isBookable ? <span className="bos-live-pill">BOOK NOW</span> : <span className="bos-soon-pill">BOOKING UNAVAILABLE</span>}<ArrowUpRight size={16} /></span>
+          </button>) : <div className="bos-search-empty"><Search size={27} /><strong>No plans found</strong><span>Try another event, category or venue.</span></div>}
         </div>
-
-        {/* Search Results */}
-        <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
-          {filtered.length === 0 ? (
-            <div className="py-16 text-center text-zinc-500 text-xs">
-              No events found matching "{query}".
-            </div>
-          ) : (
-            filtered.map((e) => (
-              <div
-                key={e.id}
-                onClick={() => {
-                  onSelectEvent(e);
-                  onClose();
-                }}
-                className="p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 flex items-center gap-3.5 cursor-pointer transition-all text-left"
-              >
-                <img 
-                  src={e.thumbnail || e.coverImage} 
-                  alt={e.title}
-                  className="w-14 h-14 rounded-xl object-cover shrink-0 border border-white/10" 
-                />
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-bold text-white truncate">
-                    {e.title}
-                  </h4>
-                  <p className="text-xs text-zinc-400 truncate mt-0.5">
-                    {e.dateSubtitle || e.dates}
-                  </p>
-                  <p className="text-[11px] text-[#FFA947] font-mono mt-0.5">
-                    {e.priceLabel || `₹${e.price}`}
-                  </p>
-                </div>
-                <CaretRight size={16} className="text-zinc-500 shrink-0" />
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
+        <footer className="bos-search-footer"><Clock3 size={13} /> New plans are added as organisers confirm availability.</footer>
+      </section>
+    </div>, document.body
   );
 }

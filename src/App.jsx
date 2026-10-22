@@ -2,7 +2,6 @@ import React, { useState, useEffect, lazy, Suspense } from 'react';
 import EventFeed from './components/EventFeed';
 import Navbar from './components/Navbar';
 import { ALL_EVENTS, EVENTS_DATA } from './data/eventsData';
-import { getStoredPasses } from './utils/passRegistry';
 import { getCurrentUser } from './utils/authService';
 import { firebaseAuth } from './utils/firebaseClient';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -36,6 +35,25 @@ export default function App() {
     return () => window.removeEventListener('popstate', syncFromLocation);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (!currentUser || !firebaseAuth?.currentUser) {
+      setTicketCount(0);
+      return () => { cancelled = true; };
+    }
+    firebaseAuth.currentUser.getIdToken()
+      .then((idToken) => fetch('/api/bookings', { headers: { Authorization: `Bearer ${idToken}` } }))
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Booking count unavailable');
+        return response.json();
+      })
+      .then((data) => {
+        if (!cancelled) setTicketCount((data.bookings || []).reduce((count, booking) => count + (booking.tickets?.length || 0), 0));
+      })
+      .catch(() => { if (!cancelled) setTicketCount(0); });
+    return () => { cancelled = true; };
+  }, [currentUser?.id]);
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMyTicketsOpen, setIsMyTicketsOpen] = useState(() => {
     try {
@@ -49,6 +67,7 @@ export default function App() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [pendingBookingEvent, setPendingBookingEvent] = useState(null);
+  const [pendingOpenTickets, setPendingOpenTickets] = useState(false);
   const [ticketCount, setTicketCount] = useState(0);
   
   // Bookmarked event IDs (Hotlist)
@@ -100,13 +119,6 @@ export default function App() {
 
   // Sync ticket count and user session
   useEffect(() => {
-    const updateStats = () => {
-      const stored = getStoredPasses();
-      setTicketCount(stored.length);
-    };
-    updateStats();
-    window.addEventListener('pass_registry_updated', updateStats);
-
     const unsubscribeAuth = firebaseAuth
       ? onAuthStateChanged(firebaseAuth, () => getCurrentUser().then(user => setCurrentUser(user)))
       : undefined;
@@ -114,7 +126,6 @@ export default function App() {
     window.addEventListener('auth_state_changed', handleAuthChange);
 
     return () => {
-      window.removeEventListener('pass_registry_updated', updateStats);
       window.removeEventListener('auth_state_changed', handleAuthChange);
       unsubscribeAuth?.();
     };
@@ -128,7 +139,8 @@ export default function App() {
     } else if (tab === 'SEARCH') {
       setIsSearchOpen(true);
     } else if (tab === 'PASSES') {
-      setIsMyTicketsOpen(true);
+      if (currentUser) setIsMyTicketsOpen(true);
+      else { setPendingOpenTickets(true); setIsAuthOpen(true); }
     } else if (tab === 'PROFILE') {
       if (currentUser) {
         setIsProfileOpen(true);
@@ -139,6 +151,7 @@ export default function App() {
   };
 
   const handleBookingSuccess = (newPasses) => {
+    if (Array.isArray(newPasses)) setTicketCount((count) => count + newPasses.length);
     setIsMyTicketsOpen(true);
   };
 
@@ -192,7 +205,7 @@ export default function App() {
           setIsSearchOpen(false);
           setActiveTab('EVENTS');
         }}
-        events={EVENTS_DATA}
+        events={ALL_EVENTS}
         onSelectEvent={(e) => {
           handleSelectEvent(e, false);
           setIsSearchOpen(false);
@@ -214,13 +227,18 @@ export default function App() {
       {/* LOGIN & ONBOARDING SHEET (1:1 with IMG_4088.PNG, IMG_4089.PNG, IMG_4090.PNG) */}
       <AuthModal
         isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
+        onClose={() => { setIsAuthOpen(false); setActiveTab('EVENTS'); setPendingBookingEvent(null); setPendingOpenTickets(false); }}
         onAuthSuccess={(user) => {
           setCurrentUser(user);
           setIsAuthOpen(false);
           if (pendingBookingEvent) {
             handleSelectEvent(pendingBookingEvent, true);
             setPendingBookingEvent(null);
+          } else if (pendingOpenTickets) {
+            setIsMyTicketsOpen(true);
+            setPendingOpenTickets(false);
+          } else if (activeTab === 'PROFILE') {
+            setIsProfileOpen(true);
           }
         }}
       />
@@ -238,6 +256,8 @@ export default function App() {
           setCurrentUser(null);
           setIsProfileOpen(false);
         }}
+        onProfileUpdate={setCurrentUser}
+        ticketCount={ticketCount}
       />
       </Suspense>
 

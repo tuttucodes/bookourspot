@@ -1,4 +1,5 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, 
   Ticket, 
@@ -10,15 +11,17 @@ import {
   DownloadSimple
 } from '@phosphor-icons/react';
 const TicketStub = lazy(() => import('./TicketStub'));
-import { getStoredPasses } from '../utils/passRegistry';
 import { firebaseAuth } from '../utils/firebaseClient';
 import { playTap, playSuccessChime } from '../utils/audioTheme';
+import { ALL_EVENTS } from '../data/eventsData';
+import useModalAccessibility from '../hooks/useModalAccessibility';
 
 export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
   const [passes, setPasses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const dialogRef = useRef(null);
 
   const loadPasses = async () => {
     setIsLoading(true);
@@ -30,18 +33,21 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
       const response = await fetch('/api/bookings', { headers: { Authorization: `Bearer ${idToken}` } });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'Booking history could not be loaded.');
-      setPasses((result.bookings || []).flatMap((booking) => booking.tickets || []).map((ticket) => ({
-        ...ticket,
-        eventId: 'halloween-affair',
-        eventTitle: 'A little Halloween affair',
-        phone: ticket.guestPhone,
-        selectedDate: 'Fri, 23 Oct',
-        selectedTiming: '7:00 PM Till Late',
-        price: Number(ticket.price),
-        issuedAt: ticket.issuedAt
-      })));
+      setPasses((result.bookings || []).flatMap((booking) => {
+        const event = ALL_EVENTS.find((item) => item.id === booking.eventId);
+        return (booking.tickets || []).map((ticket) => ({
+          ...ticket,
+          eventId: booking.eventId,
+          eventTitle: event?.title || 'BookOutSpot event',
+          phone: ticket.guestPhone,
+          selectedDate: event?.dates || 'Date to be confirmed',
+          selectedTiming: event?.time || 'See event details',
+          price: Number(ticket.price),
+          issuedAt: ticket.issuedAt
+        }));
+      }));
     } catch (error) {
-      setPasses(getStoredPasses());
+      setPasses([]);
       setLoadError(error.message || 'Booking history could not be loaded.');
     } finally {
       setIsLoading(false);
@@ -53,6 +59,8 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
       loadPasses();
     }
   }, [isOpen]);
+
+  useModalAccessibility(isOpen, dialogRef, onClose);
 
   const handlePrintAll = () => {
     playTap();
@@ -76,12 +84,9 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
 
   if (!isOpen) return null;
 
-  return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in"
-      style={{ overscrollBehavior: 'contain' }}
-    >
-      <div className="relative w-full max-w-2xl bg-[#0F0E17] border border-white/15 rounded-3xl shadow-2xl text-[#F3EFE0] overflow-hidden my-auto max-h-[92vh] flex flex-col">
+  return createPortal(
+    <div className="bos-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <div ref={dialogRef} tabIndex={-1} className="bos-sheet bos-tickets-sheet" role="dialog" aria-modal="true" aria-labelledby="bos-tickets-title">
         
         {/* Masthead */}
         <div className="bg-[#171624] border-b border-white/10 p-4 sm:p-5 flex items-center justify-between shrink-0">
@@ -90,11 +95,11 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
               <Ticket size={22} weight="fill" />
             </div>
             <div className="text-left">
-              <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+              <h3 id="bos-tickets-title" className="text-base sm:text-lg font-bold text-white tracking-tight">
                 BookOutSpot tickets
               </h3>
               <p className="text-xs text-zinc-400">
-                {passes.length} {passes.length === 1 ? 'ticket' : 'tickets'} on this device
+                {passes.length} {passes.length === 1 ? 'ticket' : 'tickets'} in your account
               </p>
             </div>
           </div>
@@ -114,13 +119,13 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
         {/* Content Area */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
           {loadError && <p role="alert" className="rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-xs text-amber-100">{loadError}</p>}
-          {isLoading ? <div className="py-16 text-center text-sm text-zinc-400">Loading your tickets…</div> : passes.length === 0 ? (
+          {isLoading ? <div role="status" className="py-16 text-center text-sm text-zinc-400">Loading your tickets…</div> : passes.length === 0 ? (
             <div className="py-16 text-center space-y-4">
               <Ticket size={48} className="mx-auto text-zinc-600 stroke-[1]" />
               <div className="space-y-1">
                 <p className="text-xl font-bold text-white">No passes allocated yet</p>
                 <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-                  No paid bookings found. Choose the Halloween event to see its current booking options.
+                  No paid bookings found yet. Your passes will appear here as soon as a payment is confirmed.
                 </p>
               </div>
               <button
@@ -131,7 +136,7 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
                 }}
                 className="inline-flex items-center gap-2 py-3 px-6 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold uppercase tracking-wider transition-transform active:scale-95 cursor-pointer shadow-xl"
               >
-                <span>Explore A little Halloween affair</span>
+                <span>Explore events</span>
                 <ArrowRight size={14} weight="bold" />
               </button>
             </div>
@@ -179,10 +184,10 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
         {/* Footer */}
         <div className="bg-[#171624] border-t border-white/10 px-5 py-3 flex items-center justify-between text-[11px] text-zinc-500 shrink-0">
           <span>BookOutSpot · bookourspot.com</span>
-          <span className="text-zinc-400">A little Halloween affair</span>
+          <span className="text-zinc-400">Your nights out, sorted</span>
         </div>
 
       </div>
-    </div>
+    </div>, document.body
   );
 }

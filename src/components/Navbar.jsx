@@ -13,7 +13,8 @@ export default function Navbar({ activeTab, onTabChange, ticketCount = 0, curren
       <nav className="bos-app-nav" aria-label="Main navigation">
         {items.map(({ id, label, Icon }) => (
           <button key={id} type="button" aria-current={activeTab === id ? 'page' : undefined} onClick={() => onTabChange(id)} className={activeTab === id ? 'bos-app-nav-item selected' : 'bos-app-nav-item'}>
-            <span className="nav-icon-wrap"><Icon size={18} strokeWidth={activeTab === id ? 2.3 : 1.8} />{id === 'PASSES' && ticketCount > 0 && <i>{ticketCount}</i>}</span>
+            <span className="nav-icon-wrap"><Icon size={18} strokeWidth={activeTab === id ? 2.3 : 1.8} />{id === 'PASSES' && ticketCount > 0 && <i>{ticketCount > 99 ? '99+' : ticketCount}</i>}</span>
+            {id === 'PASSES' && ticketCount > 0 && <span className="sr-only">{ticketCount} tickets</span>}
             <span>{label}</span>
           </button>
         ))}

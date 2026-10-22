@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ArrowLeft, 
   X, 
@@ -6,12 +7,11 @@ import {
   ForkKnife, 
   Ticket, 
   Moon, 
-  ChatDots, 
-  CheckCircle,
-  WarningCircle
+  ChatDots
 } from '@phosphor-icons/react';
 import { signInWithGoogle, signInWithEmail, sendOtpToPhone, verifyPhoneOtp } from '../utils/authService';
 import { playTap, playSuccessChime } from '../utils/audioTheme';
+import useModalAccessibility from '../hooks/useModalAccessibility';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   const [step, setStep] = useState('PHONE'); // 'PHONE' | 'OTP'
@@ -27,6 +27,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   const [createAccount, setCreateAccount] = useState(false);
 
   const otpInputsRef = useRef([]);
+  const dialogRef = useRef(null);
 
   // Rotating pin graphic slides (matching IMG_4088.PNG & IMG_4089.PNG)
   const pinSlides = [
@@ -70,6 +71,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     }, 1000);
     return () => clearInterval(timer);
   }, [step, otpTimer]);
+
+  useModalAccessibility(isOpen, dialogRef, onClose, { escape: !isLoading });
 
   if (!isOpen) return null;
 
@@ -186,12 +189,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     setErrorMsg(res.error || 'Google sign-in is unavailable right now.');
   };
 
-  return (
-    <div 
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in"
-      style={{ overscrollBehavior: 'contain' }}
-    >
-      <div className="relative w-full max-w-md bg-[#0D0C13] border-t sm:border border-white/15 rounded-t-[36px] sm:rounded-3xl shadow-2xl text-[#F3EFE0] overflow-hidden flex flex-col font-sans">
+  return createPortal(
+    <div className="bos-overlay bos-auth-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && step !== 'OTP') onClose(); }}>
+      <div ref={dialogRef} tabIndex={-1} className="bos-sheet bos-auth-sheet" role="dialog" aria-modal="true" aria-labelledby="bos-auth-title">
         
         {step === 'PHONE' ? (
           <>
@@ -250,7 +250,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             {/* BOTTOM SECTION: Phone input and Social sign-in (1:1 with IMG_4088.PNG) */}
             <div className="p-6 bg-[#0E0D14] border-t border-white/10 rounded-t-[32px] space-y-4 text-center">
               
-              <h2 className="text-2xl font-black text-white tracking-tight leading-tight">
+              <h2 id="bos-auth-title" className="text-2xl font-black text-white tracking-tight leading-tight">
                 For all your going<br />out plans
               </h2>
 
@@ -264,23 +264,23 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               </div>
 
               <div className="flex rounded-xl bg-[#171622] p-1 text-xs font-semibold">
-                <button type="button" onClick={() => { setAuthMethod('phone'); setErrorMsg(''); }} className={`flex-1 rounded-lg py-2 ${authMethod === 'phone' ? 'bg-white/15 text-white' : 'text-zinc-400'}`}>Phone</button>
-                <button type="button" onClick={() => { setAuthMethod('email'); setErrorMsg(''); }} className={`flex-1 rounded-lg py-2 ${authMethod === 'email' ? 'bg-white/15 text-white' : 'text-zinc-400'}`}>Email</button>
+                <button type="button" aria-pressed={authMethod === 'phone'} onClick={() => { setAuthMethod('phone'); setErrorMsg(''); }} className={`flex-1 rounded-lg py-2 ${authMethod === 'phone' ? 'bg-white/15 text-white' : 'text-zinc-400'}`}>Phone</button>
+                <button type="button" aria-pressed={authMethod === 'email'} onClick={() => { setAuthMethod('email'); setErrorMsg(''); }} className={`flex-1 rounded-lg py-2 ${authMethod === 'email' ? 'bg-white/15 text-white' : 'text-zinc-400'}`}>Email</button>
               </div>
 
               {authMethod === 'phone' ? <form onSubmit={handlePhoneSubmit} className="space-y-3">
                 <div id="firebase-recaptcha-container" />
                 <div className="flex gap-2">
                   {/* Country Flag & Code Box */}
-                  <div className="h-13 px-3.5 rounded-2xl bg-[#1A1824] border border-white/15 flex items-center gap-1.5 text-white text-sm font-semibold shrink-0 cursor-pointer">
+                  <div className="h-13 px-3.5 rounded-2xl bg-[#1A1824] border border-white/15 flex items-center gap-1.5 text-white text-sm font-semibold shrink-0" aria-label="Country code India, plus 91">
                     <span className="text-base select-none">🇮🇳</span>
                     <span>+91</span>
-                    <CaretDown size={14} weight="bold" className="text-zinc-400" />
                   </div>
 
                   {/* Phone Input Box */}
                   <input
                     type="tel"
+                    aria-label="Mobile number with country code +91"
                     required
                     maxLength={10}
                     value={phone}
@@ -289,13 +289,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                     className="flex-1 h-13 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm sm:text-base text-white placeholder-zinc-500 font-mono tracking-wide focus:border-white/40 outline-none transition-colors"
                   />
                 </div>
-
-                {errorMsg && (
-                  <div className="p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs flex items-center justify-center gap-1.5">
-                    <WarningCircle size={15} className="shrink-0" />
-                    <span>{errorMsg}</span>
-                  </div>
-                )}
 
                 {/* Continue Button (IMG_4088.PNG) */}
                 <button
@@ -306,9 +299,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   {isLoading ? 'Sending Code…' : 'Continue'}
                 </button>
               </form> : <form onSubmit={handleEmailSubmit} className="space-y-3 text-left">
-                <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
-                <input type="password" required minLength={6} autoComplete={createAccount ? 'new-password' : 'current-password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (6+ characters)" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
-                {errorMsg && <p role="alert" className="text-xs text-rose-300">{errorMsg}</p>}
+                <label className="sr-only" htmlFor="bos-auth-email">Email address</label><input id="bos-auth-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
+                <label className="sr-only" htmlFor="bos-auth-password">Password</label><input id="bos-auth-password" type="password" required minLength={6} autoComplete={createAccount ? 'new-password' : 'current-password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (6+ characters)" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
                 <button type="submit" disabled={isLoading} className="w-full h-12 rounded-2xl bg-[#2D2A3E] hover:bg-[#3D3954] disabled:opacity-40 text-white font-bold text-sm transition-all">{isLoading ? 'Please wait…' : createAccount ? 'Create account' : 'Sign in with email'}</button>
                 <button type="button" onClick={() => { setCreateAccount((value) => !value); setErrorMsg(''); }} className="w-full text-xs text-zinc-400 hover:text-white underline">{createAccount ? 'Already have an account? Sign in' : 'New here? Create an account'}</button>
               </form>}
@@ -347,10 +339,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
               {/* Legal Footer (IMG_4088.PNG) */}
               <p className="text-[11px] text-zinc-500 pt-2 leading-relaxed font-sans">
-                By continuing, you agree to our{' '}
-                <span className="underline cursor-pointer text-zinc-400">Terms of Service</span>
-                {' · '}
-                <span className="underline cursor-pointer text-zinc-400">Privacy Policy</span>
+                Terms and privacy information will be available before ticket bookings open.
               </p>
             </div>
           </>
@@ -367,7 +356,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               >
                 <ArrowLeft size={18} weight="bold" />
               </button>
-              <h2 className="text-lg font-bold text-white">
+              <h2 id="bos-auth-title" className="text-lg font-bold text-white">
                 OTP Verification
               </h2>
             </div>
@@ -390,6 +379,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   ref={el => otpInputsRef.current[index] = el}
                   type="text"
                   inputMode="numeric"
+                  autoComplete={index === 0 ? 'one-time-code' : 'off'}
+                  aria-label={`Verification code digit ${index + 1} of 6`}
                   maxLength={1}
                   value={digit}
                   autoFocus={index === 0}
@@ -457,5 +448,5 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
       </div>
     </div>
-  );
+  , document.body);
 }

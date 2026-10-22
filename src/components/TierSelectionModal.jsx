@@ -11,7 +11,7 @@ import {
   Square,
   ArrowRight,
 } from '@phosphor-icons/react';
-import RazorpayModal from './RazorpayModal';
+import BookOutSpotPaymentModal from './BookOutSpotPaymentModal';
 import { savePasses } from '../utils/passRegistry';
 import { getLocalUser } from '../utils/authService';
 import { playTap, playPassAdded, playSuccessChime } from '../utils/audioTheme';
@@ -30,7 +30,7 @@ export default function TierSelectionModal({
   const [expandedTier, setExpandedTier] = useState(null);
   const [guests, setGuests] = useState([]);
   const [agreedTerms, setAgreedTerms] = useState(false);
-  const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
   // Initialize selected date
   useEffect(() => {
@@ -158,11 +158,11 @@ export default function TierSelectionModal({
       return;
     }
 
-    setIsRazorpayOpen(true);
+    setIsPaymentOpen(true);
   };
 
-  const handlePaymentConfirmed = (paymentId, issuedTickets) => {
-    setIsRazorpayOpen(false);
+  const handlePaymentConfirmed = (bookingId, issuedTickets) => {
+    setIsPaymentOpen(false);
 
     if (!Array.isArray(issuedTickets) || issuedTickets.length !== totalTickets) {
       alert('Payment was verified, but ticket issuance needs support assistance. Please contact support before retrying.');
@@ -186,7 +186,7 @@ export default function TierSelectionModal({
         instagram: '',
         tierName: primaryTierName,
         price: singlePassPrice,
-        paymentId,
+        bookingId,
         utr: '',
         selectedDate: selectedDate?.label,
         selectedTiming: selectedDate?.timing,
@@ -204,7 +204,7 @@ export default function TierSelectionModal({
         particleCount: 120,
         spread: 80,
         origin: { y: 0.6 },
-        colors: ['#431CB8', '#FF521B', '#F3EFE0', '#25D366']
+      colors: ['#a987ff', '#ff9e69', '#f3efff', '#ffffff']
       });
     } catch {}
 
@@ -503,9 +503,9 @@ export default function TierSelectionModal({
       </div>
 
       {/* RAZORPAY UPI GATEWAY MODAL */}
-      <RazorpayModal
-        isOpen={isRazorpayOpen}
-        onClose={() => setIsRazorpayOpen(false)}
+      <BookOutSpotPaymentModal
+        isOpen={isPaymentOpen}
+        onClose={() => setIsPaymentOpen(false)}
         totalAmount={totalAmount}
         totalGuests={totalTickets}
         tierLabel={selectedTiersList[0]?.name || 'General Pass'}

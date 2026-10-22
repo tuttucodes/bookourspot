@@ -1,18 +1,19 @@
 export const EVENTS_DATA = [
   {
     id: 'halloween-affair',
+    isBookable: true,
     slug: 'a-little-halloween-affair',
     title: 'A little Halloween affair',
     subtitle: 'A house party · Secret spooky location',
     category: 'House party',
     tags: ['Halloween', 'Nightlife', 'House party'],
     price: 1500,
-    priceLabel: '₹1,500',
+    priceLabel: '₹1,500 per person · ₹2,800 duo',
     dates: 'Fri, 23 Oct',
     time: '7:00 PM Till Late',
     dateSubtitle: 'Friday, 23 Oct · 7:00 PM Till Late',
     availableDates: [
-      { id: '2026-10-23', label: 'Fri, 23 Oct', priceLabel: '₹1,500', timing: '7:00 PM Till Late' }
+      { id: '2026-10-23', label: 'Fri, 23 Oct', priceLabel: '₹1,500 solo · ₹2,800 duo', timing: '7:00 PM Till Late' }
     ],
     showFooterNote: 'House party · Secret spooky location',
     tiers: [
@@ -24,6 +25,17 @@ export const EVENTS_DATA = [
         bullets: [
           'Entry for one person.',
           'House party in Chennai. Exact location to be shared by the organiser.',
+          'Dress code: spooky, stylish and a little dramatic.'
+        ]
+      },
+      {
+        id: 'duo-house-pass',
+        name: 'Couple / Duo · 2 people',
+        price: 2800,
+        guestsPerUnit: 2,
+        bullets: [
+          'Entry for two people. Add the name and phone number for both guests.',
+          'House party in Chennai. Exact location to be shared with invited guests.',
           'Dress code: spooky, stylish and a little dramatic.'
         ]
       }
@@ -116,6 +128,7 @@ export const ALL_EVENTS = [
   ...EVENTS_DATA,
   ...COMING_SOON_EVENTS.map((event) => ({
     ...event,
+    isBookable: false,
     slug: event.id,
     dates: event.dateLabel,
     dateSubtitle: event.dateLabel,

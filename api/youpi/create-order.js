@@ -2,7 +2,14 @@ import { randomUUID } from 'node:crypto';
 import { getSignedInUser } from '../_lib/firebase-auth.js';
 import { bookingRpc, hasBookingDatabaseConfig } from '../_lib/bookings.js';
 
-const PRICE_PAISE = { SOLO: 150000 };
+const PRICE_PAISE = { SOLO: 150000, DUO: 280000 };
+const GUESTS_PER_UNIT = { SOLO: 1, DUO: 2 };
+const cleanHttpsUrl = (value) => {
+  try {
+    const url = new URL(value || '');
+    return url.protocol === 'https:' ? url.toString() : '';
+  } catch { return ''; }
+};
 
 export default async function handler(request, response) {
   response.setHeader('Cache-Control', 'no-store');
@@ -13,6 +20,13 @@ export default async function handler(request, response) {
   if (!hasBookingDatabaseConfig()) {
     return response.status(503).json({ error: 'Secure checkout is being set up. Please try again shortly.' });
   }
+  const checkoutScriptUrl = cleanHttpsUrl(process.env.YOUPI_CHECKOUT_SCRIPT_URL);
+  const merchantKey = process.env.YOUPI_MERCHANT_KEY;
+  const webhookSecret = process.env.YOUPI_WEBHOOK_SECRET;
+  if (!checkoutScriptUrl || !merchantKey || !webhookSecret) {
+    return response.status(503).json({ error: 'BookOutSpot UPI checkout is being connected. Please try again shortly.' });
+  }
+
   const user = await getSignedInUser(request);
   if (!user) return response.status(401).json({ error: 'Sign in to book this event.' });
 
@@ -22,11 +36,9 @@ export default async function handler(request, response) {
   if (eventId !== 'halloween-affair' || !PRICE_PAISE[tierType] || !Number.isInteger(count) || count < 1 || count > 5) {
     return response.status(400).json({ error: 'This event or ticket option is not available.' });
   }
-
-  const guestCount = count;
   const amount = PRICE_PAISE[tierType] * count;
-  const amountRupees = Number(totalAmount);
-  if (!Number.isSafeInteger(amountRupees) || guests !== guestCount || amountRupees * 100 !== amount || !Array.isArray(attendees) || attendees.length !== count) {
+  const expectedGuests = count * GUESTS_PER_UNIT[tierType];
+  if (!Number.isSafeInteger(Number(totalAmount)) || Number(totalAmount) * 100 !== amount || guests !== expectedGuests || !Array.isArray(attendees) || attendees.length !== expectedGuests) {
     return response.status(400).json({ error: 'The ticket total changed. Refresh the page and try again.' });
   }
 
@@ -41,13 +53,8 @@ export default async function handler(request, response) {
     normalizedAttendees.push({ name, phone });
   }
 
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keyId || !keySecret) return response.status(503).json({ error: 'Secure checkout is being set up. Please try again shortly.' });
-
-  let bookingId;
+  const bookingId = randomUUID();
   try {
-    bookingId = randomUUID();
     await bookingRpc('bos_create_pending_booking', {
       p_booking_id: bookingId,
       p_user_id: user.id,
@@ -57,29 +64,20 @@ export default async function handler(request, response) {
       p_total_amount: amount,
       p_attendees: normalizedAttendees
     });
-    const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
-    const gatewayResponse = await fetch('https://api.razorpay.com/v1/orders', {
-      method: 'POST',
-      headers: { Authorization: `Basic ${auth}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        amount,
-        currency: 'INR',
-        receipt: `bos_${bookingId.replaceAll('-', '').slice(0, 32)}`,
-        // Attendee PII stays in our database; Razorpay notes only carry ids.
-        notes: { eventId, tierType, quantity: String(count), totalGuests: String(guestCount), bookerUserId: user.id, bookingId }
-      })
+    // YouPI receives this opaque order ID. Amount and guest data remain fixed
+    // server-side; its signed webhook is the only path that issues tickets.
+    await bookingRpc('bos_attach_order', { p_booking_id: bookingId, p_user_id: user.id, p_order_id: bookingId });
+    return response.status(200).json({
+      bookingId,
+      orderId: bookingId,
+      amount: amount / 100,
+      currency: 'INR',
+      merchantKey,
+      checkoutScriptUrl,
+      name: 'BookOutSpot'
     });
-    const order = await gatewayResponse.json();
-    if (!gatewayResponse.ok || typeof order?.id !== 'string') {
-      await bookingRpc('bos_cancel_pending_booking', { p_booking_id: bookingId, p_user_id: user.id });
-      return response.status(502).json({ error: 'Razorpay could not create this order.' });
-    }
-    await bookingRpc('bos_attach_order', { p_booking_id: bookingId, p_user_id: user.id, p_order_id: order.id });
-    return response.status(200).json({ bookingId, orderId: order.id, amount: order.amount, currency: order.currency, keyId });
   } catch {
-    if (bookingId) {
-      try { await bookingRpc('bos_cancel_pending_booking', { p_booking_id: bookingId, p_user_id: user.id }); } catch {}
-    }
-    return response.status(503).json({ error: 'Secure booking storage or payment setup is unavailable. Please try again shortly.' });
+    try { await bookingRpc('bos_cancel_pending_booking', { p_booking_id: bookingId, p_user_id: user.id }); } catch {}
+    return response.status(503).json({ error: 'Secure checkout could not create this booking. Please try again shortly.' });
   }
 }

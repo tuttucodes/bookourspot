@@ -75,11 +75,63 @@ export async function getUserBookings(userId) {
       guestName: ticket.guest_name,
       guestPhone: ticket.guest_phone,
       ticketNumber: ticket.ticket_number,
-      tierName: 'General Admission',
+      tierName: booking.tier_type === 'DUO' ? 'Couple / Duo · 2 people' : 'Entry · 1 person',
       tierType: booking.tier_type,
-      price: booking.total_amount / booking.quantity / 100,
+      price: booking.total_amount / booking.quantity / (booking.tier_type === 'DUO' ? 2 : 1) / 100,
       status: ticket.status,
       issuedAt: ticket.issued_at
     }))
   }));
+}
+
+export async function getBookingByGatewayOrder(orderId) {
+  const { url, serviceKey } = supabaseConfig();
+  if (!url || !serviceKey) throw new Error('Server-side booking storage is not configured.');
+  const query = new URLSearchParams({
+    select: 'id,user_id,event_id,tier_type,quantity,total_amount,status,gateway_order_id,gateway_payment_id,booking_tickets(id,guest_name,guest_phone,ticket_number,status,issued_at)',
+    gateway_order_id: `eq.${orderId}`,
+    limit: '1'
+  });
+  const result = await fetch(`${url}/rest/v1/bookings?${query}`, {
+    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Accept-Profile': 'public' }
+  });
+  const rows = await result.json().catch(() => null);
+  if (!result.ok) throw new Error('Booking record is unavailable.');
+  return rows?.[0] || null;
+}
+
+export async function getUserBookingStatus(userId, bookingId) {
+  const { url, serviceKey } = supabaseConfig();
+  if (!url || !serviceKey) throw new Error('Server-side booking storage is not configured.');
+  const query = new URLSearchParams({
+    select: 'id,event_id,tier_type,quantity,total_amount,status,created_at,paid_at,booking_tickets(id,guest_name,guest_phone,ticket_number,status,issued_at)',
+    id: `eq.${bookingId}`,
+    user_id: `eq.${userId}`,
+    limit: '1'
+  });
+  const result = await fetch(`${url}/rest/v1/bookings?${query}`, {
+    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, 'Accept-Profile': 'public' }
+  });
+  const rows = await result.json().catch(() => null);
+  if (!result.ok) throw new Error('Booking record is unavailable.');
+  const booking = rows?.[0];
+  if (!booking) return null;
+  return {
+    bookingId: booking.id,
+    eventId: booking.event_id,
+    quantity: booking.quantity,
+    totalAmount: booking.total_amount / 100,
+    status: booking.status,
+    paidAt: booking.paid_at,
+    tickets: (booking.booking_tickets || []).map((ticket) => ({
+      id: ticket.id,
+      guestName: ticket.guest_name,
+      guestPhone: ticket.guest_phone,
+      ticketNumber: ticket.ticket_number,
+      tierName: booking.tier_type === 'DUO' ? 'Couple / Duo · 2 people' : 'Entry · 1 person',
+      price: booking.total_amount / booking.quantity / (booking.tier_type === 'DUO' ? 2 : 1) / 100,
+      status: ticket.status,
+      issuedAt: ticket.issued_at
+    }))
+  };
 }

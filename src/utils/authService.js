@@ -6,6 +6,7 @@ import {
   signInWithPhoneNumber,
   signInWithPopup,
   signOut,
+  updateProfile,
 } from 'firebase/auth';
 import { firebaseAuth, isFirebaseConfigured } from './firebaseClient.js';
 
@@ -65,6 +66,23 @@ export async function signInWithEmail(email, password, createAccount = false) {
       : await signInWithEmailAndPassword(auth, email.trim(), password);
     setLocalUser();
     return { success: true, user: mapUser(credential.user) };
+  } catch (err) {
+    return { success: false, error: formatAuthError(err) };
+  }
+}
+
+export async function updateAccountName(name) {
+  try {
+    const auth = requireFirebase();
+    const cleanName = String(name || '').trim().replace(/\s+/g, ' ');
+    if (cleanName.length < 2 || cleanName.length > 80) {
+      throw new Error('Enter a name between 2 and 80 characters.');
+    }
+    if (!auth.currentUser) throw new Error('Sign in again to update your profile.');
+    await updateProfile(auth.currentUser, { displayName: cleanName });
+    await auth.currentUser.reload();
+    setLocalUser();
+    return { success: true, user: mapUser(auth.currentUser) };
   } catch (err) {
     return { success: false, error: formatAuthError(err) };
   }

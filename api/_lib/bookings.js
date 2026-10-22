@@ -45,7 +45,7 @@ export async function getUserBookings(userId) {
   const query = new URLSearchParams({
     select: 'id,event_id,tier_type,quantity,total_amount,status,created_at,paid_at,booking_tickets(id,guest_name,guest_phone,ticket_number,status,issued_at)',
     user_id: `eq.${userId}`,
-    status: 'eq.PAID',
+    status: 'in.(PENDING,PAID)',
     order: 'created_at.desc'
   });
   const result = await fetch(`${url}/rest/v1/bookings?${query}`, {

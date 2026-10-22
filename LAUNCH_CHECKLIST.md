@@ -11,6 +11,7 @@ Status date: 22 October 2026. “Done” below refers to the current repository 
 - [x] Firebase sign-in UI supports phone OTP, email/password and Google.
 - [x] Profile name editing writes to Firebase Auth; paid ticket history is read from owner-scoped Supabase API.
 - [x] Checkout amount is set server-side; customer browser callbacks cannot issue tickets.
+- [x] Account booking history includes pending payments with an authenticated status check, so closing checkout or refreshing does not lose payment recovery.
 - [x] YouPI webhook handler follows the sender's current contract: HMAC-SHA256 over exact raw JSON bytes in `X-Gateway-Signature`, delivery metadata in headers, plus UTR, order, amount and booking-state checks before idempotent pass fulfillment.
 - [x] Verified UTR is stored once with the paid booking for reconciliation; repeated delivery is idempotent.
 - [x] Search, tickets and login overlays have been refreshed with responsive glass sheets, dialog semantics, keyboard close, and honest booking status.

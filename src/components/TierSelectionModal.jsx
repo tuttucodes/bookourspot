@@ -31,6 +31,7 @@ export default function TierSelectionModal({
   const [guests, setGuests] = useState([]);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [attendeeError, setAttendeeError] = useState('');
 
   // Initialize selected date
   useEffect(() => {
@@ -133,6 +134,7 @@ export default function TierSelectionModal({
   };
 
   const updateGuest = (index, field, value) => {
+    setAttendeeError('');
     setGuests(prev => {
       const copy = [...prev];
       copy[index] = { ...copy[index], [field]: value };
@@ -150,23 +152,33 @@ export default function TierSelectionModal({
     e.preventDefault();
     playTap();
 
+    const normalizedGuests = [];
     for (let i = 0; i < totalTickets; i++) {
       const g = guests[i];
       if (!g.name || !g.name.trim()) {
-        alert(`Please enter full name for Guest 0${i + 1}.`);
+        setAttendeeError(`Add the full name for attendee ${i + 1}.`);
         return;
       }
-      if (!g.phone || !g.phone.trim()) {
-        alert(`Please enter phone number for Guest 0${i + 1}.`);
+      const rawPhone = typeof g.phone === 'string' ? g.phone.trim() : '';
+      const digits = rawPhone.replace(/\D/g, '');
+      const compactPhone = rawPhone.replace(/[\s()-]/g, '');
+      const phone = compactPhone.startsWith('+') && /^\+[1-9]\d{7,14}$/.test(compactPhone)
+        ? compactPhone
+        : digits.length === 10 ? `+91${digits}` : digits.length === 12 && digits.startsWith('91') ? `+${digits}` : '';
+      if (!phone) {
+        setAttendeeError(`Enter a valid mobile number for attendee ${i + 1} (10 digits for India).`);
         return;
       }
+      normalizedGuests.push({ ...g, name: g.name.trim(), phone });
     }
 
     if (!agreedTerms) {
-      alert('Please confirm the event and attendee details before continuing.');
+      setAttendeeError('Confirm the event and attendee details before continuing.');
       return;
     }
 
+    setGuests(normalizedGuests);
+    setAttendeeError('');
     setIsPaymentOpen(true);
   };
 
@@ -449,7 +461,7 @@ export default function TierSelectionModal({
                     </div>
                     <div className="my-4 border-t border-white/10" />
                     <div className="flex items-baseline justify-between"><span className="text-sm text-zinc-400">Total</span><span className="font-mono text-xl font-bold text-white">₹{totalAmount.toLocaleString('en-IN')}</span></div>
-                    <p className="mt-1 text-[11px] text-zinc-500">INR · Payments by BookOutSpot</p>
+                    <p className="mt-1 text-[11px] text-zinc-500">INR · Direct UPI transfer · manual review</p>
                   </div>
 
                   <label htmlFor="tier_terms" className="guest-terms">
@@ -465,6 +477,7 @@ export default function TierSelectionModal({
                   I confirm the attendee details are correct and understand this booking stays pending until payment is verified.
                 </span>
               </label>
+              {attendeeError && <p className="-mt-2 rounded-xl border border-rose-200/15 bg-rose-100/[0.05] px-3 py-2.5 text-xs leading-relaxed text-rose-100" role="alert">{attendeeError}</p>}
               <p className="-mt-2 text-[11px] leading-relaxed text-zinc-500">By continuing, you agree to our <a href="/terms" target="_blank" rel="noreferrer" className="text-violet-200 underline underline-offset-2">Terms</a> and <a href="/privacy" target="_blank" rel="noreferrer" className="text-violet-200 underline underline-offset-2">Privacy Policy</a>.</p>
 
               <button
@@ -472,7 +485,7 @@ export default function TierSelectionModal({
                 disabled={!agreedTerms}
                 className="guest-pay-button"
               >
-                <span>Continue to secure payment</span>
+                <span>Continue to payment</span>
                 <ArrowRight size={18} weight="bold" />
               </button>
                   <p className="text-center text-[11px] leading-relaxed text-zinc-500">You’ll review the payment amount before leaving this page.</p>

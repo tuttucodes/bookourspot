@@ -2,12 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   ArrowLeft, 
-  X, 
-  CaretDown, 
-  ForkKnife, 
-  Ticket, 
-  Moon, 
-  ChatDots
+  ChatDots,
+  Sparkle,
+  ShieldCheck
 } from '@phosphor-icons/react';
 import { signInWithGoogle, consumeGoogleRedirect, signInWithEmail, sendOtpToPhone, verifyPhoneOtp } from '../utils/authService';
 import { firebaseAuth } from '../utils/firebaseClient';
@@ -21,7 +18,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
   const [otpTimer, setOtpTimer] = useState(29);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [pinIndex, setPinIndex] = useState(0);
   const [authMethod, setAuthMethod] = useState('phone');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,46 +37,19 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
       setIsLoading(true);
       consumeGoogleRedirect().then((result) => {
         sessionStorage.removeItem('bos_google_redirect_pending');
-        if (!result.success) { setErrorMsg(result.error); return; }
+        if (!result.success) {
+          setErrorMsg(result.error);
+          if (result.code === 'auth/account-exists-with-different-credential') {
+            setAuthMethod('email');
+            setEmail(result.email || '');
+          }
+          return;
+        }
         if (result.user?.phoneVerified) { finishAuth(result.user); return; }
         if (result.user) { setLinkingPhone(true); setAuthMethod('phone'); setStep('PHONE_REQUIRED'); }
       }).finally(() => setIsLoading(false));
     }
   }, [isOpen, initialStep]);
-
-  // Rotating pin graphic slides (matching IMG_4088.PNG & IMG_4089.PNG)
-  const pinSlides = [
-    {
-      id: 'dining',
-      label: 'Dining',
-      color: 'from-fuchsia-600 to-purple-800',
-      glow: 'rgba(217, 70, 239, 0.45)',
-      icon: <ForkKnife size={28} weight="fill" className="text-white drop-shadow" />
-    },
-    {
-      id: 'events',
-      label: 'Events',
-      color: 'from-violet-600 to-indigo-900',
-      glow: 'rgba(139, 92, 246, 0.45)',
-      icon: <Ticket size={28} weight="fill" className="text-white drop-shadow" />
-    },
-    {
-      id: 'nightlife',
-      label: 'Nightlife',
-      color: 'from-amber-500 to-rose-700',
-      glow: 'rgba(245, 158, 11, 0.45)',
-      icon: <Moon size={28} weight="fill" className="text-white drop-shadow" />
-    }
-  ];
-
-  // Rotate pin illustration every 3.5s
-  useEffect(() => {
-    if (!isOpen || step !== 'PHONE') return;
-    const interval = setInterval(() => {
-      setPinIndex(prev => (prev + 1) % pinSlides.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [isOpen, step, pinSlides.length]);
 
   // OTP Countdown timer (matches "Request again in 0:29s" in IMG_4090.PNG)
   useEffect(() => {
@@ -104,8 +73,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
   useModalAccessibility(isOpen, dialogRef, closeAuth, { escape: !isLoading });
 
   if (!isOpen) return null;
-
-  const currentPin = pinSlides[pinIndex];
 
   const finishAuth = (user = firebaseAuth?.currentUser) => {
     const mappedUser = user ? {
@@ -131,7 +98,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
     e.preventDefault();
     setErrorMsg('');
     const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length < 10) {
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
       setErrorMsg('Please enter a valid 10-digit mobile number');
       return;
     }
@@ -217,71 +184,39 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
       setErrorMsg('');
       return;
     }
+    if (res.code === 'auth/account-exists-with-different-credential') {
+      setAuthMethod('email');
+      setEmail(res.email || '');
+    }
     setErrorMsg(res.error || 'Google sign-in is unavailable right now.');
   };
 
   return createPortal(
     <div className="bos-overlay bos-auth-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && step !== 'OTP' && step !== 'PHONE_REQUIRED') closeAuth(); }}>
-      <div ref={dialogRef} tabIndex={-1} className="bos-sheet bos-auth-sheet" role="dialog" aria-modal="true" aria-labelledby="bos-auth-title">
+        <div ref={dialogRef} tabIndex={-1} className="bos-sheet bos-auth-sheet" role="dialog" aria-modal="true" aria-labelledby="bos-auth-title">
         <div id="firebase-recaptcha-container" className="absolute bottom-4 right-4 h-0 w-0 overflow-hidden" />
         
         {step !== 'OTP' ? (
           <>
-            {/* TOP BAR: Logo & Skip Button (1:1 with IMG_4088.PNG & IMG_4089.PNG) */}
-            <div className="px-5 pt-4 pb-1 flex items-center justify-between z-10">
-              <div className="text-left">
-                <span className="font-black text-sm tracking-widest text-white uppercase font-mono">
-                  BookOutSpot
-                </span>
-              </div>
-      {!linkingPhone && <button
+            <div className="bos-auth-topbar">
+              <a className="bos-auth-brand" href="/" aria-label="BookOutSpot home"><span className="bos-auth-brand-mark">b</span><span>BookOut<span>Spot</span></span></a>
+              {!linkingPhone && <button
                 type="button"
                 onClick={() => step === 'LINK_METHODS' ? finishAuth() : closeAuth()}
-                className="py-1 px-3.5 rounded-full bg-white/10 hover:bg-white/15 text-zinc-300 hover:text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+                className="bos-auth-skip"
               >
                 {step === 'LINK_METHODS' ? 'Continue' : 'Skip'}
               </button>}
             </div>
 
-            {/* HERO VISUAL: 3D Glowing Location Pin Carousel (1:1 with IMG_4088.PNG & IMG_4089.PNG) */}
-            <div className={`relative w-full flex flex-col items-center justify-center overflow-hidden transition-[height] duration-300 ${step === 'PHONE' ? 'h-36 sm:h-40' : 'h-24'}`}>
-              {/* Radial backdrop glow */}
-              <div 
-                className="absolute w-44 h-44 rounded-full blur-3xl transition-all duration-700 opacity-60"
-                style={{ backgroundColor: currentPin.glow }}
-              />
-
-              {/* Glowing pins cluster */}
-              <div className="relative flex items-center justify-center gap-6">
-                {/* Left Mini Pin */}
-                <div className="w-9 h-12 rounded-full bg-blue-600/60 blur-[1px] -rotate-12 scale-75 opacity-70 flex items-center justify-center" />
-
-                {/* Center Main Pin */}
-                <div className="relative group cursor-pointer transition-transform duration-500 scale-105">
-                  <div className={`w-20 h-28 rounded-t-full rounded-b-[40px] bg-gradient-to-b ${currentPin.color} shadow-2xl flex flex-col items-center justify-center p-2 border border-white/20`}>
-                    <div className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
-                      {currentPin.icon}
-                    </div>
-                  </div>
-                  {/* Pin shadow base */}
-                  <div className="w-14 h-3 bg-black/60 rounded-full blur-sm mx-auto -mt-1" />
-                </div>
-
-                {/* Right Mini Pin */}
-                <div className="w-9 h-12 rounded-full bg-amber-600/60 blur-[1px] rotate-12 scale-75 opacity-70 flex items-center justify-center" />
-              </div>
-
-              {/* Pin Category Label Pill */}
-              <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-white tracking-wider">
-                <span className="text-[#FFA947]">✦</span>
-                <span>{currentPin.label}</span>
-                <span className="text-[#FFA947]">✦</span>
-              </div>
+            <div className="bos-auth-welcome">
+              <div className="bos-auth-orbit" aria-hidden="true"><span /><span /><span><Sparkle size={22} weight="fill" /></span></div>
+              <span className="bos-auth-eyebrow">YOUR NEXT GOOD PLAN</span>
             </div>
 
             {step === 'LINK_METHODS' ? (
-            <div className="p-6 bg-[#0E0D14] border-t border-white/10 rounded-t-[32px] space-y-4 text-center">
-              <div className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-emerald-400/15 text-emerald-300 text-xl">✓</div>
+            <div className="bos-auth-content space-y-4 text-center">
+              <div className="bos-auth-success"><ShieldCheck size={22} weight="fill" /></div>
               <h2 id="bos-auth-title" className="text-2xl font-black text-white tracking-tight">Mobile verified</h2>
               <p className="mx-auto max-w-sm text-xs leading-relaxed text-zinc-400">Your account is ready. Link Google or email for another sign-in, or continue with your phone.</p>
               <button type="button" onClick={handleGoogleSignIn} disabled={isLoading} className="w-full h-12 rounded-2xl bg-white hover:bg-zinc-100 text-black font-bold text-xs uppercase tracking-wider disabled:opacity-50">{isLoading ? 'Linking Google…' : 'Link Google account'}</button>
@@ -296,7 +231,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
               <button type="button" onClick={() => finishAuth()} className="w-full text-xs text-zinc-300 underline">Continue with phone only</button>
             </div>
             ) : (
-            <div className="p-6 bg-[#0E0D14] border-t border-white/10 rounded-t-[32px] space-y-4 text-center">
+            <div className="bos-auth-content space-y-4 text-center">
               
               <h2 id="bos-auth-title" className="text-2xl font-black text-white tracking-tight leading-tight">
                 {step === 'PHONE_REQUIRED' ? <>Verify your number<br />to finish signing in</> : <>Find your kind<br />of out.</>}
@@ -315,7 +250,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
               {authMethod === 'phone' ? <form onSubmit={handlePhoneSubmit} className="space-y-3">
                 <div className="flex gap-2">
                   {/* Country Flag & Code Box */}
-                  <div className="h-13 px-3.5 rounded-2xl bg-[#1A1824] border border-white/15 flex items-center gap-1.5 text-white text-sm font-semibold shrink-0" aria-label="Country code India, plus 91">
+                  <div className="bos-phone-prefix" aria-label="Country code India, plus 91">
                     <span className="text-base select-none">🇮🇳</span>
                     <span>+91</span>
                   </div>
@@ -329,7 +264,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                     placeholder="Enter mobile number"
-                    className="flex-1 h-13 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm sm:text-base text-white placeholder-zinc-500 font-mono tracking-wide focus:border-white/40 outline-none transition-colors"
+                    className="bos-auth-input flex-1"
                   />
                 </div>
 
@@ -337,7 +272,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
                 <button
                   type="submit"
                   disabled={isLoading || phone.length < 10}
-                  className="w-full h-12 rounded-2xl bg-[#2D2A3E] hover:bg-[#3D3954] disabled:opacity-40 text-white font-bold text-sm tracking-wide transition-all active:scale-95 cursor-pointer flex items-center justify-center shadow-lg"
+                  className="bos-auth-primary"
                 >
                   {isLoading ? 'Sending code…' : step === 'PHONE_REQUIRED' ? 'Send verification code' : 'Continue with phone'}
                 </button>
@@ -364,7 +299,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
                   type="button"
                   onClick={handleGoogleSignIn}
                   disabled={isLoading}
-                  className="w-full h-12 rounded-2xl bg-white hover:bg-zinc-100 text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all active:scale-95 cursor-pointer shadow-md"
+                  className="bos-auth-google"
                 >
                   {/* Google Multicolor SVG Logo */}
                   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
@@ -379,6 +314,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
                 {errorMsg && <p role="alert" className="text-left text-xs text-rose-300">{errorMsg}</p>}
               </div>}
 
+              {step !== 'PHONE_REQUIRED' && authMethod === 'email' && errorMsg && <p role="alert" className="text-left text-xs leading-relaxed text-rose-300">{errorMsg}</p>}
               {step !== 'PHONE_REQUIRED' && authMethod === 'phone' && <button type="button" onClick={() => { setAuthMethod('email'); setCreateAccount(false); setErrorMsg(''); }} className="w-full py-1 text-sm font-medium text-zinc-400 hover:text-white transition-colors">
                 Already have an account? <span className="text-violet-200 underline underline-offset-4">Sign in with email</span>
               </button>}
@@ -390,7 +326,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
           </>
         ) : (
           /* STEP 2: OTP VERIFICATION (1:1 with IMG_4090.PNG) */
-          <div className="p-5 sm:p-6 space-y-6 text-left">
+          <div className="bos-auth-content bos-auth-otp space-y-6 text-left">
             
             {/* Top Bar with Back Arrow */}
             <div className="flex items-center gap-3">

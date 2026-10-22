@@ -18,6 +18,7 @@ import { firebaseAuth, isFirebaseConfigured } from './firebaseClient.js';
 
 let phoneConfirmation = null;
 let phoneRecaptcha = null;
+let pendingGoogleCredential = null;
 
 function requireFirebase() {
   if (!isFirebaseConfigured || !firebaseAuth) {
@@ -67,6 +68,10 @@ export async function signInWithGoogle() {
     setLocalUser();
     return { success: true, user: mapUser(result.user) };
   } catch (err) {
+    if (err?.code === 'auth/account-exists-with-different-credential') {
+      pendingGoogleCredential = GoogleAuthProvider.credentialFromError(err);
+      return { success: false, error: 'An account already uses this email. Sign in with that account first, then we’ll link Google for you.', code: err.code, email: err.customData?.email || '' };
+    }
     return { success: false, error: formatAuthError(err) };
   }
 }
@@ -76,6 +81,10 @@ export async function consumeGoogleRedirect() {
     const result = await getRedirectResult(requireFirebase());
     return { success: true, user: result?.user ? mapUser(result.user) : null };
   } catch (err) {
+    if (err?.code === 'auth/account-exists-with-different-credential') {
+      pendingGoogleCredential = GoogleAuthProvider.credentialFromError(err);
+      return { success: false, error: 'An account already uses this email. Sign in with that account first, then we’ll link Google for you.', code: err.code, email: err.customData?.email || '' };
+    }
     return { success: false, error: formatAuthError(err) };
   }
 }
@@ -93,6 +102,17 @@ export async function signInWithEmail(email, password, createAccount = false) {
     } else {
       // This path only signs in an existing email/password user; it can never create one.
       credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+    }
+    if (pendingGoogleCredential) {
+      try {
+        credential = await linkWithCredential(credential.user, pendingGoogleCredential);
+        pendingGoogleCredential = null;
+      } catch (linkError) {
+        if (linkError?.code !== 'auth/credential-already-in-use' && linkError?.code !== 'auth/provider-already-linked') {
+          return { success: false, error: formatAuthError(linkError) };
+        }
+        pendingGoogleCredential = null;
+      }
     }
     setLocalUser();
     return { success: true, user: mapUser(credential.user) };
@@ -146,6 +166,18 @@ export async function verifyPhoneOtp(_phone, token) {
     phoneConfirmation = null;
     phoneRecaptcha?.clear();
     phoneRecaptcha = null;
+    if (pendingGoogleCredential) {
+      try {
+        await linkWithCredential(credential.user, pendingGoogleCredential);
+        pendingGoogleCredential = null;
+      } catch (linkError) {
+        if (linkError?.code === 'auth/provider-already-linked' || linkError?.code === 'auth/credential-already-in-use') {
+          pendingGoogleCredential = null;
+        } else {
+          return { success: false, error: formatAuthError(linkError) };
+        }
+      }
+    }
     setLocalUser();
     return { success: true, user: mapUser(credential.user) };
   } catch (err) {
@@ -169,6 +201,7 @@ function formatAuthError(error) {
     'auth/invalid-credential': 'The email or password is incorrect.',
     'auth/email-already-in-use': 'An account already exists for this email. Sign in instead.',
     'auth/credential-already-in-use': 'This mobile number is already linked to another account. Sign in with that account or contact support to merge your accounts.',
+    'auth/account-exists-with-different-credential': 'An account already uses this email. Sign in with that account first, then link Google from your profile.',
     'auth/provider-already-linked': 'This sign-in method is already linked to your account.',
     'auth/weak-password': 'Choose a password with at least 6 characters.',
     'auth/invalid-email': 'Enter a valid email address.',

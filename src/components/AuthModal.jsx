@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { 
   ArrowLeft, 
   ChatDots,
-  Sparkle,
   ShieldCheck
 } from '@phosphor-icons/react';
 import { signInWithGoogle, consumeGoogleRedirect, signInWithEmail, sendOtpToPhone, verifyPhoneOtp } from '../utils/authService';
@@ -18,6 +17,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
   const [otpTimer, setOtpTimer] = useState(29);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [requestingPhone, setRequestingPhone] = useState('');
   const [authMethod, setAuthMethod] = useState('phone');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -106,22 +106,43 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
     const isExistingUnverifiedSession = Boolean(firebaseAuth?.currentUser && !firebaseAuth.currentUser.phoneNumber);
     setLinkingPhone(isExistingUnverifiedSession);
     setIsLoading(true);
-    const result = await sendOtpToPhone(cleanPhone);
-    setIsLoading(false);
-    if (!result.success) {
-      setErrorMsg(result.error || 'We could not send a code. Please try again.');
-      return;
+    setRequestingPhone(cleanPhone);
+    let timeoutId;
+    try {
+      const timeout = new Promise((_, reject) => {
+        timeoutId = window.setTimeout(() => reject(new Error('The verification request took too long. Check your connection and try again.')), 25000);
+      });
+      const result = await Promise.race([sendOtpToPhone(cleanPhone), timeout]);
+      if (!result?.success) {
+        setErrorMsg(result?.error || 'We could not send a code. Please try again.');
+        setRequestingPhone('');
+        setLinkingPhone(false);
+        return;
+      }
+      setStep('OTP');
+      setOtpTimer(29);
+    } catch (error) {
+      setErrorMsg(error?.message || 'We could not send a code. Please try again.');
+      setRequestingPhone('');
+      setLinkingPhone(false);
+    } finally {
+      window.clearTimeout(timeoutId);
+      setIsLoading(false);
     }
-    setStep('OTP');
-    setOtpTimer(29);
   };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     setIsLoading(true);
-    const result = await signInWithEmail(email, password, createAccount);
-    setIsLoading(false);
+    let result;
+    try {
+      result = await signInWithEmail(email, password, createAccount);
+    } catch (error) {
+      result = { success: false, error: error?.message || 'Sign-in could not be completed. Please try again.' };
+    } finally {
+      setIsLoading(false);
+    }
     if (!result.success) {
       setErrorMsg(result.error);
       return;
@@ -171,8 +192,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
   const handleGoogleSignIn = async () => {
     playTap();
     setIsLoading(true);
-    sessionStorage.setItem('bos_google_redirect_pending', '1');
-    const res = await signInWithGoogle();
+    let res;
+    try {
+      sessionStorage.setItem('bos_google_redirect_pending', '1');
+      res = await signInWithGoogle();
+    } catch (error) {
+      res = { success: false, error: error?.message || 'Google sign-in is unavailable right now.' };
+    }
     if (res.success && res.redirecting) return;
     sessionStorage.removeItem('bos_google_redirect_pending');
     setIsLoading(false);
@@ -210,8 +236,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
             </div>
 
             <div className="bos-auth-welcome">
-              <div className="bos-auth-orbit" aria-hidden="true"><span /><span /><span><Sparkle size={22} weight="fill" /></span></div>
-              <span className="bos-auth-eyebrow">YOUR NEXT GOOD PLAN</span>
+              <span className="bos-auth-eyebrow">CHENNAI · EVENTS · EXPERIENCES</span>
             </div>
 
             {step === 'LINK_METHODS' ? (
@@ -260,9 +285,12 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
                     type="tel"
                     aria-label="Mobile number with country code +91"
                     required
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    pattern="[6-9][0-9]{9}"
                     maxLength={10}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) => { setPhone(e.target.value.replace(/\D/g, '')); setErrorMsg(''); }}
                     placeholder="Enter mobile number"
                     className="bos-auth-input flex-1"
                   />
@@ -274,7 +302,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
                   disabled={isLoading || phone.length < 10}
                   className="bos-auth-primary"
                 >
-                  {isLoading ? 'Sending code…' : step === 'PHONE_REQUIRED' ? 'Send verification code' : 'Continue with phone'}
+                  {isLoading ? <><span className="bos-auth-spinner" aria-hidden="true" /> Sending code to +91 {requestingPhone || phone}</> : step === 'PHONE_REQUIRED' ? 'Send verification code' : 'Continue with phone'}
                 </button>
               </form> : <form onSubmit={handleEmailSubmit} className="space-y-3 text-left">
                 <label className="sr-only" htmlFor="bos-auth-email">Email address</label><input id="bos-auth-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
@@ -282,6 +310,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
                 <button type="submit" disabled={isLoading} className="w-full h-12 rounded-2xl bg-[#2D2A3E] hover:bg-[#3D3954] disabled:opacity-40 text-white font-bold text-sm transition-all">{isLoading ? 'Please wait…' : 'Sign in with email'}</button>
                 <button type="button" onClick={() => { setAuthMethod('phone'); setErrorMsg(''); }} className="w-full text-sm text-zinc-300 hover:text-white">Use your mobile number</button>
               </form>}
+
+              {authMethod === 'phone' && errorMsg && <p role="alert" className="text-left text-xs leading-relaxed text-rose-300">{errorMsg}</p>}
 
               {step !== 'PHONE_REQUIRED' && authMethod === 'phone' && <div className="flex items-center gap-3 py-1">
                 <div className="flex-1 h-px bg-white/10" />
@@ -311,7 +341,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
                   <span>Continue with Google</span>
                 </button>
 
-                {errorMsg && <p role="alert" className="text-left text-xs text-rose-300">{errorMsg}</p>}
               </div>}
 
               {step !== 'PHONE_REQUIRED' && authMethod === 'email' && errorMsg && <p role="alert" className="text-left text-xs leading-relaxed text-rose-300">{errorMsg}</p>}
@@ -327,6 +356,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
         ) : (
           /* STEP 2: OTP VERIFICATION (1:1 with IMG_4090.PNG) */
           <div className="bos-auth-content bos-auth-otp space-y-6 text-left">
+            <div className="bos-auth-brand bos-auth-otp-brand"><span className="bos-auth-brand-mark">b</span><span>BookOut<span>Spot</span></span></div>
             
             {/* Top Bar with Back Arrow */}
             <div className="flex items-center gap-3">
@@ -369,10 +399,10 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
 
             {/* Resend & Timer Row (IMG_4090.PNG) */}
             <div className="space-y-3 pt-1">
-              <p className="text-xs text-zinc-400">
+                <p className="text-xs text-zinc-400">
                 Didn't get the OTP?{' '}
                 <span className="text-zinc-500 font-mono">
-                  (Request again in 0:{otpTimer < 10 ? `0${otpTimer}` : otpTimer}s)
+                  {otpTimer > 0 ? `(Request again in 0:${otpTimer < 10 ? `0${otpTimer}` : otpTimer}s)` : 'You can request a fresh code now.'}
                 </span>
               </p>
 

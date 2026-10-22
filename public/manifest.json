@@ -1,0 +1,18 @@
+{
+  "name": "BookOurSpot — Events & Nightlife",
+  "short_name": "BookOurSpot",
+  "description": "Discover & book curated social meetups, secret nightlife, dining pop-ups, and festivals.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08080C",
+  "theme_color": "#08080C",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/candle.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

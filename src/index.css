@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    --font-serif: 'Cormorant Garamond', 'Playfair Display', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html, body, #root {
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    background-color: #08080C;
+    color: #F3EFE0;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  img, svg, video, canvas {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Hide scrollbar for clean horizontal carousels  */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Subtle modern scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0C0B12;
+}
+::-webkit-scrollbar-thumb {
+  background: #232230;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #38364C;
+}
+
+/* Glassmorphism helpers */
+.glass-nav {
+  background: rgba(18, 18, 26, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-pill {
+  background: rgba(26, 26, 38, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-card {
+  background: rgba(22, 22, 32, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

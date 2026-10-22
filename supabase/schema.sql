@@ -154,11 +154,11 @@ declare
 begin
   if p_user_id is null or p_event_id is distinct from 'halloween-affair' or p_tier_type not in ('SOLO', 'DUO')
      or p_quantity is null or p_quantity not between 1 and 5
-     or p_total_amount is null or p_total_amount <> p_quantity * case when p_tier_type = 'DUO' then 280000 else 150000 end
+     or p_total_amount is null or p_total_amount <> p_quantity * (case when p_tier_type = 'DUO' then 280000 else 150000 end)
      or p_attendees is null or coalesce(jsonb_typeof(p_attendees), '') <> 'array'
-     or case when jsonb_typeof(p_attendees) = 'array'
-             then jsonb_array_length(p_attendees) <> p_quantity * case when p_tier_type = 'DUO' then 2 else 1 end
-             else true end then
+     or (case when jsonb_typeof(p_attendees) = 'array'
+              then jsonb_array_length(p_attendees) <> p_quantity * (case when p_tier_type = 'DUO' then 2 else 1 end)
+              else true end) then
     raise exception 'Invalid booking details';
   end if;
 

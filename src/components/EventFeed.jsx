@@ -1,357 +1,123 @@
 import React, { useState } from 'react';
-import { 
-  House, 
-  User, 
-  CaretDown, 
-  MapPin, 
-  BookmarkSimple, 
-  CaretRight, 
-  Sparkle,
-  CalendarCheck,
-  MusicNotes,
-  Moon,
-  ForkKnife,
-  Ticket,
-  Clock,
-  ShieldCheck,
-  Martini,
-  Bell,
-  LockSimple
-} from '@phosphor-icons/react';
+import {
+  ArrowDown, ArrowRight, Bookmark, CalendarDays, Check, ChevronDown, Clock3,
+  Compass, MapPin, Search, ShieldCheck, Ticket, UserRound
+} from 'lucide-react';
 import { COMING_SOON_EVENTS } from '../data/eventsData';
-import { playTap } from '../utils/audioTheme';
 
-export default function EventFeed({
-  events,
-  onSelectEvent,
-  onBookEvent,
-  onOpenAuth,
-  onOpenProfile,
-  onOpenHostPortal,
-  currentUser,
-  bookmarkedIds,
-  onToggleBookmark
-}) {
-  const [selectedCity, setSelectedCity] = useState('CHENNAI · SOUTH');
-  const [showCityDropdown, setShowCityDropdown] = useState(false);
-  const [notifiedEvents, setNotifiedEvents] = useState([]);
+const formats = ['All', 'Nightlife', 'Food & drink', 'Live music', 'Motorsport', 'Experiences'];
 
-  const cities = ['CHENNAI · SOUTH', 'BANGALORE · INDIRANAGAR', 'MUMBAI · BANDRA'];
-
-  // Spotlight Event is exclusively "a little halloween affair"
-  const halloweenEvent = events.find(e => e.id === 'halloween-affair') || events[0];
-
-  const handleNotifyMe = (eventId, eventTitle) => {
-    playTap();
-    if (!notifiedEvents.includes(eventId)) {
-      setNotifiedEvents(prev => [...prev, eventId]);
-      alert(`You're on the priority guestlist! We'll notify you on WhatsApp the moment passes drop for "${eventTitle}".`);
-    }
-  };
+function EventCard({ item, onSelectEvent, onBookEvent, isSaved, onToggleBookmark }) {
+  const isLive = item.id === 'halloween-affair';
+  const title = item.title;
+  const location = isLive ? item.venue?.shortName : item.venue;
+  const date = isLive ? 'Fri, 23 Oct · 7 PM till late' : item.dateLabel;
+  const image = item.coverImage;
 
   return (
-    <div className="w-full max-w-lg mx-auto pb-28 pt-2 px-4 sm:px-5 space-y-6 text-[#F3EFE0] font-sans">
-      
-      {/* TOP BAR */}
-      <header className="flex items-center justify-between py-2 relative z-30">
-        
-        {/* Left Home circular button */}
-        <button
-          type="button"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="w-11 h-11 rounded-full bg-[#18181b] hover:bg-[#222227] border border-white/10 flex items-center justify-center text-white transition-colors cursor-pointer"
-        >
-          <House size={20} weight="fill" />
-        </button>
-
-        {/* Center: Title & Location Switcher */}
-        <div className="relative text-center">
-          <h2 className="text-lg font-bold text-white tracking-tight leading-tight">
-            Events
-          </h2>
+    <article className={`spot-card ${isLive ? 'spot-card-live' : ''}`}>
+      <button className="spot-card-image" onClick={() => onSelectEvent(item)} aria-label={`View ${title}`}>
+        <img src={image} alt="" loading={isLive ? 'eager' : 'lazy'} />
+        <span className={`spot-card-badge ${isLive ? 'badge-live' : ''}`}>
+          {isLive ? <><span className="live-dot" /> Booking open</> : 'Coming soon'}
+        </span>
+        <span className="spot-card-category">{item.category}</span>
+      </button>
+      <div className="spot-card-info">
+        <button className="spot-card-title" onClick={() => onSelectEvent(item)}>{title}</button>
+        <p className="spot-card-subtitle">{item.subtitle}</p>
+        {item.priceLabel && <p className="spot-card-price">{item.priceLabel}</p>}
+        <div className="spot-card-meta"><span><CalendarDays size={15} />{date || 'Date to be announced'}</span><span><MapPin size={15} />{location || 'Location to be announced'}</span></div>
+        <div className="spot-card-actions">
           <button
-            type="button"
-            onClick={() => setShowCityDropdown(!showCityDropdown)}
-            className="flex items-center gap-1 text-[11px] font-semibold text-zinc-300 hover:text-white uppercase tracking-wider mx-auto transition-colors cursor-pointer mt-0.5"
-          >
-            <span>{selectedCity}</span>
-            <CaretDown size={12} weight="bold" />
-          </button>
-
-          {/* Location Dropdown */}
-          {showCityDropdown && (
-            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 rounded-2xl bg-[#1c1c20] border border-white/15 p-1.5 shadow-2xl text-left z-40">
-              {cities.map((city) => (
-                <button
-                  key={city}
-                  type="button"
-                  onClick={() => {
-                    setSelectedCity(city);
-                    setShowCityDropdown(false);
-                  }}
-                  className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                    selectedCity === city ? 'bg-white/10 text-white' : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  {city}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Right: User Profile Avatar & Gate Host Link */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onOpenHostPortal}
-            title="Host Gate Terminal"
-            className="text-[10px] font-mono text-zinc-400 hover:text-white uppercase tracking-wider border-b border-zinc-700 pb-0.5 hidden sm:inline cursor-pointer mr-1"
-          >
-            Hosts
-          </button>
-
-          {currentUser ? (
-            <button
-              type="button"
-              onClick={onOpenProfile}
-              className="h-10 px-3 rounded-full bg-[#1F1D2C] hover:bg-[#282638] border border-white/15 flex items-center gap-2 text-white transition-all cursor-pointer shadow-md"
-            >
-              <div className="w-6 h-6 rounded-full bg-[#FF521B] text-black font-black text-[11px] flex items-center justify-center">
-                {currentUser.name?.[0]?.toUpperCase() || 'R'}
-              </div>
-              <span className="text-xs font-semibold max-w-[80px] truncate hidden sm:inline">
-                {currentUser.name?.split(' ')[0] || 'Profile'}
-              </span>
+            className="spot-save"
+            onClick={() => onToggleBookmark(item.id)}
+            aria-label={isSaved ? 'Remove from saved events' : 'Save event'}
+            title={isSaved ? 'Saved' : 'Save event'}
+          ><Bookmark size={17} fill={isSaved ? 'currentColor' : 'none'} />{isSaved ? 'Saved' : 'Save'}</button>
+          {isLive ? (
+            <button className="spot-button spot-button-primary" onClick={() => onBookEvent(item)}>
+              Book tickets <ArrowRight size={16} />
             </button>
           ) : (
-            <button
-              type="button"
-              onClick={onOpenAuth}
-              className="h-10 px-3.5 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95"
-            >
-              <User size={15} weight="bold" />
-              <span>Login</span>
+            <button className="spot-button spot-button-muted" disabled title="Bookings are not open yet">
+              Booking unavailable
             </button>
           )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default function EventFeed({
+  events, onSelectEvent, onBookEvent, onOpenAuth, onOpenProfile, onOpenSearch,
+  currentUser, bookmarkedIds = [], onToggleBookmark
+}) {
+  const selectedCity = 'Chennai';
+  const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState('All');
+  const halloweenEvent = events.find((event) => event.id === 'halloween-affair') || events[0];
+  const allEvents = [halloweenEvent, ...COMING_SOON_EVENTS];
+  const eventTypes = {
+    'karims-leela': 'Food & drink',
+    'racing-league': 'Motorsport',
+    'madras-driven': 'Experiences',
+    'rolling-loud': 'Live music',
+    'strangers-meetup': 'Experiences'
+  };
+  const filteredEvents = allEvents.filter((event) => selectedFormat === 'All' ||
+    (event.id === 'halloween-affair' ? selectedFormat === 'Nightlife' : eventTypes[event.id] === selectedFormat));
+
+  return (
+    <div className="bos-page">
+      <header className="bos-header">
+        <a className="bos-wordmark" href="/" aria-label="BookOutSpot home"><span className="wordmark-icon">b</span><span>BookOut<span className="wordmark-accent">Spot</span></span></a>
+        <div className="bos-header-center">
+          <button className="city-trigger" aria-haspopup="menu" aria-expanded={showCityDropdown} onClick={() => setShowCityDropdown((open) => !open)}>
+            <MapPin size={16} /> <span>{selectedCity}</span><ChevronDown size={15} />
+          </button>
+          {showCityDropdown && <div className="city-menu" role="menu"><button role="menuitem" onClick={() => setShowCityDropdown(false)}>{selectedCity}<Check size={15} /></button><p className="city-menu-note">More cities coming soon</p></div>}
+        </div>
+        <div className="bos-header-actions">
+          {currentUser ? <button className="account-button" onClick={onOpenProfile}><span className="account-avatar">{currentUser.name?.[0]?.toUpperCase() || <UserRound size={17} />}</span><span>Account</span></button> : <button className="sign-in-button" onClick={onOpenAuth}><UserRound size={16} /> Sign in</button>}
         </div>
       </header>
 
-      {/* HERO SPOTLIGHT BANNER: A LITTLE HALLOWEEN AFFAIR */}
-      <div className="relative rounded-3xl overflow-hidden border border-white/15 bg-zinc-950 shadow-2xl group">
-        <div 
-          onClick={() => onSelectEvent(halloweenEvent)}
-          className="relative h-[380px] sm:h-[420px] w-full cursor-pointer"
-        >
-          <img 
-            src={halloweenEvent.coverImage} 
-            alt={halloweenEvent.title}
-            className="w-full h-full object-cover object-center filter contrast-[1.05] transition-transform duration-700 group-hover:scale-[1.02]" 
-          />
-          {/* Vignette Gradients */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40" />
+      <main>
+        <section className="bos-intro">
+          <div className="intro-copy"><span className="eyebrow"><Compass size={14} /> A good night starts here</span><h1>Make room<br /><span>for a story.</span></h1><p>Find the nights, tables and little adventures worth leaving home for.</p></div>
+          <div className="intro-note"><span>IN YOUR CITY</span><strong>{selectedCity}</strong><button onClick={() => setShowCityDropdown(true)}>Change city <ArrowDown size={14} /></button></div>
+        </section>
 
-          {/* Top Tag Badges */}
-          <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-            <span className="px-3 py-1 rounded-full bg-[#FF521B]/90 backdrop-blur-md text-black text-[10px] font-mono font-black uppercase tracking-wider shadow-lg flex items-center gap-1">
-              <span>🎃</span>
-              <span>Exclusive Spotlight · Chennai</span>
-            </span>
-
-            {/* Bookmark button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleBookmark(halloweenEvent.id);
-              }}
-              className="w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white flex items-center justify-center transition-transform active:scale-90"
-            >
-              <BookmarkSimple 
-                size={18} 
-                weight={bookmarkedIds.includes(halloweenEvent.id) ? "fill" : "regular"} 
-                className={bookmarkedIds.includes(halloweenEvent.id) ? "text-[#FFA947]" : "text-white"}
-              />
+        <section className="spotlight-section" aria-label="Featured event">
+          <div className="section-kicker"><span className="eyebrow">THE SPOTLIGHT</span><span className="section-index">01 / FEATURED</span></div>
+          <article className="spotlight-card">
+            <button className="spotlight-open" onClick={() => onSelectEvent(halloweenEvent)} aria-label={`View ${halloweenEvent.title}`}>
+              <img src={halloweenEvent.coverImage} alt="A little Halloween affair poster with date, location details, price and dress code" />
             </button>
-          </div>
-
-          {/* Bottom Content & Direct Action */}
-          <div className="absolute bottom-5 left-4 right-4 text-center z-10 space-y-3">
-            
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-md">
-                {halloweenEvent.title}
-              </h1>
-              <p className="text-xs text-zinc-300 font-sans max-w-xs mx-auto drop-shadow">
-                {halloweenEvent.subtitle}
-              </p>
-              <div className="flex items-center justify-center gap-2 pt-1 text-[11px] font-mono text-[#FFA947]">
-                <span>Fri, 23 Oct · 7:00 PM</span>
-                <span>•</span>
-                <span className="text-white font-bold">₹1,500 Onwards</span>
-              </div>
+            <div className="spotlight-copy">
+              <div className="spotlight-copy-top"><span className="spotlight-label"><span className="live-dot" /> HALLOWEEN · CHENNAI</span><button className="spotlight-save" aria-label={bookmarkedIds.includes(halloweenEvent.id) ? 'Remove from saved events' : 'Save event'} onClick={() => onToggleBookmark(halloweenEvent.id)}><Bookmark size={17} fill={bookmarkedIds.includes(halloweenEvent.id) ? 'currentColor' : 'none'} /></button></div>
+              <span className="spotlight-overline">ONE NIGHT · FRI, 23 OCT</span>
+              <h2 className="spotlight-title">A little Halloween affair<span className="spotlight-period">.</span></h2>
+              <p className="spotlight-description">A house party at a secret spooky location. Dress spooky, stylish &amp; a little dramatic.</p>
+              <div className="spotlight-bottom"><span className="spotlight-facts"><span><CalendarDays size={15} /> Fri, 23 Oct</span><span><Clock3 size={15} /> 7 PM till late</span><span>₹1,500 per person</span></span><button className="spotlight-cta" onClick={() => onBookEvent(halloweenEvent)}>Book tickets <ArrowRight size={17} /></button></div>
             </div>
+          </article>
+          <div className="spotlight-footnote"><span><ShieldCheck size={15} /> Event details shown as provided by the organiser</span><button onClick={() => onSelectEvent(halloweenEvent)}>Event details <ArrowRight size={14} /></button></div>
+        </section>
 
-            {/* Direct Book Tickets Pill CTA */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onBookEvent) onBookEvent(halloweenEvent);
-              }}
-              className="py-3 px-8 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-wider inline-flex items-center gap-1.5 shadow-2xl transition-transform active:scale-95 cursor-pointer"
-            >
-              <span>Book tickets</span>
-              <CaretRight size={14} weight="bold" />
-            </button>
+        <section className="discover-section" id="events">
+          <div className="discover-heading"><div><span className="eyebrow">GOOD THINGS AROUND TOWN</span><h2>Find your kind of out.</h2><p>Small plans, big nights, and everything in between.</p></div><button className="discover-search" onClick={onOpenSearch}><Search size={17} /> Explore events</button></div>
+          <div className="format-row" role="group" aria-label="Filter events">{formats.map((format) => <button key={format} aria-pressed={selectedFormat === format} className={selectedFormat === format ? 'format-chip active' : 'format-chip'} onClick={() => setSelectedFormat(format)}>{format}</button>)}</div>
+          <div className="event-grid" id="event-grid">
+            {filteredEvents.map((event) => <EventCard key={event.id} item={event} onSelectEvent={onSelectEvent} onBookEvent={onBookEvent} isSaved={bookmarkedIds.includes(event.id)} onToggleBookmark={onToggleBookmark} />)}
           </div>
+        </section>
 
-        </div>
-      </div>
-
-      {/* CURATED HIGHLIGHTS: SPOTLIGHT EXPERIENCE CARD */}
-      <section className="space-y-3 text-left">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-            Curated Tonight in Chennai
-          </h3>
-          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold uppercase tracking-wider">
-            Guestlist Open
-          </span>
-        </div>
-
-        <div 
-          onClick={() => onSelectEvent(halloweenEvent)}
-          className="p-5 rounded-3xl bg-gradient-to-br from-[#1C182A] via-[#14121F] to-[#0D0C14] border border-white/15 space-y-4 cursor-pointer group shadow-xl transition-all hover:border-white/30"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="space-y-1 min-w-0 flex-1">
-              <span className="text-xs font-bold text-[#FFA947] uppercase tracking-wider font-mono flex items-center gap-1.5">
-                <Moon size={14} weight="fill" />
-                Secret House Party · South Sanctuary
-              </span>
-              <h4 className="text-xl font-black text-white group-hover:text-zinc-100 transition-colors">
-                a little halloween affair
-              </h4>
-              <p className="text-xs text-zinc-300 leading-relaxed font-sans pt-0.5">
-                Candlelight, costumes, live sound, bespoke mixology & house punch. Strictly non-transferable admission bound to legal name.
-              </p>
-            </div>
-          </div>
-
-          {/* Key Inclusions Pills */}
-          <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-300 font-mono">
-            <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2">
-              <Martini size={15} className="text-[#FFA947] shrink-0" />
-              <span className="truncate">Open Craft Cocktail Bar</span>
-            </div>
-            <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2">
-              <ShieldCheck size={15} className="text-emerald-400 shrink-0" />
-              <span className="truncate">21+ Govt Photo ID Entry</span>
-            </div>
-          </div>
-
-          {/* Action Row */}
-          <div className="pt-1 flex items-center justify-between border-t border-white/10">
-            <div>
-              <span className="text-[10px] text-zinc-400 font-mono uppercase block">Admission</span>
-              <span className="text-base font-extrabold text-white font-mono">₹1,500</span>
-            </div>
-
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onBookEvent) onBookEvent(halloweenEvent);
-              }}
-              className="py-2.5 px-6 rounded-full bg-[#FF521B] hover:bg-[#ff6420] text-black font-extrabold text-xs uppercase tracking-wider transition-transform active:scale-95 cursor-pointer shadow-lg"
-            >
-              Book Pass →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* MORE EVENTS COMING SOON (REPLACED OTHER EVENTS AS REQUESTED) */}
-      <section className="space-y-4 text-left pt-2">
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-2">
-            <Sparkle size={16} weight="fill" className="text-[#FFA947]" />
-            <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-              More Experiences Coming Soon
-            </h3>
-          </div>
-          <p className="text-xs text-zinc-400 font-sans">
-            We drop secret dining pop-ups, house salons, and late-night social spots across Chennai every week.
-          </p>
-        </div>
-
-        {/* Coming Soon Teaser Grid */}
-        <div className="space-y-3.5">
-          {COMING_SOON_EVENTS.map((item) => {
-            const isNotified = notifiedEvents.includes(item.id);
-            return (
-              <div
-                key={item.id}
-                className="relative rounded-2xl overflow-hidden bg-[#13121C] border border-white/10 hover:border-white/20 transition-all p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 shadow-md group"
-              >
-                {/* Left Thumbnail + Details */}
-                <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-black/60 shrink-0 border border-white/10">
-                    <img 
-                      src={item.coverImage} 
-                      alt={item.title} 
-                      className="w-full h-full object-cover filter contrast-[1.05] group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-black/30" />
-                  </div>
-
-                  <div className="space-y-1 min-w-0 flex-1 text-left">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2 py-0.5 rounded-full bg-white/10 text-zinc-300 text-[9px] font-mono font-bold uppercase tracking-wider">
-                        {item.category}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full bg-[#FFA947]/15 text-[#FFA947] border border-[#FFA947]/30 text-[9px] font-mono font-bold uppercase tracking-wider">
-                        {item.badge}
-                      </span>
-                    </div>
-
-                    <h4 className="text-sm sm:text-base font-bold text-white truncate">
-                      {item.title}
-                    </h4>
-                    <p className="text-[11px] text-zinc-400 truncate font-sans">
-                      {item.venue} · {item.dateLabel}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right Notify Me Button */}
-                <div className="shrink-0 w-full sm:w-auto text-right">
-                  <button
-                    type="button"
-                    onClick={() => handleNotifyMe(item.id, item.title)}
-                    className={`w-full sm:w-auto py-2 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 ${
-                      isNotified 
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
-                        : 'bg-white/10 hover:bg-white/15 text-white border border-white/15'
-                    }`}
-                  >
-                    <Bell size={13} weight={isNotified ? 'fill' : 'bold'} />
-                    <span>{isNotified ? 'Notified ✓' : 'Notify Me'}</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="text-center text-xs text-zinc-500 pt-8 pb-4 font-mono space-y-1">
-        <p className="font-semibold text-zinc-400">BookOurSpot · bookourspot.com</p>
-        <p className="text-[10px] text-zinc-600">Curated Events, Dining & Nightlife in Chennai</p>
-      </footer>
-
+        <section className="bos-bottom-note"><span className="bottom-note-number">02</span><div><span className="eyebrow">YOUR NEXT FAVOURITE MEMORY</span><h2>Go where the good<br />stories happen.</h2></div><span className="bottom-note-star">✳</span></section>
+        <footer className="bos-footer"><a className="bos-wordmark" href="/"><span className="wordmark-icon">b</span><span>BookOut<span className="wordmark-accent">Spot</span></span></a><span>Good plans, found. · Chennai</span><a href="mailto:hello@bookourspot.com">Get in touch <ArrowRight size={14} /></a></footer>
+      </main>
     </div>
   );
 }

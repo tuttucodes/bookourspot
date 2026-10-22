@@ -1,393 +1,119 @@
-import React, { useState, useEffect } from 'react';
-import QRCode from 'qrcode';
-import { 
-  X, 
-  ShieldCheck, 
-  WarningCircle, 
-  QrCode, 
-  CreditCard, 
-  Bank, 
-  LockSimple,
-  Clock,
-  CheckCircle,
-  Copy,
-  Check
-} from '@phosphor-icons/react';
+import React, { useState } from 'react';
+import { ArrowRight, CheckCircle2, CreditCard, LockKeyhole, ShieldCheck, Smartphone, X } from 'lucide-react';
+import { firebaseAuth } from '../utils/firebaseClient';
+
+const ORDER_ENDPOINT = import.meta.env.VITE_RAZORPAY_ORDER_ENDPOINT || '/api/razorpay/create-order';
+const VERIFY_ENDPOINT = import.meta.env.VITE_RAZORPAY_VERIFY_ENDPOINT || '/api/razorpay/verify-payment';
+
+function loadRazorpay() {
+  if (window.Razorpay) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 export default function RazorpayModal({
-  isOpen,
-  onClose,
-  totalAmount,
-  totalGuests,
-  tierLabel,
-  primaryName,
-  primaryPhone,
-  onConfirmSuccess,
-  merchantUpi = '9074417293@pthdfc'
+  isOpen, onClose, totalAmount, totalGuests, tierLabel, primaryName, primaryPhone,
+  onConfirmSuccess, tierType = 'SOLO', eventId = 'halloween-affair', quantity = 1,
+  attendees = []
 }) {
-  const [selectedMethod, setSelectedMethod] = useState('UPI'); // 'UPI' | 'CARD' | 'NETBANKING'
-  const [qrSrc, setQrSrc] = useState('');
-  const [utrNumber, setUtrNumber] = useState('');
-  const [utrError, setUtrError] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(299); // 5 minute countdown
-  const [orderId] = useState(() => 'BOS_' + Math.random().toString(36).substring(2, 9).toUpperCase());
-
-  // Generate UPI URI
-  const upiUri = `upi://pay?pa=${encodeURIComponent(merchantUpi)}&pn=${encodeURIComponent('A Little Halloween Affair')}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(`Order ${orderId} - ${primaryName || 'Pass'}`)}`;
-
-  // Generate dynamic QR
-  useEffect(() => {
-    if (isOpen) {
-      QRCode.toDataURL(upiUri, {
-        width: 280,
-        margin: 1,
-        color: {
-          dark: '#08070B',
-          light: '#FFFFFF'
-        }
-      })
-        .then(url => setQrSrc(url))
-        .catch(err => console.error('Failed to generate Razorpay QR:', err));
-    }
-  }, [upiUri, isOpen]);
-
-  // Countdown timer for QR expiration
-  useEffect(() => {
-    if (!isOpen) return;
-    const timer = setInterval(() => {
-      setTimeLeft(prev => (prev > 0 ? prev - 1 : 299));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [isOpen]);
-
-  const formatTimer = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `0${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
-  const handleVerifySubmit = (e) => {
-    e.preventDefault();
-    setUtrError('');
-
-    const cleanUtr = (utrNumber || '').trim();
-
-    // 1. Strict 12-Digit Numeric Regex
-    if (!/^\d{12}$/.test(cleanUtr)) {
-      setUtrError('Invalid reference. Indian UPI UTR numbers are strictly 12 digits (e.g. 429381729012).');
-      return;
-    }
-
-    // 2. Reject obvious fake repetitive or sequential patterns
-    const repetitivePattern = /^(\d)\1{11}$/;
-    const sequentialPatterns = ['123456789012', '012345678901', '987654321098', '098765432109'];
-    if (repetitivePattern.test(cleanUtr) || sequentialPatterns.includes(cleanUtr)) {
-      setUtrError('Invalid reference number. Please provide the authentic 12-digit UTR from your bank confirmation receipt.');
-      return;
-    }
-
-    setIsVerifying(true);
-    setTimeout(() => {
-      setIsVerifying(false);
-      onConfirmSuccess(cleanUtr);
-    }, 1200);
-  };
-
-  const handleQuickDemoPay = () => {
-    setIsVerifying(true);
-    const demoUtr = '429381729012';
-    setTimeout(() => {
-      setIsVerifying(false);
-      onConfirmSuccess(demoUtr);
-    }, 700);
-  };
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [status, setStatus] = useState('ready');
   if (!isOpen) return null;
 
+  const startPayment = async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const user = firebaseAuth?.currentUser;
+      if (!user) throw new Error('Sign in before booking this event.');
+      const idToken = await user.getIdToken();
+      const orderResponse = await fetch(ORDER_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({ eventId, tierType, quantity, totalGuests, totalAmount, attendees })
+      });
+      const order = await orderResponse.json().catch(() => ({}));
+      if (!orderResponse.ok || !order.orderId || !order.keyId) {
+        throw new Error(order.error || 'Secure checkout is not available right now. Please try again later.');
+      }
+
+      if (!await loadRazorpay()) throw new Error('The payment window could not load. Check your connection and try again.');
+
+      const checkout = new window.Razorpay({
+        key: order.keyId,
+        order_id: order.orderId,
+        amount: order.amount,
+        currency: order.currency || 'INR',
+        name: 'BookOutSpot',
+        description: `${tierLabel} · ${totalGuests} ${totalGuests === 1 ? 'guest' : 'guests'}`,
+        image: `${window.location.origin}/favicon.svg`,
+        prefill: { name: primaryName || '', contact: primaryPhone || '' },
+        theme: { color: '#c6e35b' },
+        handler: async (payment) => {
+          setStatus('verifying');
+          try {
+            const verificationResponse = await fetch(VERIFY_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+              body: JSON.stringify(payment)
+            });
+            const verification = await verificationResponse.json().catch(() => ({}));
+            if (!verificationResponse.ok || verification.verified !== true) {
+              throw new Error(verification.error || 'We could not verify this payment yet. No ticket has been issued.');
+            }
+            setStatus('success');
+            onConfirmSuccess(payment.razorpay_payment_id, verification.tickets || []);
+          } catch (verificationError) {
+            setStatus('ready');
+            setError(verificationError.message || 'Payment verification failed. Please contact support before retrying.');
+          } finally {
+            setIsLoading(false);
+          }
+        },
+        modal: { ondismiss: () => setIsLoading(false) }
+      });
+
+      checkout.on('payment.failed', (failure) => {
+        setError(failure.error?.description || 'Payment did not complete. You have not been charged.');
+        setIsLoading(false);
+      });
+      checkout.open();
+    } catch (checkoutError) {
+      setError(checkoutError.message || 'Secure checkout is not available right now.');
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in"
-      style={{ overscrollBehavior: 'contain' }}
-    >
-      {/* Razorpay Master Window */}
-      <div className="relative w-full max-w-2xl bg-[#0F0D16] border border-white/15 rounded-3xl shadow-2xl text-[#F3EFE0] overflow-hidden flex flex-col my-auto">
-        
-        {/* Top Header Bar: Razorpay Enterprise Style */}
-        <div className="bg-[#171422] border-b border-white/10 p-4 sm:p-5 flex items-center justify-between">
-          <div className="flex items-center gap-3.5 min-w-0">
-            {/* Merchant Monogram */}
-            <div className="w-11 h-11 rounded-2xl bg-[#FF521B] flex items-center justify-center font-mono font-black text-black text-base shrink-0 shadow-lg">
-              HA
-            </div>
-
-            <div className="min-w-0 text-left">
-              <div className="flex items-center gap-2">
-                <h4 className="text-sm sm:text-base font-bold text-white tracking-tight truncate">
-                  A Little Halloween Affair
-                </h4>
-                <span className="hidden sm:inline-block text-[9px] font-mono uppercase bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                  Verified Merchant
-                </span>
-              </div>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                Order #{orderId} · {totalGuests} {totalGuests === 1 ? 'Guest' : 'Guests'}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 shrink-0 text-right">
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-zinc-400 block font-mono">Amount Payable</span>
-              <span className="text-lg sm:text-xl font-bold text-white block font-mono">
-                ₹{totalAmount.toLocaleString('en-IN')}.00
-              </span>
-            </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close gateway"
-              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <X size={18} weight="bold" />
-            </button>
-          </div>
+    <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-0 sm:p-4" onClick={onClose}>
+      <section className="w-full max-w-md rounded-t-[28px] sm:rounded-3xl border border-white/10 bg-[#181819] text-white shadow-2xl overflow-hidden" onClick={(event) => event.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <div className="flex items-center gap-3"><span className="w-9 h-9 rounded-xl bg-[#c6e35b] text-black grid place-items-center font-black">b</span><div><p className="text-sm font-bold">BookOutSpot checkout</p><p className="text-[11px] text-zinc-400">{tierLabel} · {totalGuests} {totalGuests === 1 ? 'guest' : 'guests'}</p></div></div>
+          <button type="button" onClick={onClose} aria-label="Close checkout" className="w-9 h-9 rounded-full grid place-items-center bg-white/5 hover:bg-white/10"><X size={18} /></button>
         </div>
-
-        {/* Gateway Body: Split View (Sidebar + Content) */}
-        <div className="grid grid-cols-1 md:grid-cols-12 min-h-[440px]">
-          
-          {/* Left Navigation: Payment Channels */}
-          <div className="md:col-span-4 bg-[#13111C] border-b md:border-b-0 md:border-r border-white/10 flex md:flex-col overflow-x-auto text-xs">
-            <button
-              type="button"
-              onClick={() => setSelectedMethod('UPI')}
-              className={`p-4 text-left flex items-center gap-3 transition-colors cursor-pointer border-b md:border-b border-white/5 ${
-                selectedMethod === 'UPI' 
-                  ? 'bg-white/10 text-white font-bold border-l-2 border-l-[#FF521B]' 
-                  : 'text-zinc-400 hover:bg-white/5'
-              }`}
-            >
-              <QrCode size={20} className="text-[#FFA947] shrink-0" />
-              <div className="min-w-0">
-                <span className="block truncate">UPI QR & Apps</span>
-                <span className="text-[11px] text-zinc-500 hidden sm:block">Instant zero-fee transfer</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSelectedMethod('CARD')}
-              className={`p-4 text-left flex items-center gap-3 transition-colors cursor-pointer opacity-50 ${
-                selectedMethod === 'CARD' 
-                  ? 'bg-white/10 text-white font-bold' 
-                  : 'text-zinc-400 hover:bg-white/5'
-              }`}
-            >
-              <CreditCard size={20} className="shrink-0" />
-              <div className="min-w-0">
-                <span className="block truncate">Debit / Credit Card</span>
-                <span className="text-[11px] text-zinc-500 hidden sm:block">Visa, Mastercard</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSelectedMethod('NETBANKING')}
-              className={`p-4 text-left flex items-center gap-3 transition-colors cursor-pointer opacity-50 ${
-                selectedMethod === 'NETBANKING' 
-                  ? 'bg-white/10 text-white font-bold' 
-                  : 'text-zinc-400 hover:bg-white/5'
-              }`}
-            >
-              <Bank size={20} className="shrink-0" />
-              <div className="min-w-0">
-                <span className="block truncate">Netbanking</span>
-                <span className="text-[11px] text-zinc-500 hidden sm:block">All Indian banks</span>
-              </div>
-            </button>
+        <div className="p-5 space-y-5">
+          <div className="flex items-end justify-between"><div><p className="text-xs text-zinc-400">A little Halloween affair</p><p className="text-[11px] text-zinc-500 mt-1">Secure payment · INR</p></div><p className="text-2xl font-semibold tracking-tight">₹{Number(totalAmount).toLocaleString('en-IN')}</p></div>
+          <div className="rounded-2xl border border-white/10 bg-black/20 p-4 space-y-3">
+            <p className="text-xs font-semibold text-zinc-200">Pay using</p>
+            <div className="flex items-center gap-2 text-xs text-zinc-400"><Smartphone size={16} /> UPI apps <span className="text-zinc-600">·</span><CreditCard size={16} /> Cards & netbanking</div>
+            <div className="flex gap-2 pt-1"><span className="rounded-md bg-white px-2 py-1 text-[9px] font-bold text-[#072654]">UPI</span><span className="rounded-md bg-white px-2 py-1 text-[9px] font-bold text-[#1a1f71]">VISA</span><span className="rounded-md bg-white px-2 py-1 text-[9px] font-bold text-[#eb001b]">Mastercard</span></div>
           </div>
-
-          {/* Right Main Channel Display */}
-          <div className="md:col-span-8 p-4 sm:p-6 flex flex-col justify-between space-y-4">
-            
-            {selectedMethod === 'UPI' && (
-              <div className="space-y-4 text-left">
-                
-                {/* Method Header & Expiration Timer */}
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="text-xs uppercase tracking-wider text-zinc-300 font-bold">
-                    Pay with UPI (GPay / PhonePe / Paytm / CRED)
-                  </span>
-                  <div className="flex items-center gap-1.5 text-xs font-mono text-[#FFA947] bg-[#FFA947]/10 px-2.5 py-1 rounded-full border border-[#FFA947]/20">
-                    <Clock size={14} />
-                    <span>{formatTimer(timeLeft)}</span>
-                  </div>
-                </div>
-
-                {/* Quick Instant Approval Banner for Smooth Demo / Testing */}
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#431CB8]/30 via-[#2A1550]/40 to-black/60 border border-[#431CB8]/60 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
-                  <div className="text-left text-xs space-y-0.5">
-                    <span className="font-extrabold text-white flex items-center gap-1.5 font-mono uppercase tracking-wide text-[11px]">
-                      <span className="text-[#FFA947]">⚡</span> Instant 1-Click Approval (Demo)
-                    </span>
-                    <p className="text-[11px] text-zinc-300">
-                      Simulate confirmed UPI transfer & instantly issue passes.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleQuickDemoPay}
-                    disabled={isVerifying}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md active:scale-95 shrink-0"
-                  >
-                    {isVerifying ? 'Verifying…' : 'Approve & Issue Pass →'}
-                  </button>
-                </div>
-
-                {/* QR Code Presentation */}
-                <div className="p-4 rounded-2xl bg-black/50 border border-white/10 flex flex-col sm:flex-row items-center gap-4">
-                  <div className="p-2.5 bg-white rounded-2xl shrink-0 shadow-xl">
-                    {qrSrc ? (
-                      <img 
-                        src={qrSrc} 
-                        alt="Razorpay UPI QR Code" 
-                        className="w-36 h-36 sm:w-40 sm:h-40 object-contain rounded-xl" 
-                      />
-                    ) : (
-                      <div className="w-36 h-36 flex items-center justify-center text-zinc-800 text-xs font-mono">
-                        Generating QR…
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-2.5 text-left text-xs">
-                    <p className="text-zinc-300 leading-relaxed font-sans">
-                      Scan using Google Pay, PhonePe, Paytm, CRED or your mobile banking UPI app.
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 text-[10px] uppercase text-zinc-400">
-                      <span className="px-2.5 py-1 bg-white/5 rounded-full border border-white/10">Google Pay</span>
-                      <span className="px-2.5 py-1 bg-white/5 rounded-full border border-white/10">PhonePe</span>
-                      <span className="px-2.5 py-1 bg-white/5 rounded-full border border-white/10">Paytm</span>
-                      <span className="px-2.5 py-1 bg-white/5 rounded-full border border-white/10">CRED</span>
-                    </div>
-
-                    <div className="pt-1">
-                      <a
-                        href={upiUri}
-                        className="inline-block py-2.5 px-4 rounded-full bg-white hover:bg-zinc-200 text-black font-bold text-xs tracking-wide transition-colors shadow-md"
-                      >
-                        Launch Installed UPI App →
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* UTR Submission Field */}
-                <form onSubmit={handleVerifySubmit} className="space-y-2.5 pt-1">
-                  <div className="flex items-center justify-between text-xs text-zinc-400">
-                    <div className="flex items-center gap-2">
-                      <label htmlFor="razorpay_utr" className="font-semibold uppercase tracking-wider">
-                        12-Digit Bank Reference (UTR) *
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setUtrNumber('429381729012');
-                          if (utrError) setUtrError('');
-                        }}
-                        className="text-[10px] text-[#FFA947] hover:underline font-mono"
-                      >
-                        (Auto-fill Test)
-                      </button>
-                    </div>
-                    <span className="text-[10px] text-zinc-500 font-mono">
-                      {utrNumber.length}/12 Digits
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      id="razorpay_utr"
-                      name="razorpay_utr"
-                      required
-                      maxLength={12}
-                      autoComplete="off"
-                      spellCheck={false}
-                      value={utrNumber}
-                      onChange={(e) => {
-                        const clean = e.target.value.replace(/\D/g, '');
-                        setUtrNumber(clean);
-                        if (utrError) setUtrError('');
-                      }}
-                      placeholder="e.g. 429381729012"
-                      className="flex-1 bg-black/60 border border-white/15 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white font-mono placeholder-zinc-600 focus:border-[#FF521B] outline-none"
-                    />
-
-                    <button
-                      type="submit"
-                      disabled={isVerifying || utrNumber.length !== 12}
-                      className="px-5 py-2.5 rounded-xl bg-[#FF521B] hover:bg-[#ff6414] disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer shrink-0 shadow-lg"
-                    >
-                      {isVerifying ? (
-                        <span className="animate-pulse">Auditing…</span>
-                      ) : (
-                        <>
-                          <ShieldCheck size={18} weight="bold" />
-                          <span>Confirm</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {utrError && (
-                    <div className="p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 text-xs flex items-start gap-1.5">
-                      <WarningCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
-                      <span>{utrError}</span>
-                    </div>
-                  )}
-
-                  <p className="text-[11px] text-zinc-500 leading-normal">
-                    Enter the 12-digit UTR shown in your bank or UPI transaction receipt to instantly generate your passes.
-                  </p>
-                </form>
-
-              </div>
-            )}
-
-            {selectedMethod !== 'UPI' && (
-              <div className="p-12 text-center text-zinc-500 space-y-3">
-                <CreditCard size={36} className="mx-auto text-zinc-600" />
-                <p className="text-sm text-zinc-300 font-bold">Channel Under Maintenance</p>
-                <p className="text-xs text-zinc-500 max-w-xs mx-auto">
-                  Cards and Netbanking are currently undergoing maintenance. Please select <strong>UPI QR & Apps</strong> for zero-fee instant settlement.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setSelectedMethod('UPI')}
-                  className="mt-2 px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs uppercase font-bold"
-                >
-                  Switch to UPI
-                </button>
-              </div>
-            )}
-
-            {/* Bottom Security Footer */}
-            <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-zinc-500">
-              <span className="flex items-center gap-1.5">
-                <LockSimple size={13} className="text-emerald-400" />
-                256-Bit SSL Encrypted
-              </span>
-              <span>BookOurSpot · Razorpay UPI Gateway</span>
-            </div>
-
-          </div>
-
+          {error && <p role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-3 py-2.5 text-xs leading-relaxed text-rose-200">{error}</p>}
+          {status === 'verifying' && <p className="flex items-center gap-2 text-xs text-[#d8eb91]"><ShieldCheck size={16} /> Confirming payment with Razorpay…</p>}
+          {status === 'success' && <p className="flex items-center gap-2 text-xs text-emerald-300"><CheckCircle2 size={16} /> Payment verified.</p>}
+          <button type="button" disabled={isLoading} onClick={startPayment} className="w-full flex items-center justify-center gap-2 rounded-full bg-[#c6e35b] py-3.5 text-sm font-bold text-[#171910] hover:bg-[#d4ed71] disabled:opacity-60">
+            {isLoading ? 'Connecting securely…' : <>Continue to payment <ArrowRight size={17} /></>}
+          </button>
+          <p className="flex items-center justify-center gap-1.5 text-[10px] text-zinc-500"><LockKeyhole size={12} /> Secure checkout powered by Razorpay</p>
+          <p className="text-center text-[10px] leading-relaxed text-zinc-600">Your pass is issued only after the payment is verified.</p>
         </div>
-
-      </div>
+      </section>
     </div>
   );
 }

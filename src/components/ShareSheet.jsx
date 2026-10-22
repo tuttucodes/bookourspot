@@ -40,7 +40,7 @@ export default function ShareSheet({
   };
 
   const handleWhatsAppShare = () => {
-    const text = encodeURIComponent(`Check out ${event.title} on BookOurSpot (bookourspot.com)!\n${event.dateSubtitle}\n${window.location.href}`);
+    const text = encodeURIComponent(`Check out ${event.title} on BookOutSpot (bookourspot.com)!\n${event.dateSubtitle}\n${window.location.href}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 

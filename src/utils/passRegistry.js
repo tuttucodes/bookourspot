@@ -1,11 +1,17 @@
 // Persistent Pass Registry & Verification Engine with Supabase Cloud Backend
-import { syncPassesToSupabase, updateAdmissionInSupabase, fetchPassesFromSupabase } from './supabaseClient.js';
+import { getLocalUser } from './authService.js';
 
-const STORAGE_KEY = 'bookourspot_passes_v2';
+const STORAGE_KEY = 'bookourspot_passes_v3';
+const storageKey = () => {
+  const userId = getLocalUser()?.id;
+  return userId ? `${STORAGE_KEY}_${userId}` : null;
+};
 
 export function getStoredPasses() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const key = storageKey();
+    if (!key) return [];
+    const raw = localStorage.getItem(key);
     if (!raw) {
       return [];
     }
@@ -18,7 +24,9 @@ export function getStoredPasses() {
 
 export function clearStoredPasses() {
   try {
-    localStorage.removeItem(STORAGE_KEY);
+    const key = storageKey();
+    if (key) localStorage.removeItem(key);
+    localStorage.removeItem('bookourspot_passes_v2');
     localStorage.removeItem('halloween_affair_passes_v1');
     window.dispatchEvent(new Event('pass_registry_updated'));
   } catch (err) {
@@ -28,17 +36,14 @@ export function clearStoredPasses() {
 
 export function savePasses(newPasses) {
   try {
+    const key = storageKey();
+    if (!key) return [];
     const existing = getStoredPasses();
     const combined = [...newPasses, ...existing];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(combined));
+    localStorage.setItem(key, JSON.stringify(combined));
     
     // Dispatch local storage event so all components/tabs update immediately
     window.dispatchEvent(new Event('pass_registry_updated'));
-
-    // Asynchronously push each new pass to Supabase cloud database
-    syncPassesToSupabase(newPasses).catch(err => {
-      console.warn('Background Supabase sync notice:', err);
-    });
 
     return combined;
   } catch (err) {
@@ -59,6 +64,8 @@ export function generateUniquePassId(index = 1, total = 1) {
 
 export function markPassAdmitted(passId) {
   try {
+    const key = storageKey();
+    if (!key) return [];
     const passes = getStoredPasses();
     let isNowAdmitted = false;
     const updated = passes.map(p => {
@@ -72,13 +79,8 @@ export function markPassAdmitted(passId) {
       }
       return p;
     });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    localStorage.setItem(key, JSON.stringify(updated));
     window.dispatchEvent(new Event('pass_registry_updated'));
-
-    // Sync door admission status to Supabase cloud
-    updateAdmissionInSupabase(passId, isNowAdmitted).catch(err => {
-      console.warn('Background Supabase admission sync notice:', err);
-    });
 
     return updated;
   } catch (err) {
@@ -88,25 +90,10 @@ export function markPassAdmitted(passId) {
 }
 
 /**
- * Sync fresh passes from Supabase cloud into local storage for the host terminal
+ * Pass synchronization is intentionally disabled until server-side, user-scoped
+ * booking storage is configured.
  */
 export async function refreshFromSupabase() {
-  try {
-    const cloudPasses = await fetchPassesFromSupabase();
-    if (cloudPasses && cloudPasses.length > 0) {
-      const local = getStoredPasses();
-      // Merge unique passes by id
-      const map = new Map();
-      local.forEach(p => map.set(p.id, p));
-      cloudPasses.forEach(p => map.set(p.id, p));
-      const merged = Array.from(map.values());
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      window.dispatchEvent(new Event('pass_registry_updated'));
-      return merged;
-    }
-  } catch (err) {
-    console.warn('Could not refresh from Supabase cloud:', err);
-  }
   return getStoredPasses();
 }
 

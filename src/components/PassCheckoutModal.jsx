@@ -441,10 +441,11 @@ export default function PassCheckoutModal({
         totalAmount={totalAmount}
         totalGuests={totalGuests}
         tierLabel={selectedTier === 'DUO' ? 'Duo Pass' : 'Solo Pass'}
+        tierType={selectedTier}
+        quantity={quantity}
         primaryName={guests[0]?.name || 'Guest'}
         primaryPhone={guests[0]?.phone || ''}
         onConfirmSuccess={handlePaymentSuccess}
-        merchantUpi="9074417293@pthdfc"
       />
     </>
   );

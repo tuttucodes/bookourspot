@@ -1,25 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import SplashScreen from './components/SplashScreen';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import EventFeed from './components/EventFeed';
-import EventDetail from './components/EventDetail';
 import Navbar from './components/Navbar';
-import SearchDrawer from './components/SearchDrawer';
-import MyTicketsModal from './components/MyTicketsModal';
-import OrganizerDoorHub from './components/OrganizerDoorHub';
-import AuthModal from './components/AuthModal';
-import ProfileModal from './components/ProfileModal';
 import { EVENTS_DATA } from './data/eventsData';
 import { getStoredPasses } from './utils/passRegistry';
 import { getCurrentUser } from './utils/authService';
+import { firebaseAuth } from './utils/firebaseClient';
+import { onAuthStateChanged } from 'firebase/auth';
+
+const EventDetail = lazy(() => import('./components/EventDetail'));
+const SearchDrawer = lazy(() => import('./components/SearchDrawer'));
+const MyTicketsModal = lazy(() => import('./components/MyTicketsModal'));
+const AuthModal = lazy(() => import('./components/AuthModal'));
+const ProfileModal = lazy(() => import('./components/ProfileModal'));
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(() => {
-    try {
-      return !sessionStorage.getItem('bos_splash_shown');
-    } catch {
-      return false;
-    }
-  });
   const [activeTab, setActiveTab] = useState('EVENTS'); // 'EVENTS' | 'SEARCH' | 'PASSES' | 'PROFILE'
   const [initialOpenBooking, setInitialOpenBooking] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(() => {
@@ -54,26 +48,19 @@ export default function App() {
       return false;
     }
   });
-  const [isDoorHubOpen, setIsDoorHubOpen] = useState(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('host') === '1' || params.get('scanner') === '1';
-    } catch {
-      return false;
-    }
-  });
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [pendingBookingEvent, setPendingBookingEvent] = useState(null);
   const [ticketCount, setTicketCount] = useState(0);
   
   // Bookmarked event IDs (Hotlist)
   const [bookmarkedIds, setBookmarkedIds] = useState(() => {
     try {
       const stored = localStorage.getItem('bookourspot_hotlist_v1');
-      return stored ? JSON.parse(stored) : ['halloween-affair'];
+      return stored ? JSON.parse(stored) : [];
     } catch {
-      return ['halloween-affair'];
+      return [];
     }
   });
 
@@ -92,6 +79,15 @@ export default function App() {
     setInitialOpenBooking(autoOpenBooking);
   };
 
+  const handleStartBooking = (event) => {
+    if (!currentUser) {
+      setPendingBookingEvent(event);
+      setIsAuthOpen(true);
+      return;
+    }
+    handleSelectEvent(event, true);
+  };
+
   // Sync ticket count and user session
   useEffect(() => {
     const updateStats = () => {
@@ -101,18 +97,16 @@ export default function App() {
     updateStats();
     window.addEventListener('pass_registry_updated', updateStats);
 
-    getCurrentUser().then(user => {
-      if (user) setCurrentUser(user);
-    });
-
-    const handleAuthChange = () => {
-      getCurrentUser().then(user => setCurrentUser(user));
-    };
+    const unsubscribeAuth = firebaseAuth
+      ? onAuthStateChanged(firebaseAuth, () => getCurrentUser().then(user => setCurrentUser(user)))
+      : undefined;
+    const handleAuthChange = () => getCurrentUser().then(user => setCurrentUser(user));
     window.addEventListener('auth_state_changed', handleAuthChange);
 
     return () => {
       window.removeEventListener('pass_registry_updated', updateStats);
       window.removeEventListener('auth_state_changed', handleAuthChange);
+      unsubscribeAuth?.();
     };
   }, []);
 
@@ -141,17 +135,8 @@ export default function App() {
   return (
     <div className="relative min-h-[100dvh] w-full bg-[#08080C] text-[#F3EFE0] selection:bg-[#431CB8] selection:text-white font-sans antialiased overflow-x-hidden">
       
-      {/* 1. SPLASH SCREEN */}
-      {showSplash && (
-        <SplashScreen 
-          onDismiss={() => {
-            setShowSplash(false);
-            try { sessionStorage.setItem('bos_splash_shown', 'true'); } catch {}
-          }} 
-        />
-      )}
-
       {/* 2. MAIN APP VIEW CONTAINER */}
+      <Suspense fallback={<div className="grid min-h-[70vh] place-items-center text-sm text-zinc-400">Loading your plans…</div>}>
       <main className="w-full min-h-screen">
         {selectedEvent ? (
           /* EVENT DETAILS PAGE */
@@ -161,6 +146,7 @@ export default function App() {
               setSelectedEvent(null);
               setInitialOpenBooking(false);
             }}
+            onRequestBooking={() => handleStartBooking(selectedEvent)}
             initialOpenBooking={initialOpenBooking}
             isBookmarked={bookmarkedIds.includes(selectedEvent.id)}
             onToggleBookmark={() => toggleBookmark(selectedEvent.id)}
@@ -171,10 +157,10 @@ export default function App() {
           <EventFeed
             events={EVENTS_DATA}
             onSelectEvent={(e) => handleSelectEvent(e, false)}
-            onBookEvent={(e) => handleSelectEvent(e, true)}
+            onBookEvent={handleStartBooking}
             onOpenAuth={() => setIsAuthOpen(true)}
+            onOpenSearch={() => setIsSearchOpen(true)}
             onOpenProfile={() => setIsProfileOpen(true)}
-            onOpenHostPortal={() => setIsDoorHubOpen(true)}
             currentUser={currentUser}
             bookmarkedIds={bookmarkedIds}
             onToggleBookmark={toggleBookmark}
@@ -218,11 +204,6 @@ export default function App() {
         }}
       />
 
-      <OrganizerDoorHub
-        isOpen={isDoorHubOpen}
-        onClose={() => setIsDoorHubOpen(false)}
-      />
-
       {/* LOGIN & ONBOARDING SHEET (1:1 with IMG_4088.PNG, IMG_4089.PNG, IMG_4090.PNG) */}
       <AuthModal
         isOpen={isAuthOpen}
@@ -230,6 +211,10 @@ export default function App() {
         onAuthSuccess={(user) => {
           setCurrentUser(user);
           setIsAuthOpen(false);
+          if (pendingBookingEvent) {
+            handleSelectEvent(pendingBookingEvent, true);
+            setPendingBookingEvent(null);
+          }
         }}
       />
 
@@ -247,6 +232,7 @@ export default function App() {
           setIsProfileOpen(false);
         }}
       />
+      </Suspense>
 
     </div>
   );

@@ -1,163 +1,129 @@
-import { supabase } from './supabaseClient.js';
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  RecaptchaVerifier,
+  signInWithEmailAndPassword,
+  signInWithPhoneNumber,
+  signInWithPopup,
+  signOut,
+} from 'firebase/auth';
+import { firebaseAuth, isFirebaseConfigured } from './firebaseClient.js';
 
-const LOCAL_USER_KEY = 'bookourspot_user_v1';
+let phoneConfirmation = null;
+let phoneRecaptcha = null;
 
-export function getLocalUser() {
-  try {
-    const raw = localStorage.getItem(LOCAL_USER_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+function requireFirebase() {
+  if (!isFirebaseConfigured || !firebaseAuth) {
+    throw new Error('Firebase sign-in is not configured. Add the VITE_FIREBASE_* settings and reload.');
   }
+  return firebaseAuth;
 }
 
-export function setLocalUser(user) {
-  if (user) {
-    localStorage.setItem(LOCAL_USER_KEY, JSON.stringify(user));
-  } else {
-    localStorage.removeItem(LOCAL_USER_KEY);
-  }
-  window.dispatchEvent(new Event('auth_state_changed'));
+function mapUser(user) {
+  return user ? {
+    id: user.uid,
+    uid: user.uid,
+    email: user.email || '',
+    name: user.displayName || user.email?.split('@')[0] || '',
+    phone: user.phoneNumber || '',
+    photoURL: user.photoURL || '',
+    emailVerified: user.emailVerified,
+  } : null;
 }
 
 export async function getCurrentUser() {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      const user = {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'Rahul Babu K',
-        phone: session.user.user_metadata?.phone || '+91 9074417293'
-      };
-      setLocalUser(user);
-      return user;
-    }
-  } catch (err) {
-    console.warn('Supabase session fetch notice:', err);
-  }
-  return getLocalUser();
+  return firebaseAuth ? mapUser(firebaseAuth.currentUser) : null;
 }
 
-/**
- * Sign in with Google OAuth via Supabase
- */
+export function getLocalUser() {
+  return mapUser(firebaseAuth?.currentUser);
+}
+
+export function setLocalUser() {
+  // Kept as a compatibility hook for existing UI listeners; Firebase owns persistence.
+  window.dispatchEvent(new Event('auth_state_changed'));
+}
+
 export async function signInWithGoogle() {
   try {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin
-      }
-    });
-
-    if (error) {
-      console.warn('Supabase Google OAuth notice:', error.message);
-      // Fallback local sign-in for seamless demo experience
-      const user = quickLoginDemo('Rahul Babu K', 'rahulbabuk05@gmail.com', '+91 9074417293');
-      return { success: true, user, isLocalFallback: true };
-    }
-
-    return { success: true, data };
+    const auth = requireFirebase();
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const result = await signInWithPopup(auth, provider);
+    setLocalUser();
+    return { success: true, user: mapUser(result.user) };
   } catch (err) {
-    const user = quickLoginDemo('Rahul Babu K', 'rahulbabuk05@gmail.com', '+91 9074417293');
-    return { success: true, user, isLocalFallback: true };
+    return { success: false, error: formatAuthError(err) };
   }
 }
 
-/**
- * Send OTP to phone number
- */
+export async function signInWithEmail(email, password, createAccount = false) {
+  try {
+    const auth = requireFirebase();
+    const credential = createAccount
+      ? await createUserWithEmailAndPassword(auth, email.trim(), password)
+      : await signInWithEmailAndPassword(auth, email.trim(), password);
+    setLocalUser();
+    return { success: true, user: mapUser(credential.user) };
+  } catch (err) {
+    return { success: false, error: formatAuthError(err) };
+  }
+}
+
 export async function sendOtpToPhone(phone) {
   try {
-    const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
-    const { data, error } = await supabase.auth.signInWithOtp({
-      phone: formattedPhone
-    });
-
-    if (error) {
-      console.warn('Supabase Phone OTP notice:', error.message);
-      // Return simulated success for local demo
-      return { success: true, simulatedOtp: '404680' };
+    const auth = requireFirebase();
+    const formattedPhone = phone.startsWith('+') ? phone : `+91${phone.replace(/\D/g, '')}`;
+    if (!phoneRecaptcha) {
+      phoneRecaptcha = new RecaptchaVerifier(auth, 'firebase-recaptcha-container', { size: 'invisible' });
     }
-
-    return { success: true, data };
+    phoneConfirmation = await signInWithPhoneNumber(auth, formattedPhone, phoneRecaptcha);
+    return { success: true };
   } catch (err) {
-    return { success: true, simulatedOtp: '404680' };
+    phoneRecaptcha?.clear();
+    phoneRecaptcha = null;
+    phoneConfirmation = null;
+    return { success: false, error: formatAuthError(err) };
   }
 }
 
-/**
- * Verify OTP entered by user
- */
-export async function verifyPhoneOtp(phone, token) {
+export async function verifyPhoneOtp(_phone, token) {
   try {
-    const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
-    
-    // Check if token matches standard demo token or verify with Supabase
-    if (token === '404680' || token === '123456') {
-      const user = {
-        id: 'usr_' + Date.now().toString(36),
-        name: 'Rahul Babu K',
-        phone: formattedPhone,
-        email: 'rahulbabuk05@gmail.com'
-      };
-      setLocalUser(user);
-      return { success: true, user };
-    }
-
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone: formattedPhone,
-      token,
-      type: 'sms'
-    });
-
-    if (error) {
-      // Allow fallback if demo
-      const user = {
-        id: 'usr_' + Date.now().toString(36),
-        name: 'Rahul Babu K',
-        phone: formattedPhone,
-        email: 'rahulbabuk05@gmail.com'
-      };
-      setLocalUser(user);
-      return { success: true, user, isLocalFallback: true };
-    }
-
-    const user = {
-      id: data.user.id,
-      name: data.user.user_metadata?.name || 'Rahul Babu K',
-      phone: formattedPhone,
-      email: data.user.email || 'rahulbabuk05@gmail.com'
-    };
-    setLocalUser(user);
-    return { success: true, user };
+    if (!phoneConfirmation) throw new Error('Request a new verification code to continue.');
+    const credential = await phoneConfirmation.confirm(token);
+    phoneConfirmation = null;
+    phoneRecaptcha?.clear();
+    phoneRecaptcha = null;
+    setLocalUser();
+    return { success: true, user: mapUser(credential.user) };
   } catch (err) {
-    const user = {
-      id: 'usr_' + Date.now().toString(36),
-      name: 'Rahul Babu K',
-      phone,
-      email: 'rahulbabuk05@gmail.com'
-    };
-    setLocalUser(user);
-    return { success: true, user };
+    return { success: false, error: formatAuthError(err) };
   }
 }
 
 export async function signOutUser() {
   try {
-    await supabase.auth.signOut();
-  } catch {}
-  setLocalUser(null);
+    await signOut(requireFirebase());
+  } finally {
+    phoneConfirmation = null;
+    phoneRecaptcha?.clear();
+    phoneRecaptcha = null;
+    setLocalUser();
+  }
 }
 
-export function quickLoginDemo(name = 'Rahul Babu K', email = 'rahulbabuk05@gmail.com', phone = '+91 9074417293') {
-  const user = {
-    id: 'usr_' + Date.now().toString(36),
-    email,
-    name,
-    phone
+function formatAuthError(error) {
+  const messages = {
+    'auth/invalid-credential': 'The email or password is incorrect.',
+    'auth/email-already-in-use': 'An account already exists for this email. Sign in instead.',
+    'auth/weak-password': 'Choose a password with at least 6 characters.',
+    'auth/invalid-email': 'Enter a valid email address.',
+    'auth/popup-closed-by-user': 'Google sign-in was closed before it finished.',
+    'auth/unauthorized-domain': 'This domain is not authorized in Firebase Authentication settings.',
+    'auth/too-many-requests': 'Too many attempts. Wait a little and try again.',
+    'auth/invalid-verification-code': 'That code did not match. Check it and try again.',
+    'auth/invalid-phone-number': 'Enter a valid phone number including its country code.',
+    'auth/captcha-check-failed': 'Phone verification could not confirm this browser. Refresh and try again.',
   };
-  setLocalUser(user);
-  return user;
+  return messages[error?.code] || error?.message || 'Sign-in could not be completed. Please try again.';
 }

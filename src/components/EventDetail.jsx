@@ -6,32 +6,23 @@ import {
   Storefront, 
   CalendarCheck, 
   CaretRight, 
-  Check, 
-  Diamond, 
   FileText,
-  Clock,
-  Sparkle,
-  Martini,
-  MapPin,
-  Ticket,
-  Prohibit,
-  UserCheck
+  Ticket
 } from '@phosphor-icons/react';
 import ShareSheet from './ShareSheet';
-import DateModal from './DateModal';
 import TierSelectionModal from './TierSelectionModal';
 import TermsSheet from './TermsSheet';
 
 export default function EventDetail({
   event,
   onBack,
+  onRequestBooking,
   initialOpenBooking = false,
   isBookmarked,
   onToggleBookmark,
   onBookingSuccess
 }) {
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const [isTierSelectionOpen, setIsTierSelectionOpen] = useState(() => {
     if (initialOpenBooking) return true;
     try {
@@ -62,8 +53,14 @@ export default function EventDetail({
   const [expandedAbout, setExpandedAbout] = useState(false);
 
   if (!event) return null;
+  const isBookable = event.id === 'halloween-affair';
 
   const handleOpenBooking = () => {
+    if (!isBookable) return;
+    if (onRequestBooking) {
+      onRequestBooking();
+      return;
+    }
     const defaultDate = selectedDate || event.availableDates?.[0] || {
       id: 'default',
       label: event.dates,
@@ -71,12 +68,6 @@ export default function EventDetail({
       timing: event.time
     };
     setSelectedDate(defaultDate);
-    setIsTierSelectionOpen(true);
-  };
-
-  const handleDateSelected = (dateItem) => {
-    setSelectedDate(dateItem);
-    setIsDateModalOpen(false);
     setIsTierSelectionOpen(true);
   };
 
@@ -161,42 +152,39 @@ export default function EventDetail({
         </div>
 
         {/* VENUE CARD (IMG_4053.PNG & IMG_4058.PNG) */}
-        <div className="p-4 rounded-2xl bg-[#14131F] border border-white/10 flex items-center justify-between text-left hover:border-white/20 transition-colors">
+        {event.venue && <div className="p-4 rounded-2xl bg-[#14131F] border border-white/10 flex items-center justify-between text-left">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-zinc-200 shrink-0">
               <Storefront size={22} weight="duotone" />
             </div>
             <div className="min-w-0">
               <h4 className="text-sm font-bold text-white truncate">
-                {event.venue?.name}
+                {event.venue?.name || event.venue}
               </h4>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                <span className="text-emerald-400 font-semibold">Rated {event.venue?.rating || '4.8'}</span>
-                <span className="mx-1.5 text-zinc-600">|</span>
-                <span>{event.venue?.distance}</span>
-              </p>
+              {(event.venue?.rating || event.venue?.distance) && <p className="text-xs text-zinc-400 mt-0.5">
+                {event.venue?.rating && <><span className="text-emerald-400 font-semibold">Rated {event.venue.rating}</span><span className="mx-1.5 text-zinc-600">|</span></>}
+                {event.venue?.distance && <span>{event.venue.distance}</span>}
+              </p>}
             </div>
           </div>
-          <CaretRight size={18} className="text-zinc-500 shrink-0 ml-2" />
-        </div>
+        </div>}
 
         {/* TIMELINE / SCHEDULE CARD (IMG_4054.PNG & IMG_4058.PNG) */}
-        <div className="p-4 rounded-2xl bg-[#14131F] border border-white/10 flex items-center justify-between text-left hover:border-white/20 transition-colors">
+        {event.timing && <div className="p-4 rounded-2xl bg-[#14131F] border border-white/10 flex items-center justify-between text-left">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-zinc-200 shrink-0">
               <CalendarCheck size={22} weight="duotone" />
             </div>
             <div className="min-w-0">
               <h4 className="text-sm font-bold text-white truncate">
-                {event.timing?.startsAt || 'Starts at 7 PM'}
+                {event.timing.startsAt}
               </h4>
               <p className="text-xs text-zinc-400 mt-0.5 truncate">
-                {event.timing?.scheduleSubtitle || 'View full schedule & timeline'}
+                {event.timing.scheduleSubtitle}
               </p>
             </div>
           </div>
-          <CaretRight size={18} className="text-zinc-500 shrink-0 ml-2" />
-        </div>
+        </div>}
 
         {/* ABOUT THE EVENT (IMG_4054.PNG) */}
         <div className="space-y-3 text-left">
@@ -205,16 +193,16 @@ export default function EventDetail({
           </h3>
           <div className="text-sm text-zinc-300 leading-relaxed font-sans space-y-2">
             <p className={expandedAbout ? '' : 'line-clamp-3'}>
-              {event.about}
+              {event.about || event.subtitle}
             </p>
-            <button
+            {event.about && <button
               type="button"
               onClick={() => setExpandedAbout(!expandedAbout)}
               className="text-xs font-bold text-[#FFA947] hover:underline cursor-pointer inline-flex items-center gap-1"
             >
               <span>{expandedAbout ? 'Read less' : 'Read more'}</span>
               <CaretRight size={12} weight="bold" />
-            </button>
+            </button>}
           </div>
         </div>
 
@@ -242,32 +230,17 @@ export default function EventDetail({
         )}
 
         {/* THINGS TO KNOW (IMG_4061.PNG) */}
-        <div className="space-y-3 text-left">
+        {event.thingsToKnow?.length > 0 && <div className="space-y-3 text-left">
           <h3 className="text-lg font-bold text-white tracking-tight">
             Things to know
           </h3>
           <div className="p-4 rounded-2xl bg-[#14131F] border border-white/10 space-y-3.5">
-            <div className="flex items-center gap-3 text-xs sm:text-sm text-zinc-200">
-              <Ticket size={20} className="text-zinc-400 shrink-0" weight="duotone" />
-              <span>Entry allowed for ages 18 and above</span>
-            </div>
-            <div className="flex items-center gap-3 text-xs sm:text-sm text-zinc-200">
-              <Prohibit size={20} className="text-zinc-400 shrink-0" weight="duotone" />
-              <span>Kids not allowed</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsTermsOpen(true)}
-              className="text-xs font-bold text-white hover:text-zinc-300 inline-flex items-center gap-1 cursor-pointer pt-1"
-            >
-              <span>See all</span>
-              <CaretRight size={12} weight="bold" />
-            </button>
+            {event.thingsToKnow.map((item, index) => <div key={index} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-200"><Ticket size={18} className="text-zinc-400 shrink-0 mt-0.5" weight="duotone" /><span>{item}</span></div>)}
           </div>
-        </div>
+        </div>}
 
         {/* ORGANISED BY (IMG_4061.PNG) */}
-        <div className="space-y-3 text-left">
+        {event.organizer && <div className="space-y-3 text-left">
           <h3 className="text-lg font-bold text-white tracking-tight">
             Organised By
           </h3>
@@ -278,45 +251,45 @@ export default function EventDetail({
                 {event.organizer?.avatar ? (
                   <img src={event.organizer.avatar} alt={event.organizer.name} className="w-full h-full object-cover" />
                 ) : (
-                  <span>{event.organizer?.initials || 'SS'}</span>
+                  <span>{event.organizer?.initials || event.organizer?.name?.split(/\s+/).map((part) => part[0]).join('').slice(0, 2) || '?'}</span>
                 )}
               </div>
               <div className="min-w-0">
                 <h4 className="text-sm sm:text-base font-extrabold text-white tracking-tight uppercase leading-snug truncate">
                   {event.organizer?.name}
                 </h4>
-                <p className="text-[11px] text-zinc-400 mt-0.5">Verified Host</p>
+                {event.organizer?.verified && <p className="text-[11px] text-zinc-400 mt-0.5">Verified host</p>}
               </div>
             </div>
 
             {/* Host Stats (IMG_4061.PNG) */}
             <div className="text-right space-y-1.5 font-sans border-l border-white/10 pl-4 shrink-0">
-              <div>
+              {event.organizer?.likedRating && <div>
                 <span className="font-extrabold text-white block text-sm">
-                  {event.organizer?.likedRating || '42%'}
+                  {event.organizer.likedRating}
                 </span>
                 <span className="text-[10px] text-zinc-400 block">
-                  {event.organizer?.ratingsCount || 'Liked (239 ratings)'}
+                  {event.organizer.ratingsCount || 'Liked'}
                 </span>
-              </div>
-              <div className="pt-1.5 border-t border-white/5">
+              </div>}
+              {event.organizer?.hostedEvents && <div className="pt-1.5 border-t border-white/5">
                 <span className="font-extrabold text-white block text-sm">
-                  {event.organizer?.hostedEvents || '20+'}
+                  {event.organizer.hostedEvents}
                 </span>
                 <span className="text-[10px] text-zinc-400 block">Hosted events</span>
-              </div>
-              <div className="pt-1.5 border-t border-white/5">
+              </div>}
+              {event.organizer?.hostingDuration && <div className="pt-1.5 border-t border-white/5">
                 <span className="font-extrabold text-white block text-sm">
-                  {event.organizer?.hostingDuration || '8 months'}
+                  {event.organizer.hostingDuration}
                 </span>
                 <span className="text-[10px] text-zinc-400 block">Hosting</span>
-              </div>
+              </div>}
             </div>
           </div>
-        </div>
+        </div>}
 
         {/* MORE (IMG_4061.PNG) */}
-        <div className="space-y-3 text-left">
+        {event.terms?.length > 0 && <div className="space-y-3 text-left">
           <h3 className="text-lg font-bold text-white tracking-tight">
             More
           </h3>
@@ -331,7 +304,7 @@ export default function EventDetail({
             </div>
             <CaretRight size={16} className="text-zinc-500" />
           </button>
-        </div>
+        </div>}
 
       </div>
 
@@ -340,8 +313,8 @@ export default function EventDetail({
         <div className="w-full max-w-lg rounded-full bg-[#161522]/95 backdrop-blur-xl border border-white/15 p-2 px-5 flex items-center justify-between shadow-2xl pointer-events-auto">
           {/* Price */}
           <div className="text-left">
-            <span className="text-lg sm:text-xl font-extrabold text-white font-mono">
-              {event.priceLabel || `₹${event.price}`}
+            <span className="text-sm sm:text-base font-semibold text-white">
+              {isBookable ? (event.priceLabel || `₹${event.price}`) : 'Booking unavailable'}
             </span>
           </div>
 
@@ -349,9 +322,10 @@ export default function EventDetail({
           <button
             type="button"
             onClick={handleOpenBooking}
-            className="py-3 px-7 rounded-full bg-white hover:bg-zinc-200 text-black font-extrabold text-sm uppercase tracking-wider transition-transform active:scale-95 shadow-xl cursor-pointer"
+            disabled={!isBookable}
+            className={`py-3 px-7 rounded-full font-extrabold text-sm transition-transform shadow-xl ${isBookable ? 'bg-white hover:bg-zinc-200 text-black active:scale-95 cursor-pointer' : 'bg-white/10 text-zinc-400 cursor-not-allowed'}`}
           >
-            Book tickets
+            {isBookable ? 'Book tickets' : 'Booking unavailable'}
           </button>
         </div>
       </div>
@@ -365,29 +339,21 @@ export default function EventDetail({
         onToggleBookmark={onToggleBookmark}
       />
 
-      {/* WHEN WOULD YOU LIKE TO VISIT? DATE SHEET */}
-      <DateModal
-        isOpen={isDateModalOpen}
-        onClose={() => setIsDateModalOpen(false)}
-        event={event}
-        selectedDate={selectedDate}
-        onSelectDate={handleDateSelected}
-      />
-
       {/* TICKET TIER SELECTION & GUEST CHECKOUT SCREEN */}
-      <TierSelectionModal
+      {isBookable && <TierSelectionModal
         isOpen={isTierSelectionOpen}
         onClose={() => setIsTierSelectionOpen(false)}
         event={event}
         initialDate={selectedDate}
         onBookingSuccess={onBookingSuccess}
-      />
+      />}
 
       {/* TERMS AND CONDITIONS BOTTOM SHEET */}
-      <TermsSheet
+      {event.terms?.length > 0 && <TermsSheet
         isOpen={isTermsOpen}
         onClose={() => setIsTermsOpen(false)}
-      />
+        terms={event.terms}
+      />}
 
     </div>
   );

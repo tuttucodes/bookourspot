@@ -7,21 +7,24 @@ import {
   Ticket, 
   Moon, 
   ChatDots, 
-  WhatsappLogo,
   CheckCircle,
   WarningCircle
 } from '@phosphor-icons/react';
-import { signInWithGoogle, sendOtpToPhone, verifyPhoneOtp, quickLoginDemo } from '../utils/authService';
+import { signInWithGoogle, signInWithEmail, sendOtpToPhone, verifyPhoneOtp } from '../utils/authService';
 import { playTap, playSuccessChime } from '../utils/audioTheme';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   const [step, setStep] = useState('PHONE'); // 'PHONE' | 'OTP'
-  const [phone, setPhone] = useState('9074417293');
+  const [phone, setPhone] = useState('');
   const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', '']);
   const [otpTimer, setOtpTimer] = useState(29);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [pinIndex, setPinIndex] = useState(0);
+  const [authMethod, setAuthMethod] = useState('phone');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [createAccount, setCreateAccount] = useState(false);
 
   const otpInputsRef = useRef([]);
 
@@ -82,10 +85,29 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     }
     playTap();
     setIsLoading(true);
-    await sendOtpToPhone(cleanPhone);
+    const result = await sendOtpToPhone(cleanPhone);
     setIsLoading(false);
+    if (!result.success) {
+      setErrorMsg(result.error || 'We could not send a code. Please try again.');
+      return;
+    }
     setStep('OTP');
     setOtpTimer(29);
+  };
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setIsLoading(true);
+    const result = await signInWithEmail(email, password, createAccount);
+    setIsLoading(false);
+    if (!result.success) {
+      setErrorMsg(result.error);
+      return;
+    }
+    playSuccessChime();
+    onAuthSuccess?.(result.user);
+    onClose();
   };
 
   const handleOtpChange = (index, value) => {
@@ -126,10 +148,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   };
 
   const handleAutofillChip = () => {
-    playTap();
-    const demoCode = ['4', '0', '4', '6', '8', '0'];
-    setOtpDigits(demoCode);
-    verifyCode('404680');
+    setErrorMsg('Use the code sent to your phone.');
   };
 
   const verifyCode = async (code) => {
@@ -144,7 +163,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           onClose();
         }, 500);
       } else {
-        setErrorMsg('Invalid verification code. Please try again.');
+        setErrorMsg(res.error || 'Invalid verification code. Please try again.');
       }
     } catch {
       setErrorMsg('Verification failed. Try again.');
@@ -160,17 +179,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     setIsLoading(false);
     if (res.success) {
       playSuccessChime();
-      if (onAuthSuccess) onAuthSuccess(res.user);
+      onAuthSuccess?.(res.user);
       onClose();
+      return;
     }
-  };
-
-  const handleQuickDemoUser = () => {
-    playTap();
-    const user = quickLoginDemo('Rahul Babu K', 'rahulbabuk05@gmail.com', '+91 9074417293');
-    playSuccessChime();
-    if (onAuthSuccess) onAuthSuccess(user);
-    onClose();
+    setErrorMsg(res.error || 'Google sign-in is unavailable right now.');
   };
 
   return (
@@ -186,7 +199,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             <div className="px-5 pt-4 pb-1 flex items-center justify-between z-10">
               <div className="text-left">
                 <span className="font-black text-sm tracking-widest text-white uppercase font-mono">
-                  BookOurSpot
+                  BookOutSpot
                 </span>
               </div>
               <button
@@ -250,8 +263,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                 <div className="flex-1 h-px bg-white/15" />
               </div>
 
-              {/* Mobile Phone Input Form (IMG_4088.PNG) */}
-              <form onSubmit={handlePhoneSubmit} className="space-y-3">
+              <div className="flex rounded-xl bg-[#171622] p-1 text-xs font-semibold">
+                <button type="button" onClick={() => { setAuthMethod('phone'); setErrorMsg(''); }} className={`flex-1 rounded-lg py-2 ${authMethod === 'phone' ? 'bg-white/15 text-white' : 'text-zinc-400'}`}>Phone</button>
+                <button type="button" onClick={() => { setAuthMethod('email'); setErrorMsg(''); }} className={`flex-1 rounded-lg py-2 ${authMethod === 'email' ? 'bg-white/15 text-white' : 'text-zinc-400'}`}>Email</button>
+              </div>
+
+              {authMethod === 'phone' ? <form onSubmit={handlePhoneSubmit} className="space-y-3">
+                <div id="firebase-recaptcha-container" />
                 <div className="flex gap-2">
                   {/* Country Flag & Code Box */}
                   <div className="h-13 px-3.5 rounded-2xl bg-[#1A1824] border border-white/15 flex items-center gap-1.5 text-white text-sm font-semibold shrink-0 cursor-pointer">
@@ -287,7 +305,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                 >
                   {isLoading ? 'Sending Code…' : 'Continue'}
                 </button>
-              </form>
+              </form> : <form onSubmit={handleEmailSubmit} className="space-y-3 text-left">
+                <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
+                <input type="password" required minLength={6} autoComplete={createAccount ? 'new-password' : 'current-password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (6+ characters)" className="w-full h-12 bg-[#1A1824] border border-white/15 rounded-2xl px-4 text-sm text-white placeholder-zinc-500 focus:border-white/40 outline-none" />
+                {errorMsg && <p role="alert" className="text-xs text-rose-300">{errorMsg}</p>}
+                <button type="submit" disabled={isLoading} className="w-full h-12 rounded-2xl bg-[#2D2A3E] hover:bg-[#3D3954] disabled:opacity-40 text-white font-bold text-sm transition-all">{isLoading ? 'Please wait…' : createAccount ? 'Create account' : 'Sign in with email'}</button>
+                <button type="button" onClick={() => { setCreateAccount((value) => !value); setErrorMsg(''); }} className="w-full text-xs text-zinc-400 hover:text-white underline">{createAccount ? 'Already have an account? Sign in' : 'New here? Create an account'}</button>
+              </form>}
 
               {/* OR DIVIDER */}
               <div className="flex items-center gap-3 py-1">
@@ -318,27 +342,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   <span>Continue with Google</span>
                 </button>
 
-                {/* 2. Quick Demo Profile Card (1:1 with IMG_4088.PNG user banner) */}
-                <button
-                  type="button"
-                  onClick={handleQuickDemoUser}
-                  className="w-full p-3 rounded-2xl bg-[#1C1A28] hover:bg-[#252236] border border-white/10 flex items-center gap-3 text-left transition-all active:scale-95 cursor-pointer group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF521B] to-[#E23744] flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md">
-                    R
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[11px] text-zinc-400 block font-mono">
-                      Quick Demo Profile
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-white truncate block">
-                      Rahul Babu K
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-[#FFA947] font-mono font-semibold uppercase tracking-wider group-hover:underline">
-                    Login →
-                  </span>
-                </button>
+                {errorMsg && <p role="alert" className="text-left text-xs text-rose-300">{errorMsg}</p>}
               </div>
 
               {/* Legal Footer (IMG_4088.PNG) */}
@@ -396,22 +400,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
               ))}
             </div>
 
-            {/* Simulated iOS Message Bar Autofill Chip (IMG_4090.PNG) */}
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={handleAutofillChip}
-                className="w-full p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 flex items-center justify-between text-xs text-zinc-300 cursor-pointer active:scale-95 transition-all"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-zinc-500 font-mono">From Messages:</span>
-                  <span className="font-mono font-bold text-emerald-400 tracking-wider">404680</span>
-                </div>
-                <span className="text-[10px] text-[#FFA947] font-semibold uppercase tracking-wider">
-                  Tap to Auto-fill
-                </span>
-              </button>
-            </div>
+            {errorMsg && <p role="alert" className="text-xs text-rose-300">{errorMsg}</p>}
 
             {/* Resend & Timer Row (IMG_4090.PNG) */}
             <div className="space-y-3 pt-1">
@@ -427,9 +416,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                 <button
                   type="button"
                   disabled={otpTimer > 0}
-                  onClick={() => {
-                    setOtpTimer(29);
-                    sendOtpToPhone(phone);
+                  onClick={async () => {
+                    setErrorMsg('');
+                    const result = await sendOtpToPhone(phone);
+                    if (result.success) setOtpTimer(29);
+                    else setErrorMsg(result.error);
                   }}
                   className="py-1.5 px-3.5 rounded-full bg-white/10 hover:bg-white/15 disabled:opacity-30 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
@@ -437,18 +428,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
                   <span>SMS</span>
                 </button>
 
-                <button
-                  type="button"
-                  disabled={otpTimer > 0}
-                  onClick={() => {
-                    setOtpTimer(29);
-                    sendOtpToPhone(phone);
-                  }}
-                  className="py-1.5 px-3.5 rounded-full bg-white/10 hover:bg-white/15 disabled:opacity-30 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <WhatsappLogo size={14} className="text-emerald-400" />
-                  <span>WhatsApp</span>
-                </button>
               </div>
             </div>
 

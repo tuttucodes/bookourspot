@@ -1,0 +1,15 @@
+{
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "BookOutSpot",
+        "supportEmail": "rahulbabuk05@gmail.com",
+        "authorizedRedirectUris": [
+          "https://bookourspot-f311e.firebaseapp.com/__/auth/handler",
+          "http://localhost"
+        ]
+      }
+    }
+  }
+}

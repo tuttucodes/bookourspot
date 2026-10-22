@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
 
 /**
- * Generate and download an editorial BookOurSpot PDF Ticket
+ * Generate and download a BookOutSpot ticket PDF
  */
 export async function downloadPassPdf(pass, options = {}) {
   const doc = new jsPDF({
@@ -26,7 +26,7 @@ export async function downloadPassPdf(pass, options = {}) {
   doc.setTextColor(243, 239, 224); // #F3EFE0
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  doc.text('BOOKOURSPOT', 12, 14);
+  doc.text('BOOKOUTSPOT', 12, 14);
 
   doc.setFont('courier', 'normal');
   doc.setFontSize(7);
@@ -53,7 +53,7 @@ export async function downloadPassPdf(pass, options = {}) {
   doc.setTextColor(170, 170, 180);
   doc.text(`${pass.selectedDate || 'Upcoming Session'} · ${pass.selectedTiming || 'Doors Open Early'}`, 12, currentY);
   currentY += 4.5;
-  doc.text('Venue: Chennai (Location Geofenced · Coordinates Dispatched on WhatsApp)', 12, currentY);
+  doc.text('Venue details will be shared by the event organiser.', 12, currentY);
   currentY += 8;
 
   // Pass Holder Card Box
@@ -66,7 +66,7 @@ export async function downloadPassPdf(pass, options = {}) {
   doc.setFont('courier', 'bold');
   doc.setFontSize(6.5);
   doc.setTextColor(140, 140, 155);
-  doc.text('PASS HOLDER (GOVT ID MANDATORY)', 16, currentY + 6);
+  doc.text('PASS HOLDER', 16, currentY + 6);
   doc.text('TIER ALLOCATION', width - 16, currentY + 6, { align: 'right' });
 
   doc.setFont('helvetica', 'bold');
@@ -104,15 +104,14 @@ export async function downloadPassPdf(pass, options = {}) {
 
   // QR Code Generation
   const checkinPayload = JSON.stringify({
-    app: 'BookOurSpot',
+    app: 'BookOutSpot',
     event: pass.eventTitle,
     passId: pass.id,
     guest: pass.guestName,
     phone: pass.phone || pass.guestPhone || '',
     tier: pass.tierName,
-    utr: pass.utr,
     addons: pass.addons || [],
-    valid: true
+    ticketId: pass.id
   });
 
   try {
@@ -137,7 +136,7 @@ export async function downloadPassPdf(pass, options = {}) {
     currentY += 50;
   }
 
-  // Pass Reference & UTR
+  // Ticket reference
   doc.setFont('courier', 'bold');
   doc.setFontSize(8.5);
   doc.setTextColor(255, 255, 255);
@@ -147,7 +146,7 @@ export async function downloadPassPdf(pass, options = {}) {
   doc.setFont('courier', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(150, 150, 165);
-  doc.text(`BANK UTR: ${pass.utr || 'VERIFIED'}`, width / 2, currentY, { align: 'center' });
+  doc.text('Payment verified · Show this ticket at the event', width / 2, currentY, { align: 'center' });
   currentY += 7;
 
   // Security Notice & Guidelines
@@ -163,10 +162,10 @@ export async function downloadPassPdf(pass, options = {}) {
   doc.setFontSize(5.5);
   doc.setTextColor(170, 170, 185);
   const rules = [
-    '• Valid Govt Photo ID (Aadhaar / Driving License / Passport) mandatory at gate.',
-    '• Passes are strictly non-transferable and mapped to the guest credentials.',
-    '• Venue security and management reserve right of admission. No plain clothes.',
-    '• Offline PDF valid for entry. Present this QR screen or print at the entrance.'
+    '• Present this ticket QR at the event entrance.',
+    '• Keep your ticket reference available for check-in.',
+    '• Follow the event organiser’s entry instructions.',
+    '• Contact BookOutSpot support if you need help with your booking.'
   ];
   rules.forEach((rule, idx) => {
     doc.text(rule, 16, currentY + 9.5 + (idx * 3.8));
@@ -176,9 +175,9 @@ export async function downloadPassPdf(pass, options = {}) {
   doc.setFont('courier', 'normal');
   doc.setFontSize(5.5);
   doc.setTextColor(100, 100, 115);
-  doc.text(`ISSUED BY BOOKOURSPOT.COM · CHENNAI, TN · ${new Date().toLocaleDateString('en-IN')}`, width / 2, height - 5, { align: 'center' });
+  doc.text(`BOOKOURSPOT.COM · ${new Date().toLocaleDateString('en-IN')}`, width / 2, height - 5, { align: 'center' });
 
   // Save PDF
-  const filename = `BookOurSpot_${(pass.guestName || 'Pass').replace(/[^a-zA-Z0-9]/g, '_')}_${pass.id}.pdf`;
+  const filename = `BookOutSpot_${(pass.guestName || 'Pass').replace(/[^a-zA-Z0-9]/g, '_')}_${pass.id}.pdf`;
   doc.save(filename);
 }

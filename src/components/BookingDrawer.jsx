@@ -352,10 +352,12 @@ export default function BookingDrawer({
         totalAmount={totalAmount}
         totalGuests={totalGuests}
         tierLabel={isHalloween ? (selectedTier === 'DUO' ? 'Duo Pass' : 'Solo Pass') : 'General Pass'}
+        eventId={event.id}
+        tierType={selectedTier}
+        quantity={quantity}
         primaryName={guests[0]?.name || 'Guest'}
         primaryPhone={guests[0]?.phone || ''}
         onConfirmSuccess={handlePaymentConfirmed}
-        merchantUpi="9074417293@pthdfc"
       />
     </>
   );

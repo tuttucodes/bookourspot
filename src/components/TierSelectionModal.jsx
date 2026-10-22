@@ -10,13 +10,9 @@ import {
   CheckSquare, 
   Square,
   ArrowRight,
-  Martini,
-  Flame,
-  Sparkle
 } from '@phosphor-icons/react';
-import DateModal from './DateModal';
 import RazorpayModal from './RazorpayModal';
-import { generateUniquePassId, savePasses } from '../utils/passRegistry';
+import { savePasses } from '../utils/passRegistry';
 import { getLocalUser } from '../utils/authService';
 import { playTap, playPassAdded, playSuccessChime } from '../utils/audioTheme';
 import confetti from 'canvas-confetti';
@@ -30,13 +26,11 @@ export default function TierSelectionModal({
 }) {
   const [step, setStep] = useState('TIERS'); // 'TIERS' | 'GUEST_DETAILS'
   const [selectedDate, setSelectedDate] = useState(null);
-  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const [tierQuantities, setTierQuantities] = useState({});
   const [expandedTier, setExpandedTier] = useState(null);
   const [guests, setGuests] = useState([]);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
-  const [hasCocktailUpsell, setHasCocktailUpsell] = useState(false);
 
   // Initialize selected date
   useEffect(() => {
@@ -56,7 +50,7 @@ export default function TierSelectionModal({
       // Preselect 1 pass by default so booking is immediately active
       const firstTierId = event.tiers?.[0]?.id || 'solo-house-pass';
       setTierQuantities({ [firstTierId]: 1 });
-      setAgreedTerms(true);
+      setAgreedTerms(false);
       setStep('TIERS');
     }
   }, [event, initialDate, isOpen]);
@@ -91,12 +85,6 @@ export default function TierSelectionModal({
     }
   });
 
-  // Alex Hormozi Upsell: Signature Cocktail voucher allocation (+₹450)
-  const cocktailUpsellPrice = 450;
-  if (hasCocktailUpsell && totalTickets > 0) {
-    totalAmount += cocktailUpsellPrice;
-  }
-
   // Keep guest list synced with totalTickets and prefill primary booker if available
   useEffect(() => {
     setGuests(prev => {
@@ -105,9 +93,9 @@ export default function TierSelectionModal({
       while (copy.length < totalTickets) {
         if (copy.length === 0 && localUser?.name) {
           copy.push({
-            name: localUser.name || 'Rahul Babu K',
-            phone: localUser.phone || '+91 90744 17293',
-            instagram: '@rahulbabu'
+            name: localUser.name,
+            phone: localUser.phone || '',
+            instagram: ''
           });
         } else {
           copy.push({ name: '', phone: '', instagram: '' });
@@ -120,7 +108,7 @@ export default function TierSelectionModal({
   const updateQuantity = (tierId, delta) => {
     setTierQuantities(prev => {
       const current = prev[tierId] || 0;
-      const next = Math.max(0, Math.min(6, current + delta));
+      const next = Math.max(0, Math.min(5, current + delta));
       if (next > current) {
         playPassAdded();
       } else if (next < current) {
@@ -148,6 +136,11 @@ export default function TierSelectionModal({
     e.preventDefault();
     playTap();
 
+    if (selectedTiersList.length !== 1) {
+      alert('Please book one ticket type at a time.');
+      return;
+    }
+
     for (let i = 0; i < totalTickets; i++) {
       const g = guests[i];
       if (!g.name || !g.name.trim()) {
@@ -161,40 +154,45 @@ export default function TierSelectionModal({
     }
 
     if (!agreedTerms) {
-      alert('Please accept the non-transferable admission terms to continue.');
+      alert('Please confirm the event and attendee details before continuing.');
       return;
     }
 
     setIsRazorpayOpen(true);
   };
 
-  const handlePaymentConfirmed = (cleanUtr) => {
+  const handlePaymentConfirmed = (paymentId, issuedTickets) => {
     setIsRazorpayOpen(false);
+
+    if (!Array.isArray(issuedTickets) || issuedTickets.length !== totalTickets) {
+      alert('Payment was verified, but ticket issuance needs support assistance. Please contact support before retrying.');
+      return;
+    }
 
     const newPasses = [];
     const singlePassPrice = totalTickets > 0 ? Math.round(totalAmount / totalTickets) : 0;
     const primaryTierName = selectedTiersList.length > 0 ? selectedTiersList[0].name : 'General Pass';
-    const activeAddons = hasCocktailUpsell ? ['Signature Mixology Pairing (2 Craft Cocktails)'] : [];
 
     for (let i = 0; i < totalTickets; i++) {
       const g = guests[i];
       newPasses.push({
-        id: generateUniquePassId(i + 1, totalTickets),
+        id: issuedTickets[i].id,
         eventId: event.id,
         eventTitle: event.title,
         guestName: g.name.trim(),
         guestPhone: g.phone.trim(),
         phone: g.phone.trim(),
         bookerName: guests[0].name.trim(),
-        instagram: (g.instagram || (i === 0 ? guests[0].instagram : '')).trim(),
+        instagram: '',
         tierName: primaryTierName,
         price: singlePassPrice,
-        utr: cleanUtr,
+        paymentId,
+        utr: '',
         selectedDate: selectedDate?.label,
         selectedTiming: selectedDate?.timing,
-        addons: activeAddons,
+        addons: [],
         issuedAt: new Date().toISOString(),
-        status: 'LOGGED_PENDING_AUDIT'
+        status: issuedTickets[i].status || 'VALID'
       });
     }
 
@@ -271,29 +269,6 @@ export default function TierSelectionModal({
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIsDateModalOpen(true)}
-                  className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-white text-xs font-semibold cursor-pointer active:scale-95 transition-all shrink-0"
-                >
-                  Change
-                </button>
-              </div>
-
-              {/* SCARCITY & URGENCY STATUS (ALEX HORMOZI DEMAND SIGNAL) */}
-              <div className="p-3 rounded-2xl bg-gradient-to-r from-[#FF521B]/15 via-black/40 to-[#FFA947]/10 border border-[#FF521B]/30 flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF521B] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF521B]"></span>
-                  </span>
-                  <span className="text-[#FFA947] font-bold text-[11px] tracking-wide uppercase">
-                    High Demand · 86% Passes Claimed
-                  </span>
-                </div>
-                <span className="text-[10px] text-zinc-400 font-sans hidden sm:inline">
-                  Chennai Sanctuary
-                </span>
               </div>
 
               {/* TICKET TIERS LIST (IMG_4057.PNG) */}
@@ -313,11 +288,6 @@ export default function TierSelectionModal({
                             <h4 className="text-sm sm:text-base font-bold text-white tracking-tight break-words">
                               {tier.name}
                             </h4>
-                            {idx === 0 && (
-                              <span className="px-2 py-0.5 rounded-full bg-[#FFA947]/15 text-[#FFA947] border border-[#FFA947]/30 text-[9px] font-mono font-bold uppercase tracking-wider">
-                                ⚡ Only 4 left
-                              </span>
-                            )}
                           </div>
                           <div className="text-sm sm:text-base font-bold text-white font-mono">
                             ₹{tier.price.toLocaleString('en-IN')}
@@ -399,7 +369,7 @@ export default function TierSelectionModal({
                   Guest Credentials
                 </h3>
                 <p className="text-xs text-zinc-400 font-sans">
-                  Please provide individual details for each guest. Passes are strictly non-transferable and verified with Govt Photo ID at the door.
+                  Add the name and mobile number for each attendee.
                 </p>
               </div>
 
@@ -408,11 +378,6 @@ export default function TierSelectionModal({
                 <div>
                   <span className="font-semibold text-white block">
                     {totalTickets} {totalTickets === 1 ? 'Guest Pass' : 'Guest Passes'}
-                    {hasCocktailUpsell && (
-                      <span className="text-[#FFA947] font-mono font-normal ml-1">
-                        + Mixology Pairing
-                      </span>
-                    )}
                   </span>
                   <span className="text-zinc-400 font-mono text-[11px]">
                     {selectedDate?.label} · {selectedDate?.timing}
@@ -423,26 +388,10 @@ export default function TierSelectionModal({
                 </span>
               </div>
 
-              {/* Quick autofill helper */}
               <div className="flex items-center justify-between px-1">
                 <span className="text-[11px] font-mono text-zinc-400">
                   Attendee Info ({totalTickets})
                 </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    playTap();
-                    const localUser = getLocalUser();
-                    setGuests(guests.map((g, i) => ({
-                      name: i === 0 ? (localUser?.name || 'Rahul Babu K') : `Guest 0${i + 1}`,
-                      phone: i === 0 ? (localUser?.phone || '+91 90744 17293') : '+91 98765 43210',
-                      instagram: i === 0 ? '@rahulbabu' : ''
-                    })));
-                  }}
-                  className="text-[11px] font-mono text-[#FFA947] hover:underline cursor-pointer"
-                >
-                  ⚡ Auto-fill Details
-                </button>
               </div>
 
               {/* Individual Guest Input Cards */}
@@ -457,14 +406,14 @@ export default function TierSelectionModal({
                         Guest 0{idx + 1} {idx === 0 ? '· Primary Booker' : ''}
                       </span>
                       <span className="text-[10px] text-zinc-500 font-mono">
-                        Govt ID required
+                        Event guest
                       </span>
                     </div>
 
                     <div className="space-y-2.5">
                       <div>
                         <label className="text-[11px] font-medium text-zinc-400 block mb-1">
-                          Full Legal Name
+                          Full name
                         </label>
                         <input
                           type="text"
@@ -478,7 +427,7 @@ export default function TierSelectionModal({
 
                       <div>
                         <label className="text-[11px] font-medium text-zinc-400 block mb-1">
-                          WhatsApp Phone Number
+                          Phone number
                         </label>
                         <input
                           type="tel"
@@ -490,68 +439,9 @@ export default function TierSelectionModal({
                         />
                       </div>
 
-                      {idx === 0 && (
-                        <div>
-                          <label className="text-[11px] font-medium text-zinc-400 block mb-1">
-                            Instagram Handle (Optional)
-                          </label>
-                          <input
-                            type="text"
-                            value={guest.instagram}
-                            onChange={(e) => updateGuest(0, 'instagram', e.target.value)}
-                            placeholder="@username"
-                            className="w-full bg-[#0C0B12] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-zinc-300 placeholder-zinc-600 focus:border-white/30 outline-none transition-colors"
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* SIGNATURE CRAFT COCKTAILS UPSELL (NO VIP / NO FASTTRACK - PURE MIXOLOGY) */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1A1828] to-[#111018] border border-white/15 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="space-y-1 min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-[#FF521B]/15 flex items-center justify-center text-[#FFA947] shrink-0">
-                        <Martini size={14} weight="fill" />
-                      </div>
-                      <span className="text-xs font-bold text-white tracking-wide uppercase font-mono">
-                        Signature Mixology Pairing
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-zinc-300 leading-relaxed font-sans">
-                      Add 2 handcrafted bespoke cocktails (Spiced Midnight Bourbon & House Negroni) with express bar redemption.
-                    </p>
-                    <div className="flex items-center gap-2 font-mono text-xs pt-0.5">
-                      <span className="font-bold text-[#FFA947]">₹450</span>
-                      <span className="text-[10px] text-zinc-500 line-through">₹700 at bar</span>
-                      <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                        SAVE ₹250
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setHasCocktailUpsell(prev => !prev);
-                      if (!hasCocktailUpsell) {
-                        playPassAdded();
-                      } else {
-                        playTap();
-                      }
-                    }}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all cursor-pointer shrink-0 active:scale-95 ${
-                      hasCocktailUpsell
-                        ? 'bg-emerald-500 text-black border border-emerald-400 shadow-lg shadow-emerald-500/20 font-black'
-                        : 'bg-white/10 hover:bg-white/15 text-white border border-white/20'
-                    }`}
-                  >
-                    {hasCocktailUpsell ? 'Added ✓' : '+ Add ₹450'}
-                  </button>
-                </div>
               </div>
 
               {/* Admission Terms Checkbox */}
@@ -570,7 +460,7 @@ export default function TierSelectionModal({
                   {agreedTerms ? <CheckSquare size={18} weight="fill" /> : <Square size={18} />}
                 </div>
                 <span className="text-xs text-zinc-400 leading-relaxed">
-                  I agree that all attendee names correspond to valid government-issued photo ID. Passes are non-refundable and strictly non-transferable.
+                  I confirm the event and attendee details above are correct.
                 </span>
               </label>
 
@@ -612,18 +502,6 @@ export default function TierSelectionModal({
 
       </div>
 
-      {/* DATE PICKER BOTTOM SHEET (IMG_4059.PNG) */}
-      <DateModal
-        isOpen={isDateModalOpen}
-        onClose={() => setIsDateModalOpen(false)}
-        event={event}
-        selectedDate={selectedDate}
-        onSelectDate={(newDate) => {
-          setSelectedDate(newDate);
-          setIsDateModalOpen(false);
-        }}
-      />
-
       {/* RAZORPAY UPI GATEWAY MODAL */}
       <RazorpayModal
         isOpen={isRazorpayOpen}
@@ -631,10 +509,13 @@ export default function TierSelectionModal({
         totalAmount={totalAmount}
         totalGuests={totalTickets}
         tierLabel={selectedTiersList[0]?.name || 'General Pass'}
-        primaryName={guests[0]?.name || 'Guest'}
+        eventId={event.id}
+        tierType={selectedTiersList[0]?.id?.includes('duo') ? 'DUO' : 'SOLO'}
+        quantity={selectedTiersList[0]?.qty || 1}
+        primaryName={guests[0]?.name || ''}
         primaryPhone={guests[0]?.phone || ''}
+        attendees={guests.map(({ name, phone }) => ({ name: name.trim(), phone: phone.trim() }))}
         onConfirmSuccess={handlePaymentConfirmed}
-        merchantUpi="9074417293@pthdfc"
       />
     </>,
     document.body

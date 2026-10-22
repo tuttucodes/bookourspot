@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
   X, 
   Ticket, 
@@ -7,22 +7,45 @@ import {
   CheckCircle, 
   WarningCircle, 
   ArrowRight, 
-  ArrowCounterClockwise,
   DownloadSimple
 } from '@phosphor-icons/react';
-import TicketStub from './TicketStub';
-import { getStoredPasses, refreshFromSupabase, clearStoredPasses } from '../utils/passRegistry';
-import { downloadPassPdf } from '../utils/pdfGenerator';
+const TicketStub = lazy(() => import('./TicketStub'));
+import { getStoredPasses } from '../utils/passRegistry';
+import { firebaseAuth } from '../utils/firebaseClient';
 import { playTap, playSuccessChime } from '../utils/audioTheme';
 
 export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
   const [passes, setPasses] = useState([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
 
-  const loadPasses = () => {
-    const list = getStoredPasses();
-    setPasses(list);
+  const loadPasses = async () => {
+    setIsLoading(true);
+    setLoadError('');
+    try {
+      const user = firebaseAuth?.currentUser;
+      if (!user) throw new Error('Sign in to view your bookings.');
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/bookings', { headers: { Authorization: `Bearer ${idToken}` } });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'Booking history could not be loaded.');
+      setPasses((result.bookings || []).flatMap((booking) => booking.tickets || []).map((ticket) => ({
+        ...ticket,
+        eventId: 'halloween-affair',
+        eventTitle: 'A little Halloween affair',
+        phone: ticket.guestPhone,
+        selectedDate: 'Fri, 23 Oct',
+        selectedTiming: '7:00 PM Till Late',
+        price: Number(ticket.price),
+        issuedAt: ticket.issuedAt
+      })));
+    } catch (error) {
+      setPasses(getStoredPasses());
+      setLoadError(error.message || 'Booking history could not be loaded.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -30,13 +53,6 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
       loadPasses();
     }
   }, [isOpen]);
-
-  const handleSyncCloud = async () => {
-    setIsRefreshing(true);
-    await refreshFromSupabase();
-    loadPasses();
-    setIsRefreshing(false);
-  };
 
   const handlePrintAll = () => {
     playTap();
@@ -48,6 +64,7 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
     setIsDownloadingAll(true);
     try {
       for (const p of passes) {
+        const { downloadPassPdf } = await import('../utils/pdfGenerator');
         await downloadPassPdf(p);
       }
       playSuccessChime();
@@ -74,42 +91,15 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
             </div>
             <div className="text-left">
               <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                BookOurSpot Wallet
+                BookOutSpot tickets
               </h3>
               <p className="text-xs text-zinc-400">
-                {passes.length} {passes.length === 1 ? 'Pass' : 'Passes'} Registered · Gate Verification
+                {passes.length} {passes.length === 1 ? 'ticket' : 'tickets'} on this device
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {passes.length > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.confirm('Reset local wallet passes for fresh demo booking?')) {
-                    clearStoredPasses();
-                    setPasses([]);
-                  }
-                }}
-                title="Reset local passes"
-                className="p-2 rounded-full bg-white/5 hover:bg-red-950/40 border border-white/10 hover:border-red-500/40 text-zinc-400 hover:text-red-300 transition-colors cursor-pointer text-xs"
-              >
-                Reset
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={handleSyncCloud}
-              disabled={isRefreshing}
-              title="Refresh from Supabase Cloud"
-              className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer text-xs flex items-center gap-1.5"
-            >
-              <ArrowCounterClockwise size={15} className={isRefreshing ? 'animate-spin' : ''} />
-              <span className="hidden sm:inline">Sync Cloud</span>
-            </button>
-
             <button
               type="button"
               onClick={onClose}
@@ -123,13 +113,14 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
 
         {/* Content Area */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
-          {passes.length === 0 ? (
+          {loadError && <p role="alert" className="rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-xs text-amber-100">{loadError}</p>}
+          {isLoading ? <div className="py-16 text-center text-sm text-zinc-400">Loading your tickets…</div> : passes.length === 0 ? (
             <div className="py-16 text-center space-y-4">
               <Ticket size={48} className="mx-auto text-zinc-600 stroke-[1]" />
               <div className="space-y-1">
                 <p className="text-xl font-bold text-white">No passes allocated yet</p>
                 <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-                  Reserve your admission for A Little Halloween Affair to generate your scannable entry QR pass.
+                  No paid bookings found. Choose the Halloween event to see its current booking options.
                 </p>
               </div>
               <button
@@ -140,7 +131,7 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
                 }}
                 className="inline-flex items-center gap-2 py-3 px-6 rounded-full bg-white hover:bg-zinc-200 text-black text-xs font-bold uppercase tracking-wider transition-transform active:scale-95 cursor-pointer shadow-xl"
               >
-                <span>Book A Little Halloween Affair (₹1,500)</span>
+                <span>Explore A little Halloween affair</span>
                 <ArrowRight size={14} weight="bold" />
               </button>
             </div>
@@ -149,9 +140,7 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
               
               {/* Quick Action Toolbar */}
               <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 text-xs text-left">
-                <span className="text-zinc-300">
-                  Present your scannable QR ticket at the gate for admission.
-                </span>
+                <span className="text-zinc-300">Your paid bookings</span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -177,12 +166,9 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
               {/* Render Stubs */}
               <div className="space-y-4">
                 {passes.map((pass, idx) => (
-                  <TicketStub 
-                    key={pass.id || idx}
-                    pass={pass}
-                    passNumber={idx + 1}
-                    totalPasses={passes.length}
-                  />
+                  <Suspense key={pass.id || idx} fallback={<div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-center text-xs text-zinc-400">Preparing your ticket…</div>}>
+                    <TicketStub pass={pass} passNumber={idx + 1} totalPasses={passes.length} />
+                  </Suspense>
                 ))}
               </div>
 
@@ -192,8 +178,8 @@ export default function MyTicketsModal({ isOpen, onClose, onBookNewPass }) {
 
         {/* Footer */}
         <div className="bg-[#171624] border-t border-white/10 px-5 py-3 flex items-center justify-between text-[11px] text-zinc-500 shrink-0">
-          <span>BookOurSpot Verified Credentials · bookourspot.com</span>
-          <span className="text-zinc-400">Strictly Non-Transferable · 21+</span>
+          <span>BookOutSpot · bookourspot.com</span>
+          <span className="text-zinc-400">A little Halloween affair</span>
         </div>
 
       </div>

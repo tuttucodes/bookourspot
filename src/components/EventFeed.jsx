@@ -3,15 +3,14 @@ import {
   ArrowDown, ArrowRight, Bookmark, CalendarDays, Check, ChevronDown, Clock3,
   Compass, MapPin, Search, ShieldCheck, Ticket, UserRound
 } from 'lucide-react';
-import { COMING_SOON_EVENTS } from '../data/eventsData';
 
 const formats = ['All', 'Nightlife', 'Food & drink', 'Live music', 'Motorsport', 'Experiences'];
 
 function EventCard({ item, onSelectEvent, onBookEvent, isSaved, onToggleBookmark }) {
-  const isLive = item.id === 'halloween-affair';
+  const isLive = item.isBookable === true && item.id === 'halloween-affair';
   const title = item.title;
-  const location = isLive ? item.venue?.shortName : item.venue;
-  const date = isLive ? 'Fri, 23 Oct · 7 PM till late' : item.dateLabel;
+  const location = typeof item.venue === 'string' ? item.venue : item.venue?.shortName || item.venue?.name;
+  const date = item.dateLabel || item.dates || item.dateSubtitle;
   const image = item.coverImage;
 
   return (
@@ -57,17 +56,18 @@ export default function EventFeed({
   const selectedCity = 'Chennai';
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState('All');
-  const halloweenEvent = events.find((event) => event.id === 'halloween-affair') || events[0];
-  const allEvents = [halloweenEvent, ...COMING_SOON_EVENTS];
-  const eventTypes = {
-    'karims-leela': 'Food & drink',
-    'racing-league': 'Motorsport',
-    'madras-driven': 'Experiences',
-    'rolling-loud': 'Live music',
-    'strangers-meetup': 'Experiences'
+  const allEvents = [...events].sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
+  const halloweenEvent = allEvents.find((event) => event.id === 'halloween-affair');
+  const spotlightEvent = halloweenEvent || allEvents.find((event) => event.isFeatured) || allEvents[0];
+  const getFormat = (event) => {
+    const text = [event.category, ...(event.tags || [])].join(' ').toLowerCase();
+    if (/night|party|halloween/.test(text)) return 'Nightlife';
+    if (/food|drink|dining|restaurant|popup/.test(text)) return 'Food & drink';
+    if (/motor|racing|car|automotive/.test(text)) return 'Motorsport';
+    if (/music|concert|arena|festival/.test(text)) return 'Live music';
+    return 'Experiences';
   };
-  const filteredEvents = allEvents.filter((event) => selectedFormat === 'All' ||
-    (event.id === 'halloween-affair' ? selectedFormat === 'Nightlife' : eventTypes[event.id] === selectedFormat));
+  const filteredEvents = allEvents.filter((event) => selectedFormat === 'All' || getFormat(event) === selectedFormat);
 
   return (
     <div className="bos-page">
@@ -92,19 +92,19 @@ export default function EventFeed({
 
         <section className="spotlight-section" aria-label="Featured event">
           <div className="section-kicker"><span className="eyebrow">THE SPOTLIGHT</span><span className="section-index">01 / FEATURED</span></div>
-          <article className="spotlight-card">
-            <button className="spotlight-open" onClick={() => onSelectEvent(halloweenEvent)} aria-label={`View ${halloweenEvent.title}`}>
-              <img src={halloweenEvent.coverImage} alt="A little Halloween affair poster with date, location details, price and dress code" />
+          {spotlightEvent ? <article className="spotlight-card">
+            <button className="spotlight-open" onClick={() => onSelectEvent(spotlightEvent)} aria-label={`View ${spotlightEvent.title}`}>
+              <img src={spotlightEvent.coverImage} alt="" />
             </button>
             <div className="spotlight-copy">
-              <div className="spotlight-copy-top"><span className="spotlight-label"><span className="live-dot" /> HALLOWEEN · CHENNAI</span><button className="spotlight-save" aria-label={bookmarkedIds.includes(halloweenEvent.id) ? 'Remove from saved events' : 'Save event'} onClick={() => onToggleBookmark(halloweenEvent.id)}><Bookmark size={17} fill={bookmarkedIds.includes(halloweenEvent.id) ? 'currentColor' : 'none'} /></button></div>
-              <span className="spotlight-overline">ONE NIGHT · FRI, 23 OCT</span>
-              <h2 className="spotlight-title">A little Halloween affair<span className="spotlight-period">.</span></h2>
-              <p className="spotlight-description">A house party at a secret spooky location. Dress spooky, stylish &amp; a little dramatic.</p>
-              <div className="spotlight-bottom"><span className="spotlight-facts"><span><CalendarDays size={15} /> Fri, 23 Oct</span><span><Clock3 size={15} /> 7 PM till late</span><span>₹1,500 per person</span></span><button className="spotlight-cta" onClick={() => onBookEvent(halloweenEvent)}>Book tickets <ArrowRight size={17} /></button></div>
+              <div className="spotlight-copy-top"><span className="spotlight-label">{getFormat(spotlightEvent)} · {selectedCity}</span><button className="spotlight-save" aria-label={bookmarkedIds.includes(spotlightEvent.id) ? 'Remove from saved events' : 'Save event'} onClick={() => onToggleBookmark(spotlightEvent.id)}><Bookmark size={17} fill={bookmarkedIds.includes(spotlightEvent.id) ? 'currentColor' : 'none'} /></button></div>
+              <span className="spotlight-overline">{spotlightEvent.dates || spotlightEvent.dateLabel || 'UPCOMING IN CHENNAI'}</span>
+              <h2 className="spotlight-title">{spotlightEvent.title}<span className="spotlight-period">.</span></h2>
+              <p className="spotlight-description">{spotlightEvent.subtitle}</p>
+              <div className="spotlight-bottom"><span className="spotlight-facts"><span><CalendarDays size={15} /> {spotlightEvent.dateLabel || spotlightEvent.dates || 'Date to be announced'}</span><span><Clock3 size={15} /> {spotlightEvent.time || spotlightEvent.timing?.startsAt || 'Time to be announced'}</span>{spotlightEvent.priceLabel && <span>{spotlightEvent.priceLabel}</span>}</span>{spotlightEvent.isBookable === true && spotlightEvent.id === 'halloween-affair' ? <button className="spotlight-cta" onClick={() => onBookEvent(spotlightEvent)}>Book tickets <ArrowRight size={17} /></button> : <button className="spotlight-cta" onClick={() => onSelectEvent(spotlightEvent)}>View event <ArrowRight size={17} /></button>}</div>
             </div>
-          </article>
-          <div className="spotlight-footnote"><span><ShieldCheck size={15} /> Event details shown as provided by the organiser</span><button onClick={() => onSelectEvent(halloweenEvent)}>Event details <ArrowRight size={14} /></button></div>
+          </article> : <p className="spotlight-footnote">New events will appear here.</p>}
+          {spotlightEvent && <div className="spotlight-footnote"><span><ShieldCheck size={15} /> Event details shown as provided by the organiser</span><button onClick={() => onSelectEvent(spotlightEvent)}>Event details <ArrowRight size={14} /></button></div>}
         </section>
 
         <section className="discover-section" id="events">

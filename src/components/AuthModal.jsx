@@ -28,13 +28,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
   const [createAccount, setCreateAccount] = useState(false);
   const [linkingPhone, setLinkingPhone] = useState(false);
 
-  const otpInputsRef = useRef([]);
   const dialogRef = useRef(null);
   const redirectConsumeStarted = useRef(false);
 
   useEffect(() => {
     if (!isOpen) return;
     setStep(initialStep);
+    setCreateAccount(initialStep === 'LINK_METHODS');
     setErrorMsg('');
     if (sessionStorage.getItem('bos_google_redirect_pending') === '1' && !redirectConsumeStarted.current) {
       redirectConsumeStarted.current = true;
@@ -170,45 +170,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
     finishAuth(result.user);
   };
 
-  const handleOtpChange = (index, value) => {
-    if (value.length > 1) {
-      // Handle paste
-      const pasted = value.replace(/\D/g, '').slice(0, 6).split('');
-      const newDigits = [...otpDigits];
-      pasted.forEach((d, i) => {
-        if (i < 6) newDigits[i] = d;
-      });
-      setOtpDigits(newDigits);
-      if (pasted.length === 6) {
-        verifyCode(newDigits.join(''));
-      }
-      return;
-    }
-
-    const clean = value.replace(/\D/g, '');
-    const newDigits = [...otpDigits];
-    newDigits[index] = clean;
-    setOtpDigits(newDigits);
-
-    // Auto advance to next input
-    if (clean && index < 5) {
-      otpInputsRef.current[index + 1]?.focus();
-    }
-
-    const fullCode = newDigits.join('');
-    if (fullCode.length === 6) {
-      verifyCode(fullCode);
-    }
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
-      otpInputsRef.current[index - 1]?.focus();
-    }
-  };
-
-  const handleAutofillChip = () => {
-    setErrorMsg('Use the code sent to your phone.');
+  const handleOtpEntry = (value) => {
+    const code = value.replace(/\D/g, '').slice(0, 6);
+    const digits = code.split('');
+    setOtpDigits([...digits, ...Array(6 - digits.length).fill('')]);
+    if (code.length === 6) verifyCode(code);
   };
 
   const verifyCode = async (code) => {
@@ -222,13 +188,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
           return;
         }
         playSuccessChime();
-        if (linkingPhone) {
-          finishAuth(res.user);
-        } else {
-          setCreateAccount(true);
-          setStep('LINK_METHODS');
-          setErrorMsg('');
-        }
+        // Phone OTP is the account credential. Do not force a second
+        // onboarding screen before letting a customer browse or book.
+        finishAuth(res.user);
       } else {
         setErrorMsg(res.error || 'Invalid verification code. Please try again.');
       }
@@ -455,24 +417,17 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
             </div>
 
             {/* 6 Digit Input Boxes (IMG_4090.PNG) */}
-            <div className="flex gap-2 sm:gap-2.5 justify-between">
-              {otpDigits.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={el => otpInputsRef.current[index] = el}
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete={index === 0 ? 'one-time-code' : 'off'}
-                  aria-label={`Verification code digit ${index + 1} of 6`}
-                  maxLength={1}
-                  value={digit}
-                  autoFocus={index === 0}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-11 h-14 sm:w-12 sm:h-16 rounded-2xl bg-[#171622] border border-white/20 text-center font-mono text-xl sm:text-2xl font-bold text-white focus:border-[#FFA947] focus:bg-[#201E2E] outline-none transition-all shadow-md"
-                />
-              ))}
-            </div>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              aria-label="6-digit verification code"
+              maxLength={6}
+              autoFocus
+              value={otpDigits.join('')}
+              onChange={(event) => handleOtpEntry(event.target.value)}
+              className="w-full h-14 rounded-2xl bg-[#171622] border border-white/20 px-5 text-center font-mono text-2xl font-bold tracking-[.45em] text-white focus:border-[#b391ff] focus:bg-[#201E2E] outline-none transition-all shadow-md"
+            />
 
             {errorMsg && <p role="alert" className="text-xs text-rose-300">{errorMsg}</p>}
 

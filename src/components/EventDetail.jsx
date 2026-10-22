@@ -53,7 +53,7 @@ export default function EventDetail({
   const [expandedAbout, setExpandedAbout] = useState(false);
 
   if (!event) return null;
-  const isBookable = event.id === 'halloween-affair';
+  const isBookable = event.id === 'halloween-affair' && event.isBookable === true;
 
   const handleOpenBooking = () => {
     if (!isBookable) return;

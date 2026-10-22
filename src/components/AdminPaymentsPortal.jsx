@@ -4,6 +4,7 @@ import { Check, Clock3, LogOut, RefreshCw, ShieldCheck, X } from 'lucide-react';
 import AuthModal from './AuthModal';
 import { firebaseAuth } from '../utils/firebaseClient';
 import { signOutUser } from '../utils/authService';
+import AdminEventManager from './AdminEventManager';
 
 const money = (value) => `₹${Number(value || 0).toLocaleString('en-IN')}`;
 const displayDate = (value) => {
@@ -23,6 +24,7 @@ export default function AdminPaymentsPortal() {
   const [checkedIds, setCheckedIds] = useState({});
   const [busyId, setBusyId] = useState('');
   const [notes, setNotes] = useState({});
+  const [section, setSection] = useState('PAYMENTS');
 
   useEffect(() => {
     if (!firebaseAuth) return undefined;
@@ -82,8 +84,8 @@ export default function AdminPaymentsPortal() {
       <div className="mx-auto max-w-5xl">
         <header className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-300 text-2xl font-black italic text-[#21143b]">b</span><div><p className="text-xs font-semibold uppercase tracking-[.22em] text-violet-200">BookOutSpot</p><h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Payment review</h1></div></div>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">Match each reported UPI transfer with your bank statement. Approving issues attendee passes; rejecting leaves the booking unpaid.</p>
+            <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-300 text-2xl font-black italic text-[#21143b]">b</span><div><p className="text-xs font-semibold uppercase tracking-[.22em] text-violet-200">BookOutSpot</p><h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">Admin console</h1></div></div>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-400">Review reported UPI transfers, issue passes after bank confirmation, and manage the public event catalogue.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             {signedIn && hasLinkedVerifiedEmail && <a href="https://console.firebase.google.com/project/bookourspot-f311e/authentication/users" target="_blank" rel="noreferrer" className="inline-flex h-10 items-center rounded-full border border-white/15 px-4 text-sm text-zinc-200 hover:bg-white/5">View accounts in Firebase</a>}
@@ -96,7 +98,13 @@ export default function AdminPaymentsPortal() {
 
         {user && (!signedIn || !hasLinkedVerifiedEmail) && <section className="mt-8 rounded-3xl border border-amber-200/15 bg-amber-100/[0.045] p-5 sm:p-6"><div className="flex gap-3"><ShieldCheck size={21} className="mt-0.5 shrink-0 text-amber-100" /><div><h2 className="font-semibold text-white">Finish admin verification</h2><p className="mt-1 text-sm leading-relaxed text-zinc-300">This portal requires a verified phone number and a verified admin email. {signedIn ? 'Link your admin Google account to this phone login.' : 'Verify your phone first.'}</p><button type="button" onClick={() => signedIn ? setLinkOpen(true) : setAuthOpen(true)} className="mt-4 h-10 rounded-full border border-amber-100/30 px-4 text-sm font-semibold text-amber-50">{signedIn ? 'Link admin email' : 'Verify mobile'}</button></div></div></section>}
 
-        {user && signedIn && hasLinkedVerifiedEmail && <>
+        {user && signedIn && hasLinkedVerifiedEmail && <nav className="mt-7 flex gap-2 rounded-2xl border border-white/10 bg-white/[0.025] p-1.5" aria-label="Admin sections">
+          {[['PAYMENTS', 'Payments'], ['EVENTS', 'Events']].map(([id, label]) => <button type="button" key={id} onClick={() => { setSection(id); setError(''); setNotice(''); }} aria-pressed={section === id} className={`min-h-10 flex-1 rounded-xl px-4 text-sm font-semibold transition ${section === id ? 'bg-violet-200 text-[#201331]' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>{label}</button>)}
+        </nav>}
+
+        {user && signedIn && hasLinkedVerifiedEmail && section === 'EVENTS' && <AdminEventManager />}
+
+        {user && signedIn && hasLinkedVerifiedEmail && section === 'PAYMENTS' && <>
           <section className="mt-7 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-5 py-4"><div><p className="text-xs uppercase tracking-[.18em] text-zinc-500">Signed in as</p><p className="mt-1 text-sm font-medium text-white">{user.email} <span className="text-zinc-500">· +{user.phoneNumber?.replace(/^\+/, '')}</span></p></div><div className="inline-flex items-center gap-2 rounded-full border border-amber-100/15 bg-amber-100/[0.04] px-3 py-1.5 text-xs text-amber-100"><Clock3 size={14} /> {payments.length} waiting</div></section>
           {notice && <div role="status" className="mt-5 rounded-xl border border-emerald-200/15 bg-emerald-100/[0.06] px-4 py-3 text-sm text-emerald-100">{notice}</div>}
           {error && <div role="alert" className="mt-5 rounded-xl border border-rose-200/15 bg-rose-100/[0.06] px-4 py-3 text-sm text-rose-100">{error}</div>}

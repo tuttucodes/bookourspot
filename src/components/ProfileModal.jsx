@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, BadgeCheck, CalendarDays, Check, CircleHelp, LogOut, Mail, Pencil, Phone, UserRound, X } from 'lucide-react';
 import { signOutUser, updateAccountName } from '../utils/authService';
 
-export default function ProfileModal({ isOpen, onClose, currentUser, onOpenPasses, onSignOut, onProfileUpdate, ticketCount = 0 }) {
+export default function ProfileModal({ isOpen, onClose, currentUser, onOpenPasses, onSignOut, onProfileUpdate, onAddSignInMethod, ticketCount = 0 }) {
   const [editingName, setEditingName] = useState(false);
   const [name, setName] = useState(currentUser?.name || '');
   const [busy, setBusy] = useState(false);
@@ -85,6 +85,7 @@ export default function ProfileModal({ isOpen, onClose, currentUser, onOpenPasse
               <div className="flex min-w-0 items-center gap-3 py-4"><Mail size={17} className="shrink-0 text-zinc-500" /><span className="truncate text-sm text-zinc-300">{currentUser?.email || 'Email not added'}</span></div>
               <div className="flex min-w-0 items-center gap-3 py-4"><Phone size={17} className="shrink-0 text-zinc-500" /><span className="min-w-0 flex-1"><span className={`block truncate text-sm ${currentUser?.phone ? 'text-zinc-300' : 'text-amber-100'}`}>{currentUser?.phone || 'Phone not added'}</span>{!currentUser?.phone && <small className="mt-1 block text-[11px] text-zinc-500">A verified mobile number is required for bookings.</small>}</span>{currentUser?.phoneVerified && <span className="flex shrink-0 items-center gap-1 text-[10px] text-emerald-200"><BadgeCheck size={15} /> Verified</span>}</div>
             </div>
+            <button type="button" onClick={onAddSignInMethod} className="mt-3 min-h-11 w-full rounded-xl border border-white/10 px-4 text-left text-sm text-violet-100 transition hover:bg-white/[0.04]">Add Google or email sign-in</button>
 
             <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
               <span className="flex items-center gap-2 text-sm font-medium"><CircleHelp size={17} className="text-zinc-400" /> About BookOutSpot</span>

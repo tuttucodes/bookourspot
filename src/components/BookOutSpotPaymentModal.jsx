@@ -22,29 +22,6 @@ export default function BookOutSpotPaymentModal({
       .then(setQrImage).catch(() => setQrImage(''));
   }, [order?.upiUri]);
 
-  useEffect(() => {
-    if (!isOpen || stage !== 'pending' || !order?.bookingId) return undefined;
-    let alive = true;
-    const check = async () => {
-      try {
-        const user = firebaseAuth?.currentUser;
-        if (!user) return;
-        const token = await user.getIdToken();
-        const response = await fetch(`/api/youpi/status?bookingId=${encodeURIComponent(order.bookingId)}`, {
-          headers: { Authorization: `Bearer ${token}` }, cache: 'no-store'
-        });
-        const result = await response.json().catch(() => ({}));
-        if (alive && response.ok && result.status === 'PAID' && Array.isArray(result.tickets)) {
-          setStage('success');
-          onConfirmSuccess?.(order.bookingId, result.tickets);
-        }
-      } catch { /* Keep the booking pending; the status is checked again. */ }
-    };
-    const timer = window.setInterval(check, 12000);
-    check();
-    return () => { alive = false; window.clearInterval(timer); };
-  }, [isOpen, stage, order?.bookingId, onConfirmSuccess]);
-
   if (!isOpen) return null;
 
   const prepareOrder = async () => {
@@ -102,7 +79,7 @@ export default function BookOutSpotPaymentModal({
     <div className="bos-checkout-overlay" onClick={onClose}>
       <section className="bos-payment-sheet max-h-[min(92dvh,850px)] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="bos-payment-title" onClick={(event) => event.stopPropagation()}>
         <div className="bos-payment-header sticky top-0 z-10 bg-[#17141e]/95 backdrop-blur-xl">
-          <div className="flex items-center gap-3"><span className="bos-payment-mark">b</span><div><p id="bos-payment-title" className="text-base font-semibold">BookOutSpot checkout</p><p className="text-xs text-zinc-400">{tierLabel} · {totalGuests} {totalGuests === 1 ? 'guest' : 'guests'}</p></div></div>
+          <div className="flex items-center gap-3"><span className="bos-payment-mark">b</span><div><p id="bos-payment-title" className="text-base font-semibold">Complete your booking</p><p className="text-xs text-zinc-400">{tierLabel} · {totalGuests} {totalGuests === 1 ? 'guest' : 'guests'}</p></div></div>
           <button type="button" onClick={onClose} aria-label="Close checkout" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-zinc-300"><X size={18} /></button>
         </div>
         <div className="bos-payment-content !grid-cols-1 sm:!grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
@@ -116,8 +93,8 @@ export default function BookOutSpotPaymentModal({
           </div>
           <div className="bos-payment-action">
             {stage === 'ready' && <>
-              <div className="rounded-2xl border border-violet-200/15 bg-violet-200/[0.05] p-4"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-200/10 text-violet-100"><Smartphone size={19} /></span><div><p className="text-sm font-semibold text-white">Pay with any UPI app</p><p className="mt-0.5 text-xs text-zinc-400">Google Pay · PhonePe · Paytm</p></div></div><p className="mt-4 text-xs leading-relaxed text-zinc-400">We’ll create a payment request for the exact amount. After paying, enter the UTR shown by your UPI app.</p></div>
-              <button type="button" disabled={loading} onClick={prepareOrder} className="bos-payment-button">{loading ? 'Preparing payment…' : <>Continue to UPI <ArrowRight size={17} /></>}</button>
+              <div className="rounded-2xl border border-violet-200/15 bg-violet-200/[0.05] p-4"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-200/10 text-violet-100"><Smartphone size={19} /></span><div><p className="text-sm font-semibold text-white">Personal UPI transfer</p><p className="mt-0.5 text-xs text-zinc-400">Google Pay · PhonePe · Paytm</p></div></div><p className="mt-4 text-xs leading-relaxed text-zinc-400">The QR is addressed to Rahul Babu. Confirm the payee and exact amount in your UPI app before paying. Then enter the UTR for manual review.</p></div>
+              <button type="button" disabled={loading} onClick={prepareOrder} className="bos-payment-button">{loading ? 'Preparing transfer…' : <>Continue to UPI transfer <ArrowRight size={17} /></>}</button>
             </>}
             {stage === 'pay' && order && <>
               <div className="text-center">
@@ -126,7 +103,7 @@ export default function BookOutSpotPaymentModal({
                   {qrImage ? <img src={qrImage} alt="UPI payment QR code" className="h-full w-full" /> : <span className="text-xs text-zinc-500">Preparing QR…</span>}
                 </div>
                 <p className="mt-4 text-sm text-zinc-300">Scan to pay <strong className="text-white">{money(order.amount || totalAmount)}</strong></p>
-                <p className="mt-1 text-xs text-zinc-500">Open your preferred UPI app and scan this QR code.</p>
+                <p className="mt-1 text-xs text-zinc-500">Payee: {order.payeeName || 'Rahul Babu'} · Make sure the payee and amount match before confirming.</p>
                 <div className="mt-4 grid grid-cols-3 gap-2">
                   {upiApps.map((app) => <a key={app.label} href={app.href} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] px-2 text-xs font-semibold text-white active:bg-white/10">{app.label}</a>)}
                 </div>
@@ -147,8 +124,8 @@ export default function BookOutSpotPaymentModal({
             </div>}
             {stage === 'success' && <div className="rounded-2xl border border-emerald-200/20 bg-emerald-100/[0.06] p-5" role="status"><CheckCircle2 size={24} className="text-emerald-200" /><h3 className="mt-3 text-lg font-semibold text-white">Payment verified</h3><p className="mt-1 text-sm text-zinc-300">Your passes are ready in Tickets.</p></div>}
             {error && <p role="alert" className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/10 px-4 py-3 text-sm leading-relaxed text-rose-100">{error}</p>}
-            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-zinc-500"><LockKeyhole size={13} /> Payments by BookOurSpot</p>
-            <p className="mt-2 text-center text-[11px] leading-relaxed text-zinc-600">We never issue a pass from a screenshot or browser callback.</p>
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-zinc-500"><LockKeyhole size={13} /> Manual bank review by BookOutSpot</p>
+            <p className="mt-2 text-center text-[11px] leading-relaxed text-zinc-600">This is a direct UPI transfer to the named account holder. Passes are issued only after the transfer appears in the receiving bank account.</p>
           </div>
         </div>
       </section>

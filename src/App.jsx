@@ -16,6 +16,7 @@ const LegalPage = lazy(() => import('./components/LegalPage'));
 
 function EventApp() {
   const [activeTab, setActiveTab] = useState('EVENTS'); // 'EVENTS' | 'SEARCH' | 'PASSES' | 'PROFILE'
+  const [events, setEvents] = useState(ALL_EVENTS);
   const [initialOpenBooking, setInitialOpenBooking] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(() => {
     try {
@@ -31,11 +32,11 @@ function EventApp() {
   useEffect(() => {
     const syncFromLocation = () => {
       const eventId = new URLSearchParams(window.location.search).get('event');
-      setSelectedEvent(eventId ? ALL_EVENTS.find((event) => event.id === eventId || event.slug === eventId) || null : null);
+      setSelectedEvent(eventId ? events.find((event) => event.id === eventId || event.slug === eventId) || null : null);
     };
     window.addEventListener('popstate', syncFromLocation);
     return () => window.removeEventListener('popstate', syncFromLocation);
-  }, []);
+  }, [events]);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMyTicketsOpen, setIsMyTicketsOpen] = useState(() => {
@@ -47,6 +48,7 @@ function EventApp() {
     }
   });
   const [isAuthOpen, setIsAuthOpen] = useState(() => sessionStorage.getItem('bos_google_redirect_pending') === '1');
+  const [isLinkMethodsOpen, setIsLinkMethodsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [pendingBookingEvent, setPendingBookingEvent] = useState(() => {
@@ -57,6 +59,23 @@ function EventApp() {
   });
   const [pendingOpenTickets, setPendingOpenTickets] = useState(false);
   const [ticketCount, setTicketCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/events', { cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error('Event feed unavailable')))
+      .then((result) => {
+        if (cancelled || !Array.isArray(result.events)) return;
+        const nextEvents = result.events;
+        setEvents(nextEvents);
+        const eventId = new URLSearchParams(window.location.search).get('event');
+        if (eventId) setSelectedEvent(nextEvents.find((event) => event.id === eventId || event.slug === eventId) || null);
+        const pendingId = sessionStorage.getItem('bos_pending_booking_event');
+        if (pendingId) setPendingBookingEvent(nextEvents.find((event) => event.id === pendingId) || null);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -183,7 +202,7 @@ function EventApp() {
         ) : (
           /* EVENTS DISCOVERY FEED */
           <EventFeed
-            events={ALL_EVENTS}
+            events={events}
             onSelectEvent={(e) => handleSelectEvent(e, false)}
             onBookEvent={handleStartBooking}
             onOpenAuth={() => setIsAuthOpen(true)}
@@ -213,7 +232,7 @@ function EventApp() {
           setIsSearchOpen(false);
           setActiveTab('EVENTS');
         }}
-        events={ALL_EVENTS}
+        events={events}
         onSelectEvent={(e) => {
           handleSelectEvent(e, false);
           setIsSearchOpen(false);
@@ -228,7 +247,7 @@ function EventApp() {
         }}
         onBookNewPass={() => {
           setIsMyTicketsOpen(false);
-          handleSelectEvent(EVENTS_DATA[0], true);
+            handleSelectEvent(events.find((event) => event.id === EVENTS_DATA[0].id) || EVENTS_DATA[0], true);
         }}
       />
 
@@ -253,6 +272,13 @@ function EventApp() {
         }}
       />
 
+      <AuthModal
+        isOpen={isLinkMethodsOpen}
+        initialStep="LINK_METHODS"
+        onClose={() => setIsLinkMethodsOpen(false)}
+        onAuthSuccess={(user) => { setCurrentUser(user); setIsLinkMethodsOpen(false); }}
+      />
+
       {/* USER PROFILE SCREEN (1:1 with IMG_4086.PNG, IMG_4087.PNG) */}
       <ProfileModal
         isOpen={isProfileOpen}
@@ -267,6 +293,7 @@ function EventApp() {
           setIsProfileOpen(false);
         }}
         onProfileUpdate={setCurrentUser}
+        onAddSignInMethod={() => setIsLinkMethodsOpen(true)}
         ticketCount={ticketCount}
       />
       </Suspense>

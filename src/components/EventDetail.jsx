@@ -72,10 +72,10 @@ export default function EventDetail({
   };
 
   return (
-    <div className="relative min-h-[100dvh] w-full max-w-full sm:max-w-lg mx-auto bg-[#08080C] text-[#F3EFE0] pb-28 font-sans antialiased overflow-x-hidden">
+    <div className="event-detail-page relative min-h-[100dvh] w-full max-w-full mx-auto bg-[#08080C] text-[#F3EFE0] pb-28 font-sans antialiased overflow-x-hidden">
       
       {/* FULL BLEED TOP HERO POSTER ARTWORK (IMG_4053.PNG & IMG_4058.PNG) */}
-      <div className="relative w-full h-[45vh] sm:h-[48vh] overflow-hidden bg-zinc-950">
+      <div className="event-detail-hero relative w-full h-[45vh] sm:h-[48vh] overflow-hidden bg-zinc-950">
         <img 
           src={event.coverImage} 
           alt={event.title}
@@ -124,7 +124,7 @@ export default function EventDetail({
       </div>
 
       {/* BOTTOM SHEET CONTENT OVERLAY (IMG_4053.PNG & IMG_4058.PNG) */}
-      <div className="relative -mt-10 z-10 w-full max-w-full rounded-t-[32px] bg-[#0C0B12] border-t border-white/10 p-5 sm:p-6 space-y-6 shadow-2xl overflow-hidden box-border">
+      <div className="event-detail-sheet relative -mt-10 z-10 w-full max-w-full rounded-t-[32px] bg-[#0C0B12] border-t border-white/10 p-5 sm:p-6 space-y-6 shadow-2xl overflow-hidden box-border">
         
         {/* Category Pills & Titles */}
         <div className="space-y-2.5 text-left">
@@ -309,7 +309,7 @@ export default function EventDetail({
       </div>
 
       {/* FLOATING STICKY BOTTOM BAR (IMG_4058.PNG & IMG_4061.PNG) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 p-4 flex justify-center pointer-events-none">
+      <div className="event-detail-sticky fixed bottom-0 left-0 right-0 z-40 p-4 flex justify-center pointer-events-none">
         <div className="w-full max-w-lg rounded-full bg-[#161522]/95 backdrop-blur-xl border border-white/15 p-2 px-5 flex items-center justify-between shadow-2xl pointer-events-auto">
           {/* Price */}
           <div className="text-left">

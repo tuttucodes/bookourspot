@@ -41,7 +41,7 @@ function EventCard({ item, onSelectEvent, onBookEvent, isSaved, onToggleBookmark
             </button>
           ) : (
             <button className="spot-button spot-button-muted" disabled title="Bookings are not open yet">
-              Booking unavailable
+              Booking unavailable right now
             </button>
           )}
         </div>

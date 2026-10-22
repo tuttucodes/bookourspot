@@ -1,7 +1,7 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import EventFeed from './components/EventFeed';
 import Navbar from './components/Navbar';
-import { EVENTS_DATA } from './data/eventsData';
+import { ALL_EVENTS, EVENTS_DATA } from './data/eventsData';
 import { getStoredPasses } from './utils/passRegistry';
 import { getCurrentUser } from './utils/authService';
 import { firebaseAuth } from './utils/firebaseClient';
@@ -21,23 +21,20 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       const eventId = params.get('event');
       if (eventId) {
-        return EVENTS_DATA.find(e => e.id === eventId || e.slug === eventId) || null;
+        return ALL_EVENTS.find(e => e.id === eventId || e.slug === eventId) || null;
       }
     } catch {}
     return null;
   });
 
   useEffect(() => {
-    try {
-      const url = new URL(window.location.href);
-      if (selectedEvent) {
-        url.searchParams.set('event', selectedEvent.id);
-      } else {
-        url.searchParams.delete('event');
-      }
-      window.history.replaceState({}, '', url.toString());
-    } catch {}
-  }, [selectedEvent]);
+    const syncFromLocation = () => {
+      const eventId = new URLSearchParams(window.location.search).get('event');
+      setSelectedEvent(eventId ? ALL_EVENTS.find((event) => event.id === eventId || event.slug === eventId) || null : null);
+    };
+    window.addEventListener('popstate', syncFromLocation);
+    return () => window.removeEventListener('popstate', syncFromLocation);
+  }, []);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMyTicketsOpen, setIsMyTicketsOpen] = useState(() => {
@@ -75,8 +72,21 @@ export default function App() {
   };
 
   const handleSelectEvent = (event, autoOpenBooking = false) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('event', event.id);
+    url.searchParams.delete('step');
+    window.history.pushState({}, '', url.toString());
     setSelectedEvent(event);
     setInitialOpenBooking(autoOpenBooking);
+  };
+
+  const handleBackToFeed = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('event');
+    url.searchParams.delete('step');
+    window.history.replaceState({}, '', url.toString());
+    setSelectedEvent(null);
+    setInitialOpenBooking(false);
   };
 
   const handleStartBooking = (event) => {
@@ -142,10 +152,7 @@ export default function App() {
           /* EVENT DETAILS PAGE */
           <EventDetail
             event={selectedEvent}
-            onBack={() => {
-              setSelectedEvent(null);
-              setInitialOpenBooking(false);
-            }}
+            onBack={handleBackToFeed}
             onRequestBooking={() => handleStartBooking(selectedEvent)}
             initialOpenBooking={initialOpenBooking}
             isBookmarked={bookmarkedIds.includes(selectedEvent.id)}
@@ -155,7 +162,7 @@ export default function App() {
         ) : (
           /* EVENTS DISCOVERY FEED */
           <EventFeed
-            events={EVENTS_DATA}
+            events={ALL_EVENTS}
             onSelectEvent={(e) => handleSelectEvent(e, false)}
             onBookEvent={handleStartBooking}
             onOpenAuth={() => setIsAuthOpen(true)}

@@ -42,11 +42,12 @@ export const EVENTS_DATA = [
     coverImage: '/halloween-affair.jpg',
     thumbnail: '/halloween-affair.jpg',
     gallery: [],
-    about: `A Halloween house party in Chennai. Meet us at a secret spooky location on Friday, 23 October from 7 PM till late. Dress spooky, stylish and a little dramatic.`,
+    about: `A little Halloween affair · Friday, 23 October · 7 PM till late. A candlelit house party with cocktails, costumes, games, spooky surprises and the kind of late-night chaos that makes the next morning interesting. Come cute, creepy, dramatic or dangerously hot — just don't be boring. Dress code: spooky, stylish and slightly scandalous. The venue is a secret and will be shared with invited guests.`,
     thingsToKnow: [
+      'Exclusively for 4th-year students. No juniors; no exceptions.',
       'Dress code: spooky, stylish and a little dramatic',
-      'House party at a secret spooky location in Chennai',
-      'Fri, 23 Oct · 7 PM till late'
+      'House party in Chennai. Exact location is revealed to invited guests.',
+      '₹1,500 per person · Friday, 23 October · 7 PM till late'
     ],
     organizer: null,
     isFeatured: true,
@@ -107,4 +108,24 @@ export const COMING_SOON_EVENTS = [
     coverImage: '/strangers-meetup.png',
     badge: 'DROPPING SOON',
   }
+];
+
+// All cards have a real, shareable detail route. Only the Halloween event is
+// bookable until the remaining organisers open their ticket inventory.
+export const ALL_EVENTS = [
+  ...EVENTS_DATA,
+  ...COMING_SOON_EVENTS.map((event) => ({
+    ...event,
+    slug: event.id,
+    dates: event.dateLabel,
+    dateSubtitle: event.dateLabel,
+    time: 'Schedule to be announced',
+    price: null,
+    timing: { startsAt: event.dateLabel, scheduleSubtitle: 'Full schedule coming soon' },
+    venue: { name: event.venue, shortName: event.venue, address: event.venue },
+    about: `${event.subtitle} Event information and booking availability will be updated here when confirmed.`,
+    thingsToKnow: ['Bookings are not available right now.', 'Event details are subject to confirmation by the organiser.'],
+    tags: [event.category, 'Coming soon'],
+    isFeatured: false
+  }))
 ];

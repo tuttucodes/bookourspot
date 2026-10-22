@@ -12,6 +12,7 @@ Status date: 22 October 2026. “Done” below refers to the current repository 
 - [x] Profile name editing writes to Firebase Auth; paid ticket history is read from owner-scoped Supabase API.
 - [x] Checkout amount is set server-side; customer browser callbacks cannot issue tickets.
 - [x] YouPI webhook handler validates its HMAC signature, event delivery metadata, UTR, order, amount and booking state before idempotent pass fulfillment.
+- [x] Verified UTR is stored once with the paid booking for reconciliation; repeated delivery is idempotent.
 - [x] Search, tickets and login overlays have been refreshed with responsive glass sheets, dialog semantics, keyboard close, and honest booking status.
 - [x] Old Razorpay API routes have been removed; internal booking columns now use provider-neutral gateway names.
 - [x] Vercel Production now has `FIREBASE_PROJECT_ID=bookourspot-f311e` so Firebase Admin can initialize.
@@ -25,9 +26,9 @@ Status date: 22 October 2026. “Done” below refers to the current repository 
 - [ ] Set Vercel Production `YOUPI_MERCHANT_KEY`, `YOUPI_WEBHOOK_SECRET` and `YOUPI_CHECKOUT_SCRIPT_URL`. Keep the webhook secret server-only.
 - [ ] Configure the YouPI success webhook to `https://www.bookourspot.com/api/youpi/webhook`; verify its webhook secret and signature version match the code.
 - [ ] Apply the current `supabase/schema.sql` in the intended Supabase project. Verify the migration succeeds and the booking tables/RPCs exist. This file preserves old rows while upgrading the gateway column names and enabling Duo.
-- [ ] Confirm Vercel Production has `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and `FIREBASE_PROJECT_ID`. Current account audit verified the service-role key and service account exist; the project ID was just added.
+- [x] Confirmed Vercel Production has `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`, and `FIREBASE_PROJECT_ID` (values were checked by name without exposing secrets).
 - [ ] Confirm Firebase Authentication Email/Password, Google and Phone providers; test sign-in on `www.bookourspot.com`, including Google's authorized domain/OAuth settings and phone reCAPTCHA/SMS.
-- [ ] Build and deploy the current source to Vercel Production. The latest Ready deployment predates these current working-tree changes.
+- [x] Build and deploy the current source to Vercel Production. Commit `b7197fa` is Ready and aliases `bookourspot.com` and `www.bookourspot.com` are attached.
 - [ ] Complete a low-value controlled payment after YouPI is configured: solo and duo, webhook success, delayed/retried webhook, duplicate delivery, wrong amount, user booking history, pass download, and bank statement reconciliation. Check the received money in the destination bank account; a UI success state is not proof of settlement.
 - [ ] Add a real customer support contact and publish reviewed Terms, Privacy, cancellation/refund, event eligibility, and organiser/location disclosure before opening ticket sales.
 - [ ] Enforce the Halloween event’s fourth-year-only admission rule before payment or at an organiser-controlled check-in; the current UI discloses it, but does not validate student status.
@@ -43,9 +44,9 @@ Status date: 22 October 2026. “Done” below refers to the current repository 
 
 ## Release gates
 
-1. Schema applied and all required production env values verified.
+1. Schema applied and all required production env values verified (still pending).
 2. Gateway host and webhook signature validated against a real, low-value transaction and destination bank statement.
 3. Solo and Duo create exactly one booking and the correct number of valid passes; retries never double-issue.
 4. Auth, search, event details, tickets and profile are checked on 320px mobile, iPhone Safari and desktop.
 5. Customer support and reviewed legal/refund terms are visible before checkout.
-6. Current commit is deployed and the live custom domain is checked after deployment.
+6. Current source is deployed and both custom domains respond over HTTPS; repeat a browser check after final auth/schema/gateway configuration.

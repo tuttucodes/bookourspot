@@ -171,7 +171,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
   const handleGoogleSignIn = async () => {
     playTap();
     setIsLoading(true);
-    if (window.location.hostname !== 'admin.bookourspot.com') sessionStorage.setItem('bos_google_redirect_pending', '1');
+    sessionStorage.setItem('bos_google_redirect_pending', '1');
     const res = await signInWithGoogle();
     if (res.success && res.redirecting) return;
     sessionStorage.removeItem('bos_google_redirect_pending');

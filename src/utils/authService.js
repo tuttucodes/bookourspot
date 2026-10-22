@@ -4,11 +4,9 @@ import {
   RecaptchaVerifier,
   linkWithPhoneNumber,
   linkWithCredential,
-  linkWithPopup,
   linkWithRedirect,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   signOut,
@@ -60,13 +58,9 @@ export async function signInWithGoogle() {
     provider.setCustomParameters({ prompt: 'select_account' });
     // Google establishes the identity; the app requires phone verification
     // immediately afterward before profile access or booking is enabled.
-    const isAdminHost = window.location.hostname === 'admin.bookourspot.com';
-    const result = auth.currentUser?.phoneNumber
-      ? (isAdminHost ? await linkWithPopup(auth.currentUser, provider) : await linkWithRedirect(auth.currentUser, provider))
-      : (isAdminHost ? await signInWithPopup(auth, provider) : await signInWithRedirect(auth, provider));
-    if (!isAdminHost) return { success: true, redirecting: true };
-    setLocalUser();
-    return { success: true, user: mapUser(result.user) };
+    if (auth.currentUser?.phoneNumber) await linkWithRedirect(auth.currentUser, provider);
+    else await signInWithRedirect(auth, provider);
+    return { success: true, redirecting: true };
   } catch (err) {
     if (err?.code === 'auth/account-exists-with-different-credential') {
       pendingGoogleCredential = GoogleAuthProvider.credentialFromError(err);

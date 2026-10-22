@@ -16,6 +16,7 @@ import { firebaseAuth, isFirebaseConfigured } from './firebaseClient.js';
 
 let phoneConfirmation = null;
 let phoneRecaptcha = null;
+let phoneRequestGeneration = 0;
 let pendingGoogleCredential = null;
 
 function requireFirebase() {
@@ -133,6 +134,8 @@ export async function updateAccountName(name) {
 }
 
 export async function sendOtpToPhone(phone) {
+  const requestGeneration = ++phoneRequestGeneration;
+  let timeoutId;
   try {
     const auth = requireFirebase();
     const formattedPhone = phone.startsWith('+') ? phone : `+91${phone.replace(/\D/g, '')}`;
@@ -141,15 +144,27 @@ export async function sendOtpToPhone(phone) {
     }
     // Existing email/Google accounts must attach a verified phone to the same UID.
     // New phone-first sign-ins continue to create/sign in through SMS.
-    phoneConfirmation = auth.currentUser
-      ? await linkWithPhoneNumber(auth.currentUser, formattedPhone, phoneRecaptcha)
-      : await signInWithPhoneNumber(auth, formattedPhone, phoneRecaptcha);
+    const request = auth.currentUser
+      ? linkWithPhoneNumber(auth.currentUser, formattedPhone, phoneRecaptcha)
+      : signInWithPhoneNumber(auth, formattedPhone, phoneRecaptcha);
+    const timeout = new Promise((_, reject) => {
+      timeoutId = window.setTimeout(() => reject(new Error('The verification request took too long. Check your connection and try again.')), 25000);
+    });
+    const confirmation = await Promise.race([request, timeout]);
+    if (requestGeneration !== phoneRequestGeneration) {
+      return { success: false, error: 'A newer verification request replaced this one. Please try again.' };
+    }
+    phoneConfirmation = confirmation;
     return { success: true };
   } catch (err) {
-    phoneRecaptcha?.clear();
-    phoneRecaptcha = null;
-    phoneConfirmation = null;
+    if (requestGeneration === phoneRequestGeneration) {
+      phoneRecaptcha?.clear();
+      phoneRecaptcha = null;
+      phoneConfirmation = null;
+    }
     return { success: false, error: formatAuthError(err) };
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 }
 
@@ -183,6 +198,7 @@ export async function signOutUser() {
   try {
     await signOut(requireFirebase());
   } finally {
+    phoneRequestGeneration += 1;
     phoneConfirmation = null;
     phoneRecaptcha?.clear();
     phoneRecaptcha = null;

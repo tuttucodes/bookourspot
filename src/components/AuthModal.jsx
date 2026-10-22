@@ -107,26 +107,20 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, initialStep 
     setLinkingPhone(isExistingUnverifiedSession);
     setIsLoading(true);
     setRequestingPhone(cleanPhone);
-    let timeoutId;
     try {
-      const timeout = new Promise((_, reject) => {
-        timeoutId = window.setTimeout(() => reject(new Error('The verification request took too long. Check your connection and try again.')), 25000);
-      });
-      const result = await Promise.race([sendOtpToPhone(cleanPhone), timeout]);
+      const result = await sendOtpToPhone(cleanPhone);
       if (!result?.success) {
         setErrorMsg(result?.error || 'We could not send a code. Please try again.');
         setRequestingPhone('');
-        setLinkingPhone(false);
         return;
       }
+      setRequestingPhone('');
       setStep('OTP');
       setOtpTimer(29);
     } catch (error) {
       setErrorMsg(error?.message || 'We could not send a code. Please try again.');
       setRequestingPhone('');
-      setLinkingPhone(false);
     } finally {
-      window.clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
